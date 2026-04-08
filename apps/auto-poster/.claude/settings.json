@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(venv/Scripts/python *)",
+      "Bash(venv/Scripts/pip *)",
+      "Bash(python *)",
+      "Bash(python3 *)",
+      "Bash(mkdir *)",
+      "Bash(ls *)",
+      "Bash(dir *)",
+      "Bash(wc *)",
+      "Bash(cp *)",
+      "Bash(type *)",
+      "Read",
+      "Write",
+      "Edit"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(del /f *)",
+      "Bash(git push *)",
+      "Read(config.py)",
+      "Edit(config.py)",
+      "Read(.env*)",
+      "Edit(.env*)",
+      "Read(tone_sample*)",
+      "Edit(tone_sample*)",
+      "Read(*.pem)",
+      "Edit(*.pem)"
+    ]
+  }
+}

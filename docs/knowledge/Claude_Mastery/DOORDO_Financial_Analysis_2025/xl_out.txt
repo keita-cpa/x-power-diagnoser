@@ -1,0 +1,44 @@
+=== Sheet Names ===
+0: 0.Summary
+1: 1.増減分析
+2: ５.赤字工事確認
+3: ６.未成工事受入金　明細
+4: 確認事項
+5: 仕訳データピボット
+6: 仕訳とTBの一致確認
+7: クエリ➡
+8: 加工済み仕訳データ
+9: 元データ➡
+10: 期末TB(12-11)
+11: 期末TB(12)
+12: 仕訳日記帳元データ(12-12)
+13: 勘定科目一覧表
+14: Sheet3
+15: 前期末TB(12-11)
+
+=== Sheet 0 first 40 non-empty rows ===
+row2: (None, '■基礎情報', None, None, None, None, None, None, None, None, None, None, None, None)
+row3: (None, '（決算期変更により会社法上は13ヵ月決算とするため当期は2025年12月決算）', None, None, None, None, None, None, None, None, None, None, None, None)
+row4: (None, None, datetime.datetime(2024, 11, 1, 0, 0), '~', datetime.datetime(2025, 11, 1, 0, 0), datetime.datetime(2025, 12, 1, 0, 0), None, None, None, None, None, None, None, None)
+row5: (None, '会社法', '13ヵ月で決算', None, None, None, None, None, None, None, None, None, None, None)
+row6: (None, '税法', '12ヵ月で決算', None, None, '1か月で決算', None, None, None, None, None, None, None, None)
+row8: (None, '■重要性について', None, None, None, None, None, None, None, None, None, None, None, None)
+row9: (None, '税引前当期利益(前期）', -2303695860, None, None, None, None, None, None, None, None, None, None, None)
+row10: (None, '税引前当期利益(計画値）', -2500000000, None, None, None, None, None, None, None, None, None, None, None)
+row11: (None, '税引前当期利益(実績値）', -3000000000, None, None, None, None, None, None, None, None, None, None, None)
+row12: (None, None, '税前×5％を通常のMaterialityとする', None, None, None, '税前×10％をPLのMaterialityとする', None, None, None, None, None, None, None)
+row13: (None, None, 'Materiality', None, 150000000, None, 'Materiality（PL用）', 300000000, None, None, None, None, None, None)
+row14: (None, None, 'PM', None, 112500000, None, 'PM', 225000000, None, None, None, None, None, None)
+row15: (None, None, 'AMPT', None, 7500000, None, 'AMPT', 15000000, None, None, None, None, None, None)
+row17: (None, '■期首残高に対して実施する手続き', None, None, None, None, None, None, None, None, None, None, None, None)
+row19: (None, '1.残高分析及び増減分析', None, None, None, None, None, None, None, None, None, None, None, None)
+row20: (None, '期末残高（BS)については期首残高と比較を行い、Scopeを超えるものに対して対して内容を確認し手続きを実施する。', None, None, None, None, None, None, None, None, None, None, None, None)
+row21: (None, 'PL(13ヵ月)については、前期比較(12ヵ月)を行いScopeを超えるものに対して手続きを実施する。', None, None, None, None, None, None, None, None, None, None, None, None)
+row22: (None, '2．売上証憑突合', None, None, None, None, None, None, None, None, None, None, None, None)
+row24: (None, '3.仕入証憑突合', None, None, None, None, None, None, None, None, None, None, None, None)
+row28: (None, '4．K100銀行別残高集計表', None, None, None, None, None, None, None, None, None, None, None, None)
+row29: (None, '銀行に送付した残高確認状との一致を確認する。', None, None, None, None, None, None, None, None, None, None, None, None)
+row32: (None, '５.赤字工事確認', None, None, None, None, None, None, None, None, None, None, None, None)
+row33: (None, '赤字工事がないことを確認し、工事損失引当金の計上の要否を確認する', None, None, None, None, None, None, None, None, None, None, None, None)
+row35: (None, '６.未成工事受入金\u3000明細', None, None, None, None, None, None, None, None, None, None, None, None)
+row36: (None, '未成工事受入金明細を確認し工事進行基準として計上されている案件について、進捗の見積もりが適切であることを確認する', None, None, None, None, None, None, None, None, None, None, None, None)

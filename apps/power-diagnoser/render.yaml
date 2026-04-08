@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: x-power-diagnoser
+    env: python
+    rootDir: apps/power-diagnoser
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
