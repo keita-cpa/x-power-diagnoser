@@ -137,14 +137,14 @@
     </h1>
 
     <p class="anim-fade-up delay-2 text-slate-500 text-center mb-4 max-w-lg text-sm md:text-base leading-relaxed">
-        X公式オープンソースアルゴリズムを用いた5軸スコア分析。<br>
+        X公式オープンソースアルゴリズムを用いた6軸スコア分析。<br>
         メンエス界隈に特化した定量的なアカウント評価ツールです。
     </p>
 
     <!-- Stats -->
     <div class="anim-fade-up delay-3 flex items-center gap-6 mb-10 text-center">
         <div>
-            <div class="text-2xl font-black text-slate-800">5軸</div>
+            <div class="text-2xl font-black text-slate-800">6軸</div>
             <div class="text-xs text-slate-400 mt-0.5">スコア分析</div>
         </div>
         <div class="w-px h-8 bg-slate-200"></div>
@@ -274,7 +274,7 @@
             <div class="flex items-baseline justify-center gap-2">
                 <span class="text-slate-400 text-sm">総合スコア</span>
                 <span id="score-display" class="text-5xl font-black text-slate-900">0</span>
-                <span class="text-slate-400 text-sm">/ 100点</span>
+                <span class="text-slate-400 text-sm">/ 120点</span>
             </div>
             <div id="result-id" class="text-slate-400 text-sm mt-2"></div>
         </div>
@@ -283,7 +283,7 @@
         <div class="anim-fade-up delay-1 bg-white rounded-2xl p-6 mb-5 shadow-sm"
              style="border: 1px solid #e2e8f0;">
             <h3 class="text-xs font-semibold text-slate-400 mb-4 text-center tracking-widest uppercase">
-                5軸スコア分析
+                6軸スコア分析
             </h3>
             <div style="position: relative; height: 320px;">
                 <canvas id="radarChart"></canvas>
@@ -293,41 +293,28 @@
         <!-- ── Score breakdown ── -->
         <div id="score-cards" class="flex flex-col gap-3 mb-5 anim-fade-up delay-2"></div>
 
-        <!-- ── Algorithm reference accordion ── -->
-        <div class="anim-fade-up delay-3 mb-5 rounded-2xl shadow-sm overflow-hidden"
+        <!-- ── Algorithm reference (always open) ── -->
+        <div class="anim-fade-up delay-3 mb-5 rounded-2xl shadow-sm overflow-hidden bg-white"
              style="border: 1px solid #e2e8f0;">
-            <button id="algo-accordion-btn"
-                    onclick="toggleAlgoAccordion()"
-                    class="w-full flex items-center justify-between px-5 py-4 bg-white text-left"
-                    style="border: none; cursor: pointer;">
-                <div class="flex items-center gap-2">
-                    <span style="font-size: 16px;">💡</span>
-                    <span class="text-xs font-semibold text-slate-600 leading-snug">
-                        この診断で用いているXアルゴリズムの評価基準（重み付け）について
-                    </span>
-                </div>
-                <svg id="algo-accordion-icon"
-                     class="w-4 h-4 flex-shrink-0 text-slate-400 transition-transform duration-200"
-                     fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-                </svg>
-            </button>
-            <div id="algo-accordion-body"
-                 class="hidden px-5 pb-5 bg-white"
-                 style="border-top: 1px solid #f1f5f9;">
-                <p class="text-xs text-slate-400 mt-3 mb-3 leading-relaxed">
+            <div class="flex items-center gap-2 px-5 py-4" style="border-bottom: 1px solid #f1f5f9;">
+                <span style="font-size: 16px;">💡</span>
+                <span class="text-xs font-semibold text-slate-600 leading-snug">
+                    この診断で用いているXアルゴリズムの評価基準（6軸の根拠）
+                </span>
+            </div>
+            <div class="px-5 pb-5">
+                <p class="text-xs text-slate-400 mt-3 mb-4 leading-relaxed">
                     本ツールのスコア算出にはX公式オープンソース（the-algorithm）の実測値を使用しています。<br>
                     入力データはモック（疑似）ですが、<span class="font-semibold text-slate-600">評価のモノサシはX公式アルゴリズムのファクトに基づいています。</span>
                 </p>
-                <ul class="flex flex-col gap-3">
+                <ul class="flex flex-col gap-4">
                     <li class="flex gap-3 items-start">
                         <span class="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-white"
                               style="background: #dc2626;">1</span>
                         <div>
-                            <p class="text-xs font-semibold text-slate-700">外部リンクのペナルティ</p>
+                            <p class="text-xs font-semibold text-slate-700">外部リンクのペナルティ（拡散スコア最大87.5%減）</p>
                             <p class="text-xs text-slate-500 leading-relaxed mt-0.5">
-                                投稿本文に外部URL（リンク）を含めると、タイムラインでの視認性が最大<span class="font-semibold text-slate-700">8倍低下（約87.5%減）</span>します。
-                                リンクはリプライや引用ポストに分けるのが有効です。
+                                投稿本文に外部URL（リンク）を含めると、タイムラインでのランキングスコアが<span class="font-semibold text-slate-700">最大8倍低下</span>します。Xアルゴリズムは「ユーザーを外部へ誘導する投稿」をプラットフォームへの脅威と判断し、おすすめタイムラインへの表示を強力に抑制します。リンクはリプライ・引用ポストに分離するのが正攻法です。
                             </p>
                         </div>
                     </li>
@@ -335,10 +322,9 @@
                         <span class="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-white"
                               style="background: #d97706;">2</span>
                         <div>
-                            <p class="text-xs font-semibold text-slate-700">連続投稿ペナルティ（Author Diversity）</p>
+                            <p class="text-xs font-semibold text-slate-700">連続投稿ペナルティ（Author Diversity・スコア最大75%減衰）</p>
                             <p class="text-xs text-slate-500 leading-relaxed mt-0.5">
-                                同一ユーザーの投稿が1セッション内で連続表示されると、スコアが最大<span class="font-semibold text-slate-700">75%減衰</span>します。
-                                時間を分散した投稿戦略が拡散には有利です。
+                                Home Mixer の Author Diversity フィルタが、同一ユーザーの投稿が短時間に連続表示されることを強制的に抑制します。スコアは<span class="font-semibold text-slate-700">最大75%減衰</span>。「今日10連投したけどなぜか伸びない」はこれが原因です。投稿間隔を最低1〜2時間空けるだけで露出が劇的に改善します。
                             </p>
                         </div>
                     </li>
@@ -348,25 +334,46 @@
                         <div>
                             <p class="text-xs font-semibold text-slate-700">最強の加点シグナル（PROFILE_ENGAGED）</p>
                             <p class="text-xs text-slate-500 leading-relaxed mt-0.5">
-                                単純なプロフィール遷移（PClick）より、<span class="font-semibold text-slate-700">プロフ訪問後にいいね等のアクションが発生した場合</span>が最高ランクの加点シグナルになります。
-                                プロフの品質とCTAが直接スコアに影響します。
+                                単純なプロフィール遷移（PClick）より、<span class="font-semibold text-slate-700">プロフ訪問後にいいね等のアクションが発生した「PROFILE_ENGAGED」</span>が最高ランクの加点シグナルになります。「プロフを見に来てそのままいいねを押した」という行動が、アルゴリズム的には最大の信頼シグナルです。固定ツイートとプロフ文言の最適化が直接スコアを押し上げます。
                             </p>
                         </div>
                     </li>
                     <li class="flex gap-3 items-start">
                         <span class="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-white"
-                              style="background: #475569;">4</span>
+                              style="background: #7c3aed;">4</span>
                         <div>
-                            <p class="text-xs font-semibold text-slate-700">治安度（スパム判定・pSpam）の基準</p>
+                            <p class="text-xs font-semibold text-slate-700">リプライはいいねの9倍の重み（Earlybird Light Ranker）</p>
                             <p class="text-xs text-slate-500 leading-relaxed mt-0.5">
-                                FF比の悪化（フォローが極端に多い）・過剰なリプライの繰り返し・無関係なハッシュタグの乱用は<span class="font-semibold text-slate-700">スパムスコア（pSpam）を上昇</span>させ、シャドウバンや凍結の引き金になります。
+                                X公式の Earlybird Light Ranker では、<span class="font-semibold text-slate-700">リプライの重みがいいねの9倍</span>に設定されています。「会話が生まれる投稿」こそがアルゴリズム的に最強です。ただし「リプライを送る側」はHome Mixer で0.75倍ペナルティが入るため、リプライは「もらう」ことを設計する方が戦略的に優位です。
+                            </p>
+                        </div>
+                    </li>
+                    <li class="flex gap-3 items-start">
+                        <span class="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-white"
+                              style="background: #475569;">5</span>
+                        <div>
+                            <p class="text-xs font-semibold text-slate-700">pSpam（スパムスコア）の構造とシャドウバンへの道</p>
+                            <p class="text-xs text-slate-500 leading-relaxed mt-0.5">
+                                Xの Safety Filter は各アカウントに <span class="font-semibold text-slate-700">pSpam（スパム確率スコア）</span> を内部付与しています。FF比の悪化（フォローがフォロワーを大幅上回る）、類似文面のリプライ連投、無関係なハッシュタグ乱用が積み重なるとpSpamが閾値を超え、アルゴリズムは凍結判断前にまず「検索除外（シャドウバン）」を実行します。凍結より先にじわじわと露出が絞られる構造です。
+                            </p>
+                        </div>
+                    </li>
+                    <li class="flex gap-3 items-start">
+                        <span class="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-white"
+                              style="background: #be123c;">6</span>
+                        <div>
+                            <p class="text-xs font-semibold text-slate-700">アカウント健全度：凍結・シャドウバンリスクの3大引き金</p>
+                            <p class="text-xs text-slate-500 leading-relaxed mt-0.5">
+                                <span class="font-semibold text-slate-700">①FF比の崩壊：</span>フォロー数がフォロワーを大幅に上回ると Tweepcred（信頼スコア）が低下し、pSpamが上昇します。フォロワー獲得目的の無差別フォローは短期的には逆効果です。<br>
+                                <span class="font-semibold text-slate-700">②外部リンク多用：</span>スパム誘導と同じシグナルパターンになります。<br>
+                                <span class="font-semibold text-slate-700">③類似リプライ連投：</span>自動化ツール（bot）と同一の挙動と判定され、Author Diversity フィルタがアカウント全体の露出を削減します。
                             </p>
                         </div>
                     </li>
                 </ul>
                 <p class="text-xs text-slate-400 mt-4 pt-3 leading-relaxed"
                    style="border-top: 1px solid #f1f5f9;">
-                    出典：X公式オープンソース the-algorithm（Earlybird Light Ranker / Home Mixer / Safety Filter）
+                    出典：X公式オープンソース the-algorithm（Earlybird Light Ranker / Home Mixer / Safety Filter / X Platform Rules）
                 </p>
             </div>
         </div>
@@ -451,11 +458,12 @@ let radarChartInstance = null;
 let preGeneratedImageBlob = null;
 
 const SCORE_META = {
-    follower_influence: { label: 'フォロワー影響力'   },
-    impression_power:   { label: 'インプレッション力' },
-    algorithm_fitness:  { label: 'アルゴリズム適合度' },
-    engagement_rate:    { label: 'エンゲージメント率' },
-    community_activity: { label: '界隈アクティブ度'   },
+    follower_influence: { label: 'フォロワー影響力'             },
+    impression_power:   { label: 'インプレッション力'           },
+    algorithm_fitness:  { label: 'アルゴリズム適合度'           },
+    engagement_rate:    { label: 'エンゲージメント率'           },
+    community_activity: { label: '界隈アクティブ度'             },
+    account_health:     { label: 'アカウント健全度（凍結リスク）' },
 };
 
 const RANK_CFG = {
@@ -616,7 +624,7 @@ function buildScoreCards(breakdown) {
     const container = document.getElementById('score-cards');
     container.innerHTML = '';
 
-    const keys = ['follower_influence', 'impression_power', 'algorithm_fitness', 'engagement_rate', 'community_activity'];
+    const keys = ['follower_influence', 'impression_power', 'algorithm_fitness', 'engagement_rate', 'community_activity', 'account_health'];
     keys.forEach(key => {
         const { label } = SCORE_META[key];
         const score = breakdown[key];
@@ -658,6 +666,7 @@ function renderRadarChart(breakdown, cfg) {
                 'アルゴリズム\n適合度',
                 'エンゲージ\nメント率',
                 '界隈\nアクティブ度',
+                'アカウント\n健全度',
             ],
             datasets: [{
                 label: 'スコア',
@@ -667,6 +676,7 @@ function renderRadarChart(breakdown, cfg) {
                     breakdown.algorithm_fitness,
                     breakdown.engagement_rate,
                     breakdown.community_activity,
+                    breakdown.account_health,
                 ],
                 backgroundColor: cfg.chartBg,
                 borderColor:     cfg.chartBorder,
@@ -844,15 +854,6 @@ async function shareResult() {
         btn.disabled = false;
         btn.innerHTML = originalHTML;
     }
-}
-
-/* ── Algorithm accordion ── */
-function toggleAlgoAccordion() {
-    const body = document.getElementById('algo-accordion-body');
-    const icon = document.getElementById('algo-accordion-icon');
-    const isHidden = body.classList.contains('hidden');
-    body.classList.toggle('hidden', !isHidden);
-    icon.style.transform = isHidden ? 'rotate(180deg)' : '';
 }
 
 /* ── Reset ── */

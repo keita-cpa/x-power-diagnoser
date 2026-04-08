@@ -17,6 +17,7 @@ from app.mock_data import generate_mock_data
 from app.models import DiagnoseRequest, DiagnoseResponse, ScoreBreakdown, ScoreExplanation
 from app.ranking import determine_rank_and_title
 from app.scoring import (
+    account_health,
     algorithm_fitness,
     community_activity,
     engagement_rate,
@@ -62,12 +63,13 @@ def diagnose(request: DiagnoseRequest) -> DiagnoseResponse:
     - `twitter_id`: X のユーザーID（@なし）
     - `user_type`: `therapist`（セラピスト）または `customer`（お客さん）
 
-    **スコア軸（各20点 / 合計100点満点）**
+    **スコア軸（各20点 / 合計120点満点）**
     1. フォロワー影響力 — FF比補正つきフォロワー数評価
     2. インプレッション力 — 中央値ベースの拡散力
     3. アルゴリズム適合度 — X公式 Earlybird 重みで算出した戦闘力
     4. エンゲージメント率 — 業界平均比較
     5. 界隈アクティブ度 — メンエス界隈での存在感
+    6. アカウント健全度 — 凍結・シャドウバンリスク（pSpam判定）
 
     **注意**: 現バージョンはモックデータで動作します。
     """
@@ -78,8 +80,9 @@ def diagnose(request: DiagnoseRequest) -> DiagnoseResponse:
     s3, e3 = algorithm_fitness.calc(mock)
     s4, e4 = engagement_rate.calc(mock)
     s5, e5 = community_activity.calc(mock)
+    s6, e6 = account_health.calc(mock)
 
-    total = s1 + s2 + s3 + s4 + s5
+    total = s1 + s2 + s3 + s4 + s5 + s6
     rank, title = determine_rank_and_title(total, request.user_type)
 
     breakdown = ScoreBreakdown(
@@ -88,6 +91,7 @@ def diagnose(request: DiagnoseRequest) -> DiagnoseResponse:
         algorithm_fitness=s3,
         engagement_rate=s4,
         community_activity=s5,
+        account_health=s6,
     )
 
     mode = llm.determine_mode(request.twitter_id)
@@ -115,6 +119,7 @@ def diagnose(request: DiagnoseRequest) -> DiagnoseResponse:
             algorithm_fitness=e3,
             engagement_rate=e4,
             community_activity=e5,
+            account_health=e6,
         ),
         analytical_advice=analytical_advice,
     )

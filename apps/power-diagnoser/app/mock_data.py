@@ -62,6 +62,8 @@ def generate_mock_data(twitter_id: str) -> MockDataUsed:
     posts_last_7days = rng.randint(3, 35)
     community_keyword_rate = round(rng.uniform(0.20, 0.90), 3)
     community_interaction_rate = round(rng.uniform(0.10, 0.80), 3)
+    external_link_rate = round(rng.uniform(0.0, 0.60), 3)
+    similar_reply_rate = round(rng.uniform(0.0, 0.50), 3)
 
     return MockDataUsed(
         followers=followers,
@@ -71,4 +73,6 @@ def generate_mock_data(twitter_id: str) -> MockDataUsed:
         posts_last_7days=posts_last_7days,
         community_keyword_rate=community_keyword_rate,
         community_interaction_rate=community_interaction_rate,
+        external_link_rate=external_link_rate,
+        similar_reply_rate=similar_reply_rate,
     )

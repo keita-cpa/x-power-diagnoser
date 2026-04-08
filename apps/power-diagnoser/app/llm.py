@@ -15,6 +15,7 @@ APIキーが未設定・APIエラーが発生した場合でも
 import hashlib
 import logging
 import os
+import random
 from typing import Literal
 
 logger = logging.getLogger(__name__)
@@ -188,9 +189,10 @@ def generate_analytical_advice(
         return response.text.strip()
     except Exception as e:  # noqa: BLE001
         logger.error("Gemini API 呼び出し失敗 [%s]: %s", type(e).__name__, e)
+        fallback_mode = "[ ANGEL MODE ]" if random.random() < 0.5 else "[ DEVIL MODE ]"
         return (
-            "ガチキャパい\n\n"
-            "【速報】うちのAIリソース、予算上限きちゃってガチキャパい。"
+            f"ガチキャパい\n\n"
+            f"{fallback_mode} うちのAIリソース、予算上限きちゃってガチキャパい。"
             "今ギャルマインド充電中だから、課金リセットされたらまた来て！"
             "確定演出は逃さないから安心して待機でよろしく ╰ᘏᗢ ☕︎"
         )

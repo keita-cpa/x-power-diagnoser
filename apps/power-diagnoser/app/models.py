@@ -19,6 +19,7 @@ class ScoreBreakdown(BaseModel):
     algorithm_fitness: int = Field(..., ge=0, le=20, description="アルゴリズム適合度 (0-20)")
     engagement_rate: int = Field(..., ge=0, le=20, description="エンゲージメント率 (0-20)")
     community_activity: int = Field(..., ge=0, le=20, description="界隈アクティブ度 (0-20)")
+    account_health: int = Field(..., ge=0, le=20, description="アカウント健全度・凍結リスク (0-20)")
 
 
 class TweetStats(BaseModel):
@@ -41,6 +42,8 @@ class MockDataUsed(BaseModel):
     posts_last_7days: int
     community_keyword_rate: float = Field(..., description="界隈キーワード使用率 (0.0-1.0)")
     community_interaction_rate: float = Field(..., description="界隈アカウントとのインタラクション率 (0.0-1.0)")
+    external_link_rate: float = Field(..., description="投稿内外部リンク含有率 (0.0-1.0)")
+    similar_reply_rate: float = Field(..., description="類似文面のリプライ連投率 (0.0-1.0)")
 
 
 class ScoreExplanation(BaseModel):
@@ -49,12 +52,13 @@ class ScoreExplanation(BaseModel):
     algorithm_fitness: str
     engagement_rate: str
     community_activity: str
+    account_health: str
 
 
 class DiagnoseResponse(BaseModel):
     twitter_id: str
     user_type: Literal["therapist", "customer"]
-    total_score: int = Field(..., ge=0, le=100)
+    total_score: int = Field(..., ge=0, le=120)
     rank: Literal["S", "A", "B", "C", "D"]
     title: str
     mode: Literal["ANGEL", "DEVIL"] = Field(..., description="ANGELモード（肯定・共感）またはDEVILモード（鋭い指摘）")
