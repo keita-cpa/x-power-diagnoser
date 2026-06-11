@@ -334,7 +334,8 @@ def generate_post(category, day_number, target_files=None, output_mode="tweet", 
     text, reply_text = _parse_reply(raw_text)
 
     # 画像なしカテゴリは空文字を返す（auto_poster.py がテキストのみ投稿に切り替え）
-    _NO_IMAGE_CATEGORIES = {"日常・利用者としての共感", "マインド・喝"}
+    # ペルソナv2: 感情・人間味系は画像なし。画像（参照カード型OGP）は知識系2カテゴリのみ
+    _NO_IMAGE_CATEGORIES = {"良客の目線・メンエス愛", "痛みの代弁・がんばりの承認", "趣味・人間味・日常"}
     if category in _NO_IMAGE_CATEGORIES:
         image_title, alt_text = "", ""
     else:

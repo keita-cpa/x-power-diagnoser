@@ -39,6 +39,8 @@ yarn-error.log*
 # ── CSVデータ（ローカル・本番それぞれ管理）────────────────────
 apps/auto-poster/data/**/*.csv
 apps/auto-poster/data/raw/
+apps/auto-poster/data/raw_contents/
+apps/auto-poster/data/outbox/
 
 # ── 個人情報・プライバシー ────────────────────────────────────
 apps/auto-poster/tone_sample_*.txt

@@ -552,5 +552,59 @@ tail -20 /root/x-auto/data/analytics/pruned_log.txt
 
 ---
 
+## 8. 原稿補充の新フロー（ドロップ＆パース方式・2026-06-11導入）
+
+従量APIでの生成（1投稿4〜7円）に代わり、定額プラン（NotebookLM / Gemini ULTRA Web）の出力を
+取り込む方式。コストはQC審査のみ（約1円/投稿）。
+
+### 手順（月1回・約5分の手作業＋自動処理）
+
+1. **マスタープロンプトを出力**（カテゴリ・ペルソナは prompts.py と自動同期）:
+   ```bash
+   cd apps/auto-poster
+   python ingest_raw_contents.py --print-prompt --count 12
+   ```
+2. 出力されたプロンプトを **NotebookLM**（法令ナレッジをソース登録済みのノート推奨）または
+   **Gemini ULTRA Web** に貼り付けて生成させる
+3. 生成結果を **`apps/auto-poster/data/raw_contents/` に .txt で保存**
+4. **取り込み実行**（または Claude Code で `/project:ingest-drafts`）:
+   ```bash
+   python ingest_raw_contents.py --dry-run   # プレビュー（CSV変更なし）
+   python ingest_raw_contents.py             # 本実行（QC審査つき・CSV追記・outbox差分生成）
+   ```
+   - 不合格は `raw_contents/rejected/` に理由ログ付きで隔離される
+5. **本番（ConoHa）反映**:
+   ```bash
+   bash scripts/push_drafts_to_conoha.sh --dry-run   # 送信対象の確認
+   bash scripts/push_drafts_to_conoha.sh             # scp → ConoHa側で管理ID照合マージ（冪等・再実行安全）
+   ```
+
+### 注意
+- Web版のRPA自動操作（Chrome MCP等）は**規約違反で定額アカウントBANリスクがあるため禁止**
+  （この方式を採用した経緯: docs/MASTER_ARCHITECTURE.md §7）
+- ConoHa側の `stock_posts_draft.csv` が常に正。マージは追記のみで `posted` ステータスに触れない
+- ストックが8件未満になると conoha_worker.py がcronログに `[WARN]` を出す
+
+---
+
+## 9. ペルソナv2「3つの顔」切替（2026-06-12・prompts.py v6）
+
+カテゴリ体系を全面刷新（経緯と設計: `docs/MASTER_ARCHITECTURE.md` §6、ルール: `.claude/rules/persona.md`）。
+
+### 新旧カテゴリ対応表（月次Analytics比較時に必須）
+
+| 旧カテゴリ（v5以前） | 新カテゴリ（v6） | 備考 |
+|---|---|---|
+| 日常・利用者としての共感 | 良客の目線・メンエス愛 | 実測TOP型（AlgoScore=124）の直系 |
+| マインド・喝 | 痛みの代弁・がんばりの承認 | 説教廃止・代弁技術のみ継承 |
+| 税務ノウハウ / Q&A / リスク警告 | お金と法律のお守り | 3カテゴリを統合 |
+| 防衛実績・事例 | 施術中のワンシーン・そっと解決 | 手柄話→相手の安堵の一場面へ転換 |
+| （新設） | 趣味・人間味・日常 | 肩書きゼロの「話すと楽しい人」 |
+
+- 切替直後は旧カテゴリの既存ストックと新規生成が数日混在する（許容済み・投稿動作に影響なし）
+- **次回 monthly-analytics では新旧カテゴリを別集計**し、新カテゴリの初回実測で weight を v7 チューニングすること
+
+---
+
 *このマニュアルは運用上の疑問が生じるたびに更新してください。*  
 *不明点はエンジニアに相談し、解決策をこのファイルに追記してください。*

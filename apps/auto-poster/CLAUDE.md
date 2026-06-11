@@ -29,7 +29,10 @@ knowledge.xlsx → mini_bulk_generator.py → [Gemini API] → stock_posts_draft
 | `mini_bulk_generator.py` | Excel→一括生成→CSV追記（対話型CLI） | |
 | `auto_poster.py` | CSV取得→OGP画像生成→X投稿→履歴移動 | |
 | `x_poster.py` | tweepy v2/v1ラッパー | |
-| `prompts.py` | システムプロンプト・カテゴリ・トーン定義 | アルゴリズム最適化済み v3 |
+| `prompts.py` | システムプロンプト・カテゴリ・トーン定義 | ペルソナv2「3つの顔」対応 v6 |
+| `ingest_raw_contents.py` | 定額Web LLM出力のドロップ＆パース取り込み | 生成コスト0円・QCのみ約1円/件 |
+| `utils/merge_new_posts.py` | outbox差分のConoHa側マージ（冪等） | push_drafts_to_conoha.sh から実行 |
+| `prune_dead_posts.py` | 死にポストの安全削除（毎時最大2件） | ConoHa Cron |
 | `config.py` | APIキー・パス設定 | **Read/Edit 絶対禁止** |
 | `sniper_radar.py` | VIPアカウント監視・リプライ起案 | |
 | `therapist_introducer.py` | 指定アカウントの紹介長文ポスト生成（ターミナル出力） | CSV書き込みなし |
@@ -44,6 +47,7 @@ knowledge.xlsx → mini_bulk_generator.py → [Gemini API] → stock_posts_draft
 | `/project:sniper-run` | sniper_radar.py を実行・新規スカウト数報告 |
 | `/project:introduce-therapist @username` | 指定アカウントの紹介長文ポストを生成・ターミナル出力 |
 | `/project:monthly-analytics` | 月次X Analytics CSV分析→AlgoScoreレポート出力 |
+| `/project:ingest-drafts` | raw_contents の取り込み→検証→QC→CSV追記→本番反映案内 |
 
 ## Specialized Agents
 | エージェント | 役割 | 起動タイミング |
@@ -71,13 +75,15 @@ knowledge.xlsx → mini_bulk_generator.py → [Gemini API] → stock_posts_draft
 - エンコーディング: `utf-8-sig`（BOM付きUTF-8）
 - 列変更時は `mini_bulk_generator.py` と `auto_poster.py` の `FIELDNAMES` を必ず同期
 
-## Persona（詳細: `.claude/rules/persona.md`）
+## Persona v2「3つの顔」（詳細: `.claude/rules/persona.md`）
 | 顔 | トーン | カテゴリ |
 |---|---|---|
-| 知的・冷静な専門家 | 法令・判例で冷徹な事実を突きつける | ノウハウ、Q&A、防衛事例 |
-| 熱血アニキ（Testosterone風） | 「〜しろ！」の言い切り | マインド、リスク警告 |
+| 良客（主役） | 静かな出だし・擬音・引き算の美学。具体的事実による承認 | 良客の目線・メンエス愛 / 痛みの代弁・がんばりの承認 |
+| 頼れる専門家（ギャップ） | 普段は良客、知識が必要な時だけ「格が違う」精度がスッと出る | お金と法律のお守り / 施術中のワンシーン・そっと解決 |
+| 話すと楽しい人（奥行き） | 肩書きゼロ。フリオチ・例えで軽く笑わせる | 趣味・人間味・日常 |
 
-絶対ルール: 一人称「ぼく」・二人称「あなた」（「お前」禁止）・URL禁止・Markdown太字（`**`）禁止
+絶対ルール: 一人称「ぼく」・二人称「あなた」（「お前」禁止）・URL禁止・Markdown太字（`**`）禁止・
+説教/媚び禁止・守秘フィクション化（施術中エピソードは特定不可能に再構成）・性的ニュアンス禁止
 
 ## QC審査（3基準）
 1. 法令のこじつけ・ハルシネーションがないか

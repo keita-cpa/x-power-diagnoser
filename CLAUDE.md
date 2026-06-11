@@ -16,7 +16,9 @@
 | `apps/auto-poster/` | X自動投稿・永久機関 Python CLI | ConoHa VPS (Cron) |
 | `.claude/skills/` | モノレポ共通スキル（context-budget / llm-cost-optimizer / content-engine） | — |
 | `.claude/agents/` | 専門サブエージェント（security-reviewer） | — |
-| `docs/knowledge/X_Algorithm/` | Xアルゴリズム参照ナレッジ | 読み取り専用 |
+| `docs/knowledge/X_Algorithm/` | Xアルゴリズム参照ナレッジ（技術層） | 読み取り専用 |
+| `docs/knowledge/X_Operations/` | X運用ルール・機能ナレッジ（運用層） | 読み取り専用 |
+| `docs/knowledge/Psychology/` | 人蕩し術・話術の戦術原則（心理層） | 読み取り専用 |
 | `docs/knowledge/Claude_Mastery/` | Claude Code設定コレクション | 読み取り専用 |
 | `scripts/migrate_local.py` | ローカル移行スクリプト | ローカル実行 |
 | `scripts/deploy_to_conoha.sh` | ConoHaデプロイスクリプト | ローカル実行 |
@@ -35,6 +37,9 @@
 
 ### X Algorithmを参照する場合
 → `.claude/contexts/x-algorithm.md` を参照
+
+### X運用ルール（凍結回避・自動化規約）・X記事機能・ペルソナ心理設計を扱う場合
+→ `.claude/contexts/x-operations.md` を参照
 
 ### Claude Code設定を参照・改善する場合
 → `.claude/contexts/claude-mastery.md` を参照

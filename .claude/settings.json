@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python .claude/hooks/pre_commit_guard.py",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/pre_commit_guard.py\"",
             "timeout": 15,
             "statusMessage": "コミット前シークレットチェック中..."
           }

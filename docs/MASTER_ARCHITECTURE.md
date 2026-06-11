@@ -72,3 +72,25 @@ C:/Projects/x-integrated-platform/
 | security-reviewer | `.claude/agents/security-reviewer.md` | コミット前・デプロイ前監査をPython/本リポジトリ仕様に書き換えて移植 |
 
 見送り: x-api（x_poster.pyで稼働済み）、code-reviewer/planner/verification-loop（Claude Code組み込み機能と重複）、blueprint/enterprise-agent-ops（現フェーズには過剰）。
+
+## 6. ペルソナv2「3つの顔」戦略（2026-06-12 全面刷新）
+
+@Keita_CPA を「堅いビジネスアカウント」から、①メンエスを愛する**良客**（主役）②お金と法律で突然「格が違う」**頼れる専門家**（ギャップ）③小説や日常を語る**話すと楽しい人**（奥行き）——の3つの顔を持つ人間味アカウントへ刷新。最終目的はセラピストからの自然なDM相談。
+
+- **心理設計**: 『人蕩し術』（自己重要感の充足=具体的事実による承認 / 群居衝動=痛みの先回り言語化 / 愛と陽気さの底流）×『おもろい話し方』（フリオチ・例え・感情のリアル言語化）。原則集: `docs/knowledge/Psychology/hitotarashi_principles.md`
+- **実測根拠**: 人間味系カテゴリが上位（マインド14.6・日常共感10.4）・ビジネス系が最下位（防衛実績2-3）。実測TOP（AlgoScore=124・PClick=23）は深層心理代弁型 = 良客の顔の原型。リプライはメインの8.3倍（sniper_radar主戦場）
+- **新カテゴリ（prompts.py v6）**: 良客の目線25 / 痛みの代弁・承認25 / お金と法律のお守り20 / 施術中のワンシーン15 / 趣味・人間味15（weightは初期仮説。次回monthly-analyticsでv7チューニング）
+- **新設ガードレール**: 守秘フィクション化ルール（施術中エピソードは特定不可能に再構成）・媚び/おべっか禁止・説教禁止
+- **ナレッジ3層体系**: X_Algorithm（技術層）/ X_Operations（運用層・OneDriveから選別インポート）/ Psychology（心理層）
+
+## 7. 原稿補充パイプライン（ドロップ＆パース・2026-06-11）
+
+定額アセット（NotebookLM/Gemini ULTRA Web）に生成をオフロードし、APIコストをQC審査のみ（約1円/投稿・8割減）に圧縮。
+
+```
+人間: マスタープロンプト（ingest_raw_contents.py --print-prompt）をWeb LLMに貼り、出力を data/raw_contents/ に.txt保存
+自動: ingest_raw_contents.py → パース・検証・重複排除・QC審査(evaluate_post) → CSV追記 + outbox差分
+自動: push_drafts_to_conoha.sh → scp → ConoHa上で merge_new_posts.py が管理ID照合マージ（冪等）
+```
+
+Chrome RPA方式は不採用（Web版自動操作は規約違反でアカウントBANリスク・保守コスト高）。完全無人化が必要になった場合の正道はAPI（バッチ+キャッシュ）。

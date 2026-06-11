@@ -31,6 +31,9 @@ from prompts import SYSTEM_PROMPT, _TONE_REPLY
 
 # TODO: TARGET_ACCOUNTS は将来的に config.py に移動してください
 # ※ セラピスト/業界系アカウントを優先（プロフィールクリック率1.4〜2.4% vs 一般0.1%）
+# ※ ペルソナv2選定基準: 哲学・人間味・仕事への姿勢を発信しているセラピストを優先する。
+#    リプライは実測AlgoScoreがメイン投稿の8.3倍の主戦場であり、
+#    「具体的な事実への言及で自己重要感を満たす」相手（発信に固有のディテールがある人）ほど効果が高い。
 TARGET_ACCOUNTS = [
     # セラピスト系（高コンバージョン・優先）
     "sub20250209", "jibunmigakuzo", "uDonshi9532", "kkk_cun",

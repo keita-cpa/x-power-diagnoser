@@ -39,6 +39,7 @@ CANDIDATE_HOURS = [7, 12, 18, 22]   # 朝の通勤7時台・昼休み12時台・
 MIN_POSTS       = 4
 MAX_POSTS       = 4
 WINDOW_MINUTES  = 10   # 予定時刻から何分以内を「有効」とするか
+STOCK_ALERT_THRESHOLD = 8   # 残ストックがこの件数未満になったらcronログに早期警告（2日分）
 
 
 # ──────────────────────────────────────────
@@ -189,8 +190,20 @@ def main():
         total  = len(data["slots"])
         print(f"  [OK] 投稿成功: {message} ({posted}/{total}件完了)")
 
+        # 低ストック早期警告（枯渇する前にcronログで気づけるようにする）
+        try:
+            rows = load_csv()
+            remaining = sum(
+                1 for r in rows
+                if r.get("フォーマット") == "tweet" and not (r.get("ステータス") or "").strip()
+            )
+            if remaining < STOCK_ALERT_THRESHOLD:
+                print(f"  [WARN] 原稿ストック残り {remaining} 件。ingest_raw_contents.py で補充してください。")
+        except Exception as e:
+            print(f"  [WARN] ストック残数の確認に失敗: {e}")
+
     elif message == "STOCK_EMPTY":
-        print("  [WARN] 原稿ストックが切れています。mini_bulk_generator.py で補充してください。")
+        print("  [WARN] 原稿ストックが切れています。ingest_raw_contents.py（推奨）または mini_bulk_generator.py で補充してください。")
         sys.exit(1)
 
     elif message == "CSV_NOT_FOUND":

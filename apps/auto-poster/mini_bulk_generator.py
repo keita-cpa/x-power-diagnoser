@@ -402,8 +402,8 @@ def append_to_draft_csv(post_id, category, output_mode, text, reply_text="", ima
 # カテゴリスケジュール構築
 # ──────────────────────────────────────────
 
-# 6投稿に1回は必ずこのカテゴリを配置する（実データ検証: 日常・共感はAlgoScore貢献ゼロのため実効16.7%に削減）
-_DAILY_SYMPATHY_CATEGORY = "日常・利用者としての共感"
+# 6投稿に1回は必ずこのカテゴリを配置する（ペルソナv2: 肩書きなしの人間味投稿を一定間隔で混ぜ、アカウントの体温を維持する）
+_DAILY_SYMPATHY_CATEGORY = "趣味・人間味・日常"
 
 
 def build_category_schedule(post_categories, weights, count):
@@ -412,7 +412,7 @@ def build_category_schedule(post_categories, weights, count):
 
     ルール:
     - 6投稿を1グループとして扱い、各グループに必ず
-      「日常・利用者としての共感」を1件含める。
+      _DAILY_SYMPATHY_CATEGORY（v6: 趣味・人間味・日常）を1件含める。
     - グループ内のどの位置に配置するかはランダム（パターン化を防ぐ）。
     - 残り5枠は「日常」を除いた重み付きランダムで選択する。
 
@@ -487,7 +487,7 @@ def main():
     # ④ 生成ループ（1件ごとにナレッジをサンプリング）
     post_categories   = list(POST_CATEGORIES.keys())
     weights           = [POST_CATEGORIES[c]["weight"] for c in post_categories]
-    # 4投稿に1回「日常・利用者としての共感」を確実に配置するスケジュール
+    # 6投稿に1回、人間味カテゴリ（_DAILY_SYMPATHY_CATEGORY）を確実に配置するスケジュール
     category_schedule = build_category_schedule(post_categories, weights, count)
 
     mode_label = "X記事（マークダウン）" if output_mode == "article" else "長文ツイート（プレーンテキスト）"
