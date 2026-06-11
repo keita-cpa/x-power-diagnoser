@@ -34,7 +34,7 @@ from pathlib import Path
 if sys.stdout.encoding and sys.stdout.encoding.lower() not in ("utf-8", "utf-8-sig"):
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-from prompts import POST_CATEGORIES
+from prompts import POST_CATEGORIES, NO_RAG_CATEGORIES
 
 _BASE_DIR     = Path(__file__).parent
 RAW_DIR       = _BASE_DIR / "data" / "raw_contents"
@@ -87,6 +87,7 @@ def build_master_prompt(count: int = 12) -> str:
         category_lines.append(f"- {name}（目安 {max(share, 1)}件）")
     category_list = "\n".join(category_lines)
     no_image_list = "・".join(sorted(NO_IMAGE_CATEGORIES))
+    no_rag_list = "・".join(sorted(NO_RAG_CATEGORIES))
 
     return f"""あなたは「@Keita_CPA」。メンズエステ（健全店）を愛する一人の良客であり、
 たまたまBig4出身の公認会計士・税理士でもある人物として、X（Twitter）投稿を {count} 件作成してください。
@@ -106,6 +107,10 @@ def build_master_prompt(count: int = 12) -> str:
 
 【ペルソナ絶対ルール】
 - 一人称は「ぼく」、読者への呼びかけは「あなた」（「お前」禁止）
+- セラピストを指す三人称「彼女」「この子」は完全禁止（距離感の崩壊・上から目線を生む）。
+  「セラピストさん」「担当のセラピストさん」「あの人」等のリスペクトある呼称を使うこと
+- 感情系カテゴリ（{no_rag_list}）では法令名・条文番号・判例・税務の具体的数字を一切出さない
+  （資料は知識系カテゴリ専用。感情系は純粋な感情・人間味・体験で書く）
 - 完全標準語（関西弁禁止）。過激な暴言・説教禁止
 - Markdown太字（**）禁止 → 強調は【】や■を使う
 - 本文内のURL・絵文字・ハッシュタグ禁止
@@ -331,14 +336,20 @@ def run_qc(posts: list[dict[str, str]]) -> tuple[list[dict[str, str]], list[tupl
     from post_generator import evaluate_post
     from mini_bulk_generator import load_base_dataframe, sample_knowledge_text
 
-    base_df = load_base_dataframe()
-    if base_df is None:
-        raise RuntimeError("knowledge.xlsx が読めないためQC審査を実行できません（--no-qc で省略可）")
+    # knowledge.xlsx は知識系ポストのQCにのみ必要（全件感情系なら読まない）
+    base_df = None
+    if any(p["カテゴリ"] not in NO_RAG_CATEGORIES for p in posts):
+        base_df = load_base_dataframe()
+        if base_df is None:
+            raise RuntimeError("knowledge.xlsx が読めないためQC審査を実行できません（--no-qc で省略可）")
 
     passed, rejected = [], []
     used: set[int] = set()
     for i, p in enumerate(posts, 1):
-        knowledge_text, _ = sample_knowledge_text(base_df, used_indices=used)
+        if p["カテゴリ"] in NO_RAG_CATEGORIES:
+            knowledge_text = None  # 感情系: 法令ゼロ番人モードでQC
+        else:
+            knowledge_text, _ = sample_knowledge_text(base_df, used_indices=used)
         print(f"[QC] {i}/{len(posts)} 件目を審査中...")
         result = evaluate_post(p["投稿文"], knowledge_text)
         if "[PASS]" in result:

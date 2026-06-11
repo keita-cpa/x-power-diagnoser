@@ -23,7 +23,7 @@ import pandas as pd
 
 from config import AUTO_RAG_DIR
 from post_generator import generate_post, evaluate_post
-from prompts import POST_CATEGORIES
+from prompts import POST_CATEGORIES, NO_RAG_CATEGORIES
 
 _BASE_DIR     = Path(__file__).parent
 DRAFT_CSV     = str(_BASE_DIR / "data/drafts/stock_posts_draft.csv")
@@ -506,11 +506,18 @@ def main():
     for i in range(1, count + 1):
         print(f"{i}/{count} 件目を生成中...")
 
-        # 毎回異なるナレッジをサンプリング（使用済みインデックスを渡す）
-        knowledge_text, source_label = sample_knowledge_text(base_df, extra_text, used_knowledge_indices)
-        print(f"  ナレッジ: {source_label}")
+        post_category = category_schedule[i - 1]
 
-        post_category  = category_schedule[i - 1]
+        # 感情系カテゴリ（NO_RAG_CATEGORIES）はナレッジを注入しない（v6.1: 法律混入の防止）
+        # knowledge_text=None は evaluate_post() でも「法令ゼロ番人モード」として扱われる
+        if post_category in NO_RAG_CATEGORIES:
+            knowledge_text = None
+            print("  ナレッジ: なし（感情系カテゴリ・RAG注入スキップ）")
+        else:
+            # 毎回異なるナレッジをサンプリング（使用済みインデックスを渡す）
+            knowledge_text, source_label = sample_knowledge_text(base_df, extra_text, used_knowledge_indices)
+            print(f"  ナレッジ: {source_label}")
+
         generate_reply = (random.random() < 0.6)
         active_focus   = focus_theme if (i == 1 and focus_theme) else None
 

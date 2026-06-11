@@ -3,7 +3,7 @@ import fitz
 from google import genai
 from google.genai import types
 from config import GEMINI_API_KEY, RAG_DOCS_DIRS, AUTO_RAG_DIR, ACCOUNT_PROFILE
-from prompts import SYSTEM_PROMPT, build_prompt
+from prompts import SYSTEM_PROMPT, build_prompt, NO_RAG_CATEGORIES
 
 client = genai.Client(api_key=GEMINI_API_KEY)
 
@@ -169,13 +169,51 @@ _FORMAT_INSTRUCTION = {
 }
 
 
-def _build_system_instruction(output_mode="tweet"):
+_EMOTIONAL_INSTRUCTION = """
+【感情系モード（このカテゴリの絶対ルール）】
+この投稿は法令・税務の解説をしない「感情・人間味」カテゴリである。
+・法令名・条文番号・判例・税務の具体的な数字（税率・期限・金額基準等）を一切出さないこと。
+・会計士的な「ものの見方」（消耗した状態で判断を続けるコスト、回復に投資する合理性、のような概念）は
+  使ってよい。ただし専門用語によるマウントは禁止。
+・実在しない統計・調査結果の捏造は禁止。エピソードは特定不可能な普遍シーンとして
+  再構成すること（守秘フィクション化）。
+・本体は「感情の言語化」と「具体的なシーン描写」。解説ではなく、読者の心が動くことで完結させること。
+
+【Xアルゴリズム最適化・文章構成の型（感情系・絶対厳守）】
+  ① 【フック（最初の2〜3行）― 「さらに表示」を誘発する最重要ゾーン】
+     読者（セラピスト）が「私のことだ」と手を止める共感の一文、または情景の静かな描写から入ること。
+     「今日は〇〇について」「〇〇をご存知ですか？」等の退屈な書き出しは絶対禁止。
+
+  ② 【中盤：シーンと感情の厚い描写 ― 滞在時間の獲得】
+     具体的なワンシーン・擬音（「スッと」「フワッと」）・「普通なら〇〇するところを」の比較で
+     感情の質感を描写し、読み応え（DwellTime）を作ること。
+
+     ・嘘のサービスは絶対に捏造しないこと。URLリンクは絶対に出力しないこと。
+     ・法人名や自社サイトを特定できる言葉は身バレ防止のため絶対に出さないこと。"""
+
+
+def _build_system_instruction(output_mode="tweet", rag_mode=True):
     """SYSTEM_PROMPT にアカウント固有のルールを加えた system_instruction を生成する。
 
     Args:
         output_mode (str): 'article'（X記事・マークダウン）または 'tweet'（タイムライン・プレーンテキスト）
+        rag_mode (bool): True=知識系（ナレッジ必須・法令引用あり）/ False=感情系（法令引用禁止）
     """
     format_rule = _FORMAT_INSTRUCTION.get(output_mode, _FORMAT_INSTRUCTION["tweet"])
+
+    if not rag_mode:
+        # 感情系: RAG・法令引用系の指示を除外し、感情系モードの指示に差し替える
+        return f"""{SYSTEM_PROMPT}
+
+{format_rule}
+
+【投稿生成の絶対ルール】
+必ず以下のプロフィール設定を最優先し、完全な「{ACCOUNT_PROFILE["tone"]}」で記述すること。
+
+・【フォーマットと空白の排除】スマホで読みやすくするため、1〜2文ごとに必ず空行（改行2回）を入れること。AI特有の不自然な半角スペースや、段落頭のインデント（字下げ）は一切使用しないこと。すべての行は必ず左端から始めること。「---」などの水平線も使用禁止。記号は最小限に留め、極めて美しいプレーンテキストを構成しろ。
+・【トーンの厳格化】「〜やねん」「〜やで」「〜なんや」等のコテコテの関西弁は【絶対に使用禁止】。基本は完全に標準語で、極めて薄い隠し味程度に留めること。
+{_EMOTIONAL_INSTRUCTION}"""
+
     return f"""{SYSTEM_PROMPT}
 
 {format_rule}
@@ -237,8 +275,14 @@ _FORMAT_NO_REPLY = """
 
 
 def _generate_via_api(category, day_number, target_files=None, output_mode="tweet", knowledge_text=None, recent_topics=None, generate_reply=False, focus_theme=None):
-    # knowledge_text が直接渡された場合はそれを優先して使用する
-    if knowledge_text is not None:
+    # 感情系カテゴリ（NO_RAG_CATEGORIES）はナレッジを一切注入しない
+    # （AUTO_RAG_DIR 全体読み込みのフォールバックも通らないこと）
+    no_rag = category in NO_RAG_CATEGORIES
+
+    if no_rag:
+        rag_context = None
+    elif knowledge_text is not None:
+        # knowledge_text が直接渡された場合はそれを優先して使用する
         rag_context = knowledge_text[:120000]
     else:
         rag_context = load_auto_rag_context(target_files=target_files)
@@ -248,12 +292,17 @@ def _generate_via_api(category, day_number, target_files=None, output_mode="twee
     dedup_instruction = ""
     if recent_topics:
         topics_list = "\n".join(f"・{t}" for t in recent_topics)
+        vary_hint = (
+            "意図的に別のテーマ・別の切り口・別のシーンを選んで"
+            if no_rag
+            else "ナレッジの中から意図的に別のトピックや別の法律を見つけ出して"
+        )
         dedup_instruction = f"""
 
 【テーマ重複の完全禁止（絶対ルール）】
 以下のリストは、直近で生成・投稿された記事の冒頭部分です。
 {topics_list}
-今回の記事は、上記と【全く同じテーマ（例：事業所得と雑所得の違い、経費の線引き等）】や【同じ切り口・同じ判例】にならないよう、ナレッジの中から意図的に別のトピックや別の法律を見つけ出して出力してください。読者が「また同じ話か」と飽きるのを防ぐため、多様性を最優先してください。"""
+今回の記事は、上記と【全く同じテーマ】や【同じ切り口・同じ判例】にならないよう、{vary_hint}出力してください。読者が「また同じ話か」と飽きるのを防ぐため、多様性を最優先してください。"""
 
     format_instruction = _FORMAT_WITH_REPLY if generate_reply else _FORMAT_NO_REPLY
 
@@ -261,7 +310,17 @@ def _generate_via_api(category, day_number, target_files=None, output_mode="twee
     if focus_theme:
         focus_instruction = f"\n\n【特記事項】今回は特に『{focus_theme}』に関するテーマやキーワードを中核に据えて、指定されたカテゴリの文脈に合わせて自然に解説してください。"
 
-    user_content = f"""【投稿のテーマ】提供された参考資料（税務調査や節税などの専門知識カンペ）の中から、今回指定されたカテゴリ（{category}）に最も適したエッセンスを選び出し、専門家として解説してください。
+    if no_rag:
+        user_content = f"""【投稿のテーマ】今回指定されたカテゴリ（{category}）の趣旨に沿い、参考資料には一切頼らず、純粋な感情・人間味・体験のリアリティだけで投稿を作成してください。
+
+【感情系の絶対ルール】
+- 法令名・条文番号・判例・税務の具体的な数字は一切出さないこと（このカテゴリでは専門知識を解説しない）。
+- 実在しない統計・調査結果の捏造は絶対禁止。エピソードは特定不可能な普遍シーンとして再構成すること（守秘フィクション化）。
+
+[依頼内容]
+{user_prompt}{dedup_instruction}{format_instruction}{focus_instruction}"""
+    else:
+        user_content = f"""【投稿のテーマ】提供された参考資料（税務調査や節税などの専門知識カンペ）の中から、今回指定されたカテゴリ（{category}）に最も適したエッセンスを選び出し、専門家として解説してください。
 
 【RAG厳守ルール】以下の[参考資料テキスト]の事実のみに基づき、絶対に自分の推測や外部知識を混ぜずに文章を作成すること。参考資料にない数字や法律は絶対に捏造しないこと。
 
@@ -280,7 +339,7 @@ def _generate_via_api(category, day_number, target_files=None, output_mode="twee
         model=MODEL_NAME,
         contents=user_content,
         config=types.GenerateContentConfig(
-            system_instruction=_build_system_instruction(output_mode=output_mode),
+            system_instruction=_build_system_instruction(output_mode=output_mode, rag_mode=not no_rag),
             safety_settings=SAFETY_SETTINGS,
         ),
     )
@@ -345,7 +404,17 @@ def generate_post(category, day_number, target_files=None, output_mode="tweet", 
 
 
 def evaluate_post(text, knowledge_text):
-    """生成された投稿文を厳格に審査し、[PASS] または [REJECT: 理由] を返す"""
+    """生成された投稿文を厳格に審査し、[PASS] または [REJECT: 理由] を返す。
+
+    knowledge_text=None の場合は感情系カテゴリ（NO_RAG_CATEGORIES）として扱い、
+    法令・条文番号・税務数字が1つでも含まれていたらリジェクトする番人モードで審査する。
+    """
+    if knowledge_text is None:
+        knowledge_text = (
+            "（感情系カテゴリのため参考資料なし。この原稿は法令・税務の解説をしないカテゴリである。"
+            "原稿に法令名・条文番号・判例・税務の具体的な数字が含まれていた場合は、"
+            "基準3違反として必ずリジェクトすること）"
+        )
     eval_prompt = f"""あなたはBig4監査法人の厳格な品質管理（QC）パートナーです。
 以下の【生成された原稿】が、プロフェッショナルとして世に出して問題ないか、以下の3つの基準で厳しく審査してください。
 
