@@ -5,7 +5,7 @@
 import os
 import pandas as pd
 
-EXCEL_FILE = r"C:\Users\yotak\Documents\x-auto\自動生成用ナレッジ\knowledge.xlsx"
+EXCEL_FILE = r"C:\Projects\x-integrated-platform\apps\auto-poster\自動生成用ナレッジ\knowledge.xlsx"
 
 CATEGORY_MAP = {
     # 1. 税金・申告の基本

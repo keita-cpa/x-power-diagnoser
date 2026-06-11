@@ -9,7 +9,7 @@
 **Step 1: 環境確認**
 
 ```bash
-cd C:/Users/yotak/Documents/x-auto
+cd C:/Projects/x-integrated-platform/apps/auto-poster
 venv/Scripts/python -c "from post_generator import generate_post, generate_meta_text; from config import GEMINI_API_KEY; print('imports OK')"
 ```
 

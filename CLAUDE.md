@@ -14,6 +14,8 @@
 |---|---|---|
 | `apps/power-diagnoser/` | X戦闘力診断 FastAPI | Render (自動デプロイ) |
 | `apps/auto-poster/` | X自動投稿・永久機関 Python CLI | ConoHa VPS (Cron) |
+| `.claude/skills/` | モノレポ共通スキル（context-budget / llm-cost-optimizer / content-engine） | — |
+| `.claude/agents/` | 専門サブエージェント（security-reviewer） | — |
 | `docs/knowledge/X_Algorithm/` | Xアルゴリズム参照ナレッジ | 読み取り専用 |
 | `docs/knowledge/Claude_Mastery/` | Claude Code設定コレクション | 読み取り専用 |
 | `scripts/migrate_local.py` | ローカル移行スクリプト | ローカル実行 |
@@ -36,6 +38,18 @@
 
 ### Claude Code設定を参照・改善する場合
 → `.claude/contexts/claude-mastery.md` を参照
+
+### コンテキスト消費の監査・`.claude` 肥大化チェック
+→ `context-budget` スキル（`.claude/skills/context-budget/`）
+
+### Gemini APIのコスト設計（バッチ・リトライ・予算上限）
+→ `llm-cost-optimizer` スキル（`.claude/skills/llm-cost-optimizer/`）
+
+### 収益化コンテンツ（セールスレター・LP・媒体展開）の作成
+→ `content-engine` スキル（`.claude/skills/content-engine/`）
+
+### コミット前・デプロイ前のセキュリティ監査
+→ `security-reviewer` エージェント（`.claude/agents/security-reviewer.md`）
 
 ---
 

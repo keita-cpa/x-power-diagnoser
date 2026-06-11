@@ -14,6 +14,7 @@
 4. [ConoHaのCronパス変更手順](#4-conohaのcronパス変更手順)
 5. [VercelのRoot Directory変更手順](#5-vercelのroot-directory変更手順)
 6. [トラブルシューティング](#6-トラブルシューティング)
+7. [死にポスト自動クレンジング手順](#7-死にポスト自動クレンジング手順)
 
 ---
 
@@ -89,7 +90,7 @@ Xのアカウントページを開き、直近の投稿が正常に行われて�
 1. Git Bashを開く（Windowsのスタートメニューで「Git Bash」を検索）
 2. 以下のコマンドを入力してサーバーに接続:
    ```bash
-   ssh -i "/c/Users/yotak/Documents/x-auto/key-2026-03-24-22-28.pem" root@[ConoHaのIPアドレス]
+   ssh -i "/c/Projects/x-integrated-platform/apps/auto-poster/key-2026-03-24-22-28.pem" root@[ConoHaのIPアドレス]
    ```
 3. 接続後、直近のログを確認:
    ```bash
@@ -122,7 +123,7 @@ Xのアカウントページを開き、直近の投稿が正常に行われて�
 
 - Git Bashがインストールされていること
 - ConoHaのIPアドレスを知っていること
-- SSH秘密鍵のパスを知っていること（例: `C:\Users\yotak\Documents\x-auto\key-*.pem`）
+- SSH秘密鍵のパスを知っていること（例: `C:\Projects\x-integrated-platform\apps\auto-poster\key-*.pem`）
 
 ### 手順
 
@@ -138,7 +139,7 @@ Windowsのスタートメニューで「Git Bash」を検索して起動しま�
 export CONOHA_USER="root"
 export CONOHA_HOST="133.xxx.xxx.xxx"
 export CONOHA_DEPLOY_PATH="/root/x-auto"
-export SSH_KEY="/c/Users/yotak/Documents/x-auto/key-2026-03-24-22-28.pem"
+export SSH_KEY="/c/Projects/x-integrated-platform/apps/auto-poster/key-2026-03-24-22-28.pem"
 ```
 
 > **注意**: `133.xxx.xxx.xxx` の部分は実際のConoHaのIPアドレスに変えてください。
@@ -191,7 +192,7 @@ ssh -i "$SSH_KEY" ${CONOHA_USER}@${CONOHA_HOST} "cd ${CONOHA_DEPLOY_PATH} && ./v
 **ステップ1: ConoHaのサーバーにSSHで接続する**
 
 ```bash
-ssh -i "/c/Users/yotak/Documents/x-auto/key-2026-03-24-22-28.pem" root@[ConoHaのIPアドレス]
+ssh -i "/c/Projects/x-integrated-platform/apps/auto-poster/key-2026-03-24-22-28.pem" root@[ConoHaのIPアドレス]
 ```
 
 **ステップ2: 現在のCron設定を確認する**
@@ -298,7 +299,7 @@ crontab -l
 
 ```bash
 # サーバーに接続
-ssh -i "/c/Users/yotak/Documents/x-auto/key-*.pem" root@[ConoHaのIP]
+ssh -i "/c/Projects/x-integrated-platform/apps/auto-poster/key-*.pem" root@[ConoHaのIP]
 
 # ログを確認
 tail -50 /root/x-auto/logs/cron.log
@@ -361,10 +362,10 @@ SSH鍵のパスまたはパーミッションに問題があります:
 
 ```bash
 # パーミッションを修正（Git Bashで実行）
-chmod 600 "/c/Users/yotak/Documents/x-auto/key-*.pem"
+chmod 600 "/c/Projects/x-integrated-platform/apps/auto-poster/key-*.pem"
 
 # SSH接続テスト
-ssh -i "/c/Users/yotak/Documents/x-auto/key-*.pem" -v root@[ConoHaのIP] exit
+ssh -i "/c/Projects/x-integrated-platform/apps/auto-poster/key-*.pem" -v root@[ConoHaのIP] exit
 ```
 
 ---
@@ -413,6 +414,141 @@ ssh -i "$SSH_KEY" -o ConnectTimeout=5 ${CONOHA_USER}@${CONOHA_HOST} echo "接続
 1. ConoHaの管理パネルでサーバーが起動していることを確認
 2. IPアドレスが正しいことを確認（`CONOHA_HOST` の値）
 3. ConoHaのファイアウォール設定でSSH（ポート22）が許可されているか確認
+
+---
+
+---
+
+## 7. 死にポスト自動クレンジング手順
+
+**目的**: 投稿から48時間以上経過し、AlgoScore下位10%かつプロフクリック0の
+「完全に死んでいるポスト」を月1回特定し、ConoHa上のCronで自動削除する。
+
+**頻度**: 月1回（月次分析と同じタイミングで実施）
+
+---
+
+### ステップ1: 月次分析スキルを実行する（VS Code ターミナル）
+
+VS Codeのターミナル（`` Ctrl+` ``）を開き、以下を実行します。
+
+```bash
+cd C:/Projects/x-integrated-platform/apps/auto-poster
+```
+
+その後、コマンドパレット（`Ctrl+Shift+P`）から **「Claude: Run Command」** を選択するか、
+ターミナルで `/project:monthly-analytics` を実行します。
+
+分析が完了すると、**Step 5** が自動的に以下のファイルを生成します:
+
+```
+apps/auto-poster/data/analytics/dead_posts_queue.csv
+```
+
+ターミナルに `[OK] 死にポスト X件 を data/analytics/dead_posts_queue.csv に出力しました` と
+表示されれば成功です。
+
+> **「死にポストは検出されませんでした」と表示された場合**  
+> 削除対象がない状態です。以降のステップは不要です。
+
+---
+
+### ステップ2: 削除対象を目視確認する（VS Code エディタ）
+
+1. VS Code のエクスプローラーで
+   `apps/auto-poster/data/analytics/dead_posts_queue.csv` をクリックして開きます。
+
+2. 表示された一覧（ポストID・投稿日・本文先頭20文字）を確認します。
+
+3. **削除したくないポストがある場合**: その行全体を選択して削除（`Delete` キー）し、
+   `Ctrl+S` で保存します。
+
+4. ファイルを閉じます。
+
+5. デプロイスクリプトで `dead_posts_queue.csv` を ConoHa に転送します:
+
+   ```bash
+   # Git Bash で実行
+   export CONOHA_USER="root"
+   export CONOHA_HOST="133.xxx.xxx.xxx"   # 実際のIPアドレスに変更
+   export SSH_KEY="/c/Projects/x-integrated-platform/apps/auto-poster/key-2026-03-24-22-28.pem"
+
+   scp -i "$SSH_KEY" \
+     apps/auto-poster/data/analytics/dead_posts_queue.csv \
+     ${CONOHA_USER}@${CONOHA_HOST}:/root/x-auto/data/analytics/dead_posts_queue.csv
+   ```
+
+> **注意**: `dead_posts_queue.csv` は `.gitignore` 対象のため Git ではなく
+> `scp` コマンドで直接転送します。
+
+---
+
+### ステップ3: ConoHa Cron 設定（初回のみ）
+
+ConoHa サーバーに SSH で接続し、Cron に削除ワーカーを登録します。
+
+**接続:**
+
+```bash
+ssh -i "/c/Projects/x-integrated-platform/apps/auto-poster/key-2026-03-24-22-28.pem" root@[ConoHaのIPアドレス]
+```
+
+**dry-run で事前確認（推奨）:**
+
+```bash
+cd /root/x-auto
+./venv/bin/python prune_dead_posts.py --dry-run
+```
+
+`[DRY-RUN] 削除予定: ID=...` が表示されれば正常です。
+`dead_posts_queue.csv` は変更されません。
+
+**Cron への登録:**
+
+```bash
+crontab -e
+```
+
+以下の1行を追加します（毎時0分に最大2件ずつ削除）:
+
+```
+0 * * * * cd /root/x-auto && ./venv/bin/python prune_dead_posts.py >> /root/x-auto/logs/prune.log 2>&1
+```
+
+保存して終了（`Ctrl+O` → `Enter` → `Ctrl+X`）。
+
+**登録確認:**
+
+```bash
+crontab -l
+```
+
+追加した行が表示されれば成功です。
+
+---
+
+### 削除履歴の確認方法
+
+削除済みポストの履歴は以下のファイルに記録されています:
+
+```bash
+# ConoHa サーバー上で確認
+tail -20 /root/x-auto/data/analytics/pruned_log.txt
+```
+
+出力例:
+```
+2026-04-18 10:00:01 [DELETED] ID=1234567890 | 投稿日=2026-04-10 | 本文=メンズエステが税務調...
+2026-04-18 11:00:05 [DELETED] ID=9876543210 | 投稿日=2026-04-09 | 本文=確定申告の時期に気を...
+```
+
+---
+
+### キューが空になった場合の Cron 挙動
+
+`dead_posts_queue.csv` が空（または存在しない）場合、ワーカーは
+`[INFO] dead_posts_queue.csv が空またはファイルが存在しません。` を出力して
+正常終了します。エラーにはなりません。
 
 ---
 

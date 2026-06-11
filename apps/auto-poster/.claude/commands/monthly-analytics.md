@@ -16,7 +16,7 @@ X Heavy Rankerの実際の重み付けに基づく（詳細: `.claude/skills/x-a
 OneDriveのEdgeダウンロードフォルダから最新のX Analytics CSVを検出し、`data/analytics/raw/` へコピーする:
 
 ```bash
-cd C:/Users/yotak/Documents/x-auto
+cd C:/Projects/x-integrated-platform/apps/auto-poster
 venv/Scripts/python -c "
 import pathlib, shutil, sys, io, datetime
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
@@ -215,3 +215,106 @@ for fname, label in [('data/analytics/analytics_posts.csv','=== メイン投稿 
 - AlgoScoreが全投稿に計算されている
 - カテゴリ別集計表が出力されている
 - Top5投稿が特定されている
+
+---
+
+## Step 5: 死にポストの特定 → dead_posts_queue.csv 出力
+
+AlgoScore下位かつプロフクリック0の「死にポスト」をキューファイルに出力する。
+リプライは高価値アセットのため対象外。メイン投稿（analytics_posts.csv）のみ処理する。
+
+```bash
+venv/Scripts/python -c "
+import pandas as pd, sys, io, datetime
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+
+QUEUE_PATH = 'data/analytics/dead_posts_queue.csv'
+fname      = 'data/analytics/analytics_posts.csv'
+
+try:
+    df = pd.read_csv(fname, encoding='utf-8-sig')
+except FileNotFoundError:
+    print(f'[ERROR] {fname} が見つかりません。先にStep 2を実行してください。')
+    sys.exit(1)
+
+# 列名正規化（Step 3と同じマッピング）
+JP_COL_MAP = {
+    'Like':   'いいね',
+    'RT':     'リポスト',
+    'Reply':  '返信',
+    'BM':     'ブックマーク',
+    'Detail': '詳細のクリック数',
+    'PClick': 'プロフィールへのアクセス数',
+}
+col_map = {}
+for short, jp in JP_COL_MAP.items():
+    if jp in df.columns:
+        col_map[short] = jp
+if not col_map:
+    for col in df.columns:
+        cl = col.lower().replace(' ', '').replace('_', '')
+        if 'like' in cl or 'favorite' in cl:      col_map['Like']   = col
+        if 'retweet' in cl and 'quote' not in cl: col_map['RT']     = col
+        if 'reply' in cl:                          col_map['Reply']  = col
+        if 'bookmark' in cl:                       col_map['BM']     = col
+        if 'detail' in cl or 'expand' in cl:       col_map['Detail'] = col
+        if 'profile' in cl and 'click' in cl:      col_map['PClick'] = col
+
+for k, v in col_map.items():
+    df[k] = pd.to_numeric(df[v], errors='coerce').fillna(0).astype(int)
+
+if not all(k in df.columns for k in ['Reply', 'BM', 'Like']):
+    print('[ERROR] 必要な列が見つかりません。列名を確認してください。')
+    sys.exit(1)
+
+# AlgoScore再計算
+df['AlgoScore'] = (
+    df.get('Reply',  pd.Series(0, index=df.index)) * 5 +
+    df.get('PClick', pd.Series(0, index=df.index)) * 4 +
+    df.get('BM',     pd.Series(0, index=df.index)) * 3 +
+    df.get('RT',     pd.Series(0, index=df.index)) * 3 +
+    df.get('Detail', pd.Series(0, index=df.index)) * 2 +
+    df.get('Like',   pd.Series(0, index=df.index)) * 1
+)
+
+# 日付列・ID列・本文列を特定
+date_col = next((c for c in df.columns if '日付' in c or c.lower() == 'date'), df.columns[1])
+id_col   = next((c for c in df.columns if 'ポストID' in c or c.lower() in ('tweet id', 'post id', 'id')), df.columns[0])
+text_col = next((c for c in df.columns if 'ポスト本文' in c or 'tweet text' in c.lower()), df.columns[2])
+
+# 48時間経過チェック
+df['_posted_at'] = pd.to_datetime(df[date_col], errors='coerce')
+now = datetime.datetime.now()
+elapsed_ok = (now - df['_posted_at']).dt.total_seconds() >= 48 * 3600
+
+# 下位10%閾値
+threshold = df['AlgoScore'].quantile(0.10)
+
+# PClick=0チェック
+pclick_zero = df.get('PClick', pd.Series(0, index=df.index)) == 0
+
+# 3条件すべてを満たす行を抽出
+dead_mask = elapsed_ok & (df['AlgoScore'] < threshold) & pclick_zero
+dead = df[dead_mask].copy()
+
+if dead.empty:
+    print('[INFO] 死にポストは検出されませんでした。(閾値 AlgoScore < {:.1f})'.format(threshold))
+else:
+    queue = pd.DataFrame({
+        'ポストID':      dead[id_col].astype(str),
+        '日付':          dead[date_col].astype(str),
+        '本文先頭20文字': dead[text_col].astype(str).str[:20],
+    })
+    queue.to_csv(QUEUE_PATH, encoding='utf-8-sig', index=False)
+    print('[OK] 死にポスト {}件 を {} に出力しました (閾値 AlgoScore < {:.1f})'.format(
+        len(queue), QUEUE_PATH, threshold))
+    print()
+    print(queue.to_string(index=False))
+"
+```
+
+**Step 5 成功の判定基準**
+- `data/analytics/dead_posts_queue.csv` が生成されている（または「検出されませんでした」が表示される）
+- 出力列が `ポストID`, `日付`, `本文先頭20文字` の3列になっている
+- encoding `utf-8-sig` で VS Code・Excel どちらでも文字化けせず開ける

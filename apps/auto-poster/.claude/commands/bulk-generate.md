@@ -7,7 +7,7 @@
 実行前に現在のストック残数を確認する:
 
 ```bash
-cd C:/Users/yotak/Documents/x-auto
+cd C:/Projects/x-integrated-platform/apps/auto-poster
 venv/Scripts/python -c "
 import pandas as pd, sys
 df = pd.read_csv('data/drafts/stock_posts_draft.csv', encoding='utf-8-sig')
@@ -22,7 +22,7 @@ sys.stdout.buffer.write(f'総行数: {total}\n未投稿（ストック）: {pend
 ## 実行
 
 ```bash
-cd C:/Users/yotak/Documents/x-auto
+cd C:/Projects/x-integrated-platform/apps/auto-poster
 venv/Scripts/python mini_bulk_generator.py
 ```
 

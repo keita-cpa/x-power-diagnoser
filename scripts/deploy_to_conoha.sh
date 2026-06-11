@@ -11,7 +11,7 @@
 #   export CONOHA_USER="root"
 #   export CONOHA_HOST="133.xxx.xxx.xxx"
 #   export CONOHA_DEPLOY_PATH="/root/x-auto"
-#   export SSH_KEY="/c/Users/yotak/Documents/x-auto/key-2026-03-24-22-28.pem"
+#   export SSH_KEY="/c/Projects/x-integrated-platform/apps/auto-poster/key-2026-03-24-22-28.pem"
 
 set -euo pipefail
 

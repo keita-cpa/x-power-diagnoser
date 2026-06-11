@@ -76,7 +76,7 @@ mini_bulk_generator.py → [Gemini API] → stock_posts_draft.csv (ストック�
 export CONOHA_USER="root"
 export CONOHA_HOST="xxx.xxx.xxx.xxx"
 export CONOHA_DEPLOY_PATH="/root/x-auto"
-export SSH_KEY="/c/Users/yotak/Documents/x-auto/key-*.pem"
+export SSH_KEY="/c/Projects/x-integrated-platform/apps/auto-poster/key-*.pem"
 
 bash scripts/deploy_to_conoha.sh --dry-run  # まず確認
 bash scripts/deploy_to_conoha.sh            # 実行

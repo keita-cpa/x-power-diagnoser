@@ -7,7 +7,7 @@
 実行前に監視対象アカウントと現在のスカウト済み件数を確認する:
 
 ```bash
-cd C:/Users/yotak/Documents/x-auto
+cd C:/Projects/x-integrated-platform/apps/auto-poster
 venv/Scripts/python -c "
 import sys
 # TARGET_ACCOUNTSを表示（APIキーは読まない）
@@ -32,7 +32,7 @@ else:
 ## 実行
 
 ```bash
-cd C:/Users/yotak/Documents/x-auto
+cd C:/Projects/x-integrated-platform/apps/auto-poster
 venv/Scripts/python sniper_radar.py
 ```
 

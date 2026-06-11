@@ -12,7 +12,7 @@
 実行前に対象アカウントと構文を確認する:
 
 ```bash
-cd C:/Users/yotak/Documents/x-auto
+cd C:/Projects/x-integrated-platform/apps/auto-poster
 venv/Scripts/python -m py_compile therapist_introducer.py && echo "[OK] 構文チェック通過"
 ```
 
@@ -33,7 +33,7 @@ sys.stdout.buffer.write(b'注意: sniper_radar.py直後の実行はレート制�
 ## 実行
 
 ```bash
-cd C:/Users/yotak/Documents/x-auto
+cd C:/Projects/x-integrated-platform/apps/auto-poster
 venv/Scripts/python therapist_introducer.py $ARGUMENTS
 ```
 
