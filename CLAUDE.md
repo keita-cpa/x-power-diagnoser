@@ -8,6 +8,15 @@
 
 ---
 
+## 現在地と次の一手（2026-06-12時点）
+
+- 稼働中: ペルソナv2「3つの顔」（prompts.py v6.1）/ ドロップ＆パース原稿補充 / ConoHa自動投稿（4件/日）
+- 次回セッションの最優先課題:
+  1. X API認証の OAuth 2.0（リフレッシュトークン）移行 → `docs/MASTER_ARCHITECTURE.md` §8
+  2. 次回 monthly-analytics で新カテゴリ weight の初回実測チューニング（v7） → `docs/SOP_Manual.md` §11
+
+---
+
 ## モノレポ構成
 
 | パス | 内容 | デプロイ先 |

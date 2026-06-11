@@ -29,10 +29,16 @@ C:/Projects/x-integrated-platform/
 ├── apps/
 │   ├── auto-poster/      # X自動投稿・月次分析・クレンジングシステム
 │   │   ├── data/         # 本番データ（Git管理外）
-│   │   └── utils/        # Pythonユーティリティスクリプト
+│   │   │   ├── raw_contents/  # 定額Web LLM出力の投入口（ドロップ＆パース）
+│   │   │   └── outbox/        # 本番反映待ちの差分CSV
+│   │   └── utils/        # Pythonユーティリティ（merge_new_posts.py 等）
 │   └── power-diagnoser/  # Xアカウントパワー診断ツール
-├── docs/                 # ナレッジベース、運用マニュアル、本マスタードキュメント
-├── scripts/              # デプロイ等の一括処理スクリプト（deploy_to_conoha.sh）
+├── docs/
+│   └── knowledge/        # ナレッジ3層体系（すべて読み取り専用）
+│       ├── X_Algorithm/  # 技術層: Heavy Rankerソース解析（何がバズるか）
+│       ├── X_Operations/ # 運用層: 凍結回避・自動化規約・X記事機能（何をしてはいけないか）
+│       └── Psychology/   # 心理層: 人蕩し術・おもろい話し方の戦術原則（どう心を動かすか）
+├── scripts/              # deploy_to_conoha.sh / push_drafts_to_conoha.sh（差分反映）
 ├── .gitignore            # 機密情報、ローカルログ、本番データを厳密に除外
 └── CLAUDE.md             # プロジェクト全体のルーター（AIへの初期的指示）
 
@@ -83,6 +89,26 @@ C:/Projects/x-integrated-platform/
 - **新設ガードレール**: 守秘フィクション化ルール（施術中エピソードは特定不可能に再構成）・媚び/おべっか禁止・説教禁止
 - **ナレッジ3層体系**: X_Algorithm（技術層）/ X_Operations（運用層・OneDriveから選別インポート）/ Psychology（心理層）
 
+### 3つの顔の関係構造（信頼形成の動線）
+
+```
+良客の顔（主役）────── 敬意と承認で「理解者」になる
+   │
+   ├─ 専門家の顔（ギャップ）─ 知識が必要な瞬間だけ「格の違い」がスッと出る
+   │                          →「この人、何者？」という落差が深い信頼を作る
+   └─ 楽しい人の顔（奥行き）─ 人間味で「話しかけやすい空気」を作る
+                               ↓
+                     セラピストからの自然なDM相談（最終目的）
+```
+
+### v6.1 RAG注入制御（2026-06-12）
+
+感情系3カテゴリ（良客の目線・痛みの代弁・趣味/人間味 = `prompts.py` の `NO_RAG_CATEGORIES`）は
+knowledge.xlsx を注入せず、生成プロンプト・システム指示とも法令引用を禁止した感情系モードで動作する。
+QC審査は `evaluate_post(knowledge_text=None)` の**番人モード**となり、感情系の原稿に法令・条文・
+税務数字が混入していたらリジェクトする。知識系2カテゴリ（お守り・施術中）は従来どおり
+RAG必須＋架空条文チェックで動作する。
+
 ## 7. 原稿補充パイプライン（ドロップ＆パース・2026-06-11）
 
 定額アセット（NotebookLM/Gemini ULTRA Web）に生成をオフロードし、APIコストをQC審査のみ（約1円/投稿・8割減）に圧縮。
@@ -94,3 +120,45 @@ C:/Projects/x-integrated-platform/
 ```
 
 Chrome RPA方式は不採用（Web版自動操作は規約違反でアカウントBANリスク・保守コスト高）。完全無人化が必要になった場合の正道はAPI（バッチ+キャッシュ）。
+
+## 8. 技術的負債解消ロードマップ
+
+### 8-1.【最優先】X API認証の OAuth 2.0（リフレッシュトークン）基盤への移行
+
+**現状の認証と課題（2026-06-12時点）**
+
+| 用途 | 現行方式 | 実装箇所 |
+|---|---|---|
+| 投稿・リプライ | OAuth 1.0a User Context（consumer_key/secret + access_token/secret の**永続キー4本**） | `x_poster.py` |
+| 画像アップロード | OAuth 1.0a（v1.1 media/upload） | `auto_poster.py` |
+| タイムライン読み取り | Bearer Token（App-only） | `sniper_radar.py` |
+
+課題: ①永続キーが `config.py` に平文常駐し、漏洩時は手動失効まで**無期限に悪用可能** ②スコープの概念がなく全権限 ③ローテーションが完全手動。
+
+**移行先**: X API v2 **OAuth 2.0 Authorization Code + PKCE**。`offline.access` スコープによる
+リフレッシュトークン基盤（アクセストークンは約2時間で失効・自動更新）。
+スコープは最小化する: `tweet.read` / `tweet.write` / `users.read` / `offline.access`。
+
+**移行フェーズ**
+
+1. **Phase 1 — 準備**: X Developer Portal で OAuth 2.0 クライアント設定（Confidential Client）・
+   コールバックURL・スコープ設計。
+2. **Phase 2 — トークン基盤**: 初回認可フロー用スクリプト（ローカルで1回実行しトークン取得）と、
+   ConoHa 上のトークン保存設計（専用ファイル・600権限・rsync除外）。
+   **重要**: リフレッシュトークンは使用のたびにローテーションされる（使い捨て）ため、
+   新トークンの**原子的保存**（tmpファイル→rename）と、保存失敗時の再認可手順をセットで実装すること。
+3. **Phase 3 — クライアント改修**: トークンマネージャモジュール（ロード→期限判定→自動リフレッシュ→保存）を
+   新設し、`x_poster.py` / `sniper_radar.py` を tweepy の OAuth2UserHandler ベースへ改修。
+4. **Phase 4 — 切替**: 並行運用で投稿・リプライ・読み取りを検証 → 本切替 → OAuth 1.0a キーを失効。
+
+**既知の検証項目**: 画像アップロード（v1.1 media/upload は OAuth 1.0a 依存）の
+v2 メディアエンドポイントへの移行可否。不可の場合は画像投稿のみ OAuth 1.0a を残す
+ハイブリッド構成とし、キーの権限を最小化する。
+
+### 8-2. その他の負債（優先度順）
+
+| 負債 | 内容 | 対応目安 |
+|---|---|---|
+| TARGET_ACCOUNTS のハードコード | `sniper_radar.py` 内のVIPリストを config.py または専用設定ファイルへ移動（コード内TODO済み） | OAuth移行と同時 |
+| prompts.py の肥大化 | 600行超。カテゴリプロンプトの分割は月次のプロンプト進化サイクルと衝突しない設計を検討 | v8以降で再評価 |
+| 旧カテゴリ判定キーワードの削除 | monthly-analytics.md 内の旧カテゴリ判定は、旧ストック消化完了後に削除可 | 切替後2〜3ヶ月 |
