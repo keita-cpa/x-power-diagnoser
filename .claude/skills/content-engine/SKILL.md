@@ -85,7 +85,9 @@ X記事・note記事・ニュースレターを NotebookLM / Gemini ULTRA で生
 ### 将来の収益化フロー（金曜ロードショー理論 — docs/knowledge/X_Operations/features/ 参照）
 note にストック蓄積 → X で「つまみ食い」投稿 → 代表作を X記事機能で全文無料公開 →
 note メンバーシップへの導線。実証データ: X記事196万imp・note流入4,400・新規加入126名/4日。
-セラピスト向け「お金と法律のお守り」長文版をこのフローに乗せることを次フェーズで検討する。
+セラピスト向け「お金と法律のお守り」長文版のX記事は実装済み —
+`apps/auto-poster/` の `/project:write-article`（スキル: `.claude/skills/x-article/`）で生成する。
+note蓄積・メンバーシップ導線は引き続き次フェーズ。
 
 ---
 

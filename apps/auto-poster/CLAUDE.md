@@ -48,6 +48,7 @@ knowledge.xlsx → mini_bulk_generator.py → [Gemini API] → stock_posts_draft
 | `/project:introduce-therapist @username` | 指定アカウントの紹介長文ポストを生成・ターミナル出力 |
 | `/project:monthly-analytics` | 月次X Analytics CSV分析→AlgoScoreレポート出力 |
 | `/project:ingest-drafts` | raw_contents の取り込み→検証→QC→CSV追記→本番反映案内 |
+| `/project:write-article テーマ` | X記事（長文記事）の構成設計→Gemini ULTRAハンドオフ→レビュー→最終稿（入稿は手動） |
 
 ## Specialized Agents
 | エージェント | 役割 | 起動タイミング |
@@ -61,6 +62,7 @@ knowledge.xlsx → mini_bulk_generator.py → [Gemini API] → stock_posts_draft
 | `x-algorithm` | 投稿生成・prompts.py編集・フック設計時 |
 | `gemini-api` | API呼び出しコード追加・モデル変更・エラー対応時 |
 | `therapist-introduction` | introduce-therapist コマンド実行時・紹介文プロンプト調整時 |
+| `x-article` | write-article コマンド実行時・X記事フォーマット/公開運用の調整時 |
 
 ## Model Routing（詳細: `.claude/rules/model-routing.md`）
 - **メイン長文生成・QC審査**: `gemini-3.1-pro-preview`
