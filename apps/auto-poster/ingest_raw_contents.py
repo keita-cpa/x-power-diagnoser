@@ -49,12 +49,26 @@ FIELDNAMES = ["管理ID", "カテゴリ", "フォーマット", "投稿文", "�
 # post_generator.py の _NO_IMAGE_CATEGORIES と同期すること
 NO_IMAGE_CATEGORIES = {"良客の目線・メンエス愛", "痛みの代弁・がんばりの承認", "趣味・人間味・日常"}
 
+# Gem/NotebookLM 用マスタープロンプトの単一ソース（drafts/ 内の最新バージョンを自動検出）
+DRAFTS_DIR = _BASE_DIR / "drafts"
+_GEM_PROMPT_GLOB = "gemini_gem_prompt_optimized_v*.md"
+
 # 文字数制限（実運用はX Premium長文ポスト 800〜1400字。280字は旧仕様）
 BODY_MAX  = 1400
 BODY_MIN  = 50
 TITLE_MAX = 15
 ALT_MAX   = 120
 REPLY_MAX = 1400
+
+# カテゴリ別のBODY下限（gemini_gem_prompt_optimized_v3.md の構成ルールと同期。
+# 下限割れは「失敗作として書き直す」対象なのでエラー＝隔離する）
+CATEGORY_BODY_MIN = {
+    "良客の目線・メンエス愛":         500,
+    "痛みの代弁・がんばりの承認":     500,
+    "お金と法律のお守り":             800,
+    "施術中のワンシーン・そっと解決": 800,
+    "趣味・人間味・日常":             300,
+}
 
 # 区切りブロック（=の数・前後空白の揺れを許容）
 _BLOCK_RE = re.compile(r"={3,}\s*POST\s*={3,}(.*?)={3,}\s*END\s*={3,}", re.DOTALL | re.IGNORECASE)
@@ -73,13 +87,66 @@ _EMOJI_RE = re.compile(
     "]"
 )
 
+# v3 NGトーン・温度感ルールの機械チェック（確実な違反 = エラーで隔離）
+# gemini_gem_prompt_optimized_v3.md の【NGトーン・境界線ルール】【温度感・口癖】と同期
+HARD_NG_PATTERNS: list[tuple[re.Pattern, str]] = [
+    (re.compile("彼女"),                 "三人称「彼女」（距離感ルール違反）"),
+    (re.compile("この子"),               "「この子」（距離感ルール違反）"),
+    (re.compile("お前"),                 "「お前」（呼称ルール違反）"),
+    (re.compile(r"。笑(?![一-龯ぁ-ん])"), "「。笑」表記（「笑」は句点の代わりに文末へ）"),
+    (re.compile(r"(?<![一-龯])笑。"),     "「笑。」表記（「笑」は句点の代わりに文末へ）"),
+    (re.compile("（遅い）|（自虐）"),     "括弧ツッコミ（狙いすぎた隙の演出は禁止）"),
+    (re.compile("完璧|魔法|奇跡|賜物|一体感|波打ち際|不思議な感覚|極上|素晴らし"),
+     "禁止ワード（ポエム・美辞麗句）"),
+    (re.compile("プロですね|プロの仕事|プロ意識"), "「プロ」呼称（仕事感の持ち込み禁止）"),
+]
+# 文脈依存の語（セリフ内等では合法）= 警告のみ・隔離しない
+SOFT_NG_PATTERNS: list[tuple[re.Pattern, str]] = [
+    (re.compile("すごい|えらい|立派|尊敬"), "ありきたり褒め語の可能性（承認は具体的事実で）"),
+    (re.compile("最高(?!裁)"),             "「最高」（美辞麗句の可能性・最高裁は除外済み）"),
+    (re.compile("感動"),                   "「感動」（重い感情宣言の可能性）"),
+]
+
+# ネットスラングの「笑」（笑顔・笑って等の通常語は除外）
+_NET_LAUGH_RE = re.compile(r"(?<![一-龯])笑(?![一-龯ぁ-ん])")
+
 
 # ──────────────────────────────────────────
 # マスタープロンプト生成（prompts.py と常に同期）
 # ──────────────────────────────────────────
 
+def _find_gem_prompt_md() -> Path | None:
+    """drafts/ 内のGemマスタープロンプト（最新バージョン）を返す。無ければ None。"""
+    def version(p: Path) -> int:
+        m = re.search(r"_v(\d+)\.md$", p.name)
+        return int(m.group(1)) if m else -1
+    candidates = sorted(DRAFTS_DIR.glob(_GEM_PROMPT_GLOB), key=version)
+    return candidates[-1] if candidates else None
+
+
 def build_master_prompt(count: int = 12) -> str:
-    """Web LLM（NotebookLM / Gemini ULTRA）に貼るマスタープロンプトを動的生成する。"""
+    """Web LLM（NotebookLM / Gemini Gem）に貼るマスタープロンプトを返す。
+
+    drafts/gemini_gem_prompt_optimized_v*.md の最新版を単一ソースとして読み込み、
+    ヘッダーノート（最初の --- より上＝運用メモ）を除去して返す。
+    ファイルが見つからない場合のみ、旧来の組み込みテンプレートにフォールバックする。
+    """
+    md = _find_gem_prompt_md()
+    if md is not None:
+        text = md.read_text(encoding="utf-8")
+        if "\n---\n" in text:
+            text = text.split("\n---\n", 1)[1].strip()
+        if count != 12:
+            print(f"[WARN] {md.name} はカテゴリ配分が12件固定のため --count {count} は無視されます",
+                  file=sys.stderr)
+        print(f"[INFO] マスタープロンプト: {md.name}", file=sys.stderr)
+        return text
+    print("[WARN] drafts/ にGemプロンプトが見つからないため組み込み版を出力します", file=sys.stderr)
+    return _build_master_prompt_fallback(count)
+
+
+def _build_master_prompt_fallback(count: int = 12) -> str:
+    """組み込みテンプレート（v1相当・非常用）。通常は drafts/ のv3以降が使われる。"""
     total_weight = sum(c["weight"] for c in POST_CATEGORIES.values())
     category_lines = []
     for name, conf in POST_CATEGORIES.items():
@@ -141,7 +208,7 @@ def build_master_prompt(count: int = 12) -> str:
 各投稿を以下のブロックで出力してください。
 
 =====POST=====
-[CATEGORY]リスク警告
+[CATEGORY]お金と法律のお守り
 [BODY]
 （本文をここに。複数行可）
 [REPLY]
@@ -151,7 +218,7 @@ def build_master_prompt(count: int = 12) -> str:
 =====END=====
 
 【出力前セルフチェック】
-- CATEGORYは上記6カテゴリ名と一字一句同じか
+- CATEGORYは上記{len(POST_CATEGORIES)}カテゴリ名と一字一句同じか
 - BODYに ** や URL や絵文字が入っていないか
 - 資料にない条文番号を書いていないか"""
 
@@ -188,25 +255,27 @@ def _normalize(s: str) -> str:
 _CATEGORY_LOOKUP = {_normalize(k): k for k in POST_CATEGORIES}
 
 
-def validate_post(fields: dict[str, str]) -> tuple[dict[str, str] | None, list[str]]:
+def validate_post(fields: dict[str, str]) -> tuple[dict[str, str] | None, list[str], list[str]]:
     """
-    フィールドを検証し、(正規化済みデータ, エラーリスト) を返す。
-    エラーが1件でもあればデータは None。
+    フィールドを検証し、(正規化済みデータ, エラーリスト, 警告リスト) を返す。
+    エラーが1件でもあればデータは None。警告は取り込みを止めない（人間が判断）。
     """
     errors: list[str] = []
+    warnings: list[str] = []
 
     category_raw = fields.get("CATEGORY", "")
     category = _CATEGORY_LOOKUP.get(_normalize(category_raw))
     if not category:
         errors.append(f"カテゴリ不正: '{category_raw}'（有効: {', '.join(POST_CATEGORIES)}）")
 
+    body_min = CATEGORY_BODY_MIN.get(category, BODY_MIN)
     body = fields.get("BODY", "").strip()
     if not body:
         errors.append("BODYが空またはタグ欠落")
     elif len(body) > BODY_MAX:
         errors.append(f"BODYが長すぎる: {len(body)}字 > {BODY_MAX}字")
-    elif len(body) < BODY_MIN:
-        errors.append(f"BODYが短すぎる: {len(body)}字 < {BODY_MIN}字")
+    elif len(body) < body_min:
+        errors.append(f"BODYが短すぎる: {len(body)}字 < {body_min}字（{category or '不明カテゴリ'}の下限・書き直し対象）")
 
     for label, text in [("BODY", body), ("REPLY", fields.get("REPLY", ""))]:
         if "**" in text:
@@ -217,6 +286,12 @@ def validate_post(fields: dict[str, str]) -> tuple[dict[str, str] | None, list[s
             errors.append(f"{label}に絵文字が含まれる（禁則）")
         if "株式会社MiChi" in text:
             errors.append(f"{label}に自社名が含まれる（禁則）")
+        for pat, why in HARD_NG_PATTERNS:
+            if pat.search(text):
+                errors.append(f"{label}に{why}")
+        for pat, why in SOFT_NG_PATTERNS:
+            if pat.search(text):
+                warnings.append(f"{label}: {why}")
 
     reply = fields.get("REPLY", "").strip()
     if len(reply) > REPLY_MAX:
@@ -233,7 +308,7 @@ def validate_post(fields: dict[str, str]) -> tuple[dict[str, str] | None, list[s
             errors.append(f"ALTが長すぎる: {len(alt)}字 > {ALT_MAX}字")
 
     if errors:
-        return None, errors
+        return None, errors, warnings
 
     return {
         "カテゴリ": category,
@@ -241,7 +316,46 @@ def validate_post(fields: dict[str, str]) -> tuple[dict[str, str] | None, list[s
         "リプライ文": reply,
         "画像タイトル": title,
         "ALT": alt,
-    }, []
+    }, [], warnings
+
+
+# ──────────────────────────────────────────
+# 文体多様性レポート（v3文体多様性ルール準拠・警告のみ）
+# ──────────────────────────────────────────
+
+def diversity_report(posts: list[dict[str, str]]) -> None:
+    """バッチ横断で定型フレーズの出現回数を集計して表示する。隔離はしない。"""
+    if not posts:
+        return
+    texts = [p["投稿文"] + "\n" + p["リプライ文"] for p in posts]
+    print(f"\n[STYLE] 文体多様性レポート（{len(posts)}件・上限は12件あたりの目安）")
+    checks = [
+        ("まったく問題ない",     re.compile("まったく問題ない"),         1),
+        ("そっち優先で大丈夫",   re.compile("そっち優先で大丈夫"),       1),
+        ("すごくわかります",     re.compile("すごく(わかり|分かり)ます"), 1),
+        ("やらかした",           re.compile("やらかし"),                 1),
+        ("ふと",                 re.compile("ふと"),                     2),
+        ("そっと",               re.compile("そっと"),                   2),
+        ("スッと",               re.compile("スッと"),                   2),
+        ("ですよね",             re.compile("ですよね"),                 3),
+        ("かもしれない",         re.compile("かもしれ"),                 3),
+        ("だからこそ",           re.compile("だからこそ"),               3),
+    ]
+    for name, pat, limit in checks:
+        hits = sum(len(pat.findall(t)) for t in texts)
+        if hits:
+            mark = "  [WARN] 上限超過" if hits > limit else ""
+            print(f"  「{name}」: {hits}回（目安 {limit}回/12件）{mark}")
+    # 「笑」は1投稿1〜2回まで
+    for p, t in zip(posts, texts):
+        n_laugh = len(_NET_LAUGH_RE.findall(t))
+        if n_laugh > 2:
+            print(f"  [WARN] 「笑」が{n_laugh}回: {p['投稿文'][:30]}...")
+    # 「〜ください/〜ませんか」型の締めは12件中2件まで
+    tail_re = re.compile(r"(くださいね?|ませんか)。?$")
+    tails = sum(1 for p in posts if tail_re.search(p["投稿文"].rstrip()))
+    if tails > 2:
+        print(f"  [WARN] 「〜ください/〜ませんか」型の締めが{tails}件（目安2件/12件）")
 
 
 # ──────────────────────────────────────────
@@ -422,8 +536,10 @@ def main() -> None:
 
         for block in blocks:
             fields = parse_fields(block)
-            post, errors = validate_post(fields)
+            post, errors, warns = validate_post(fields)
             head = (fields.get("BODY") or block)[:60].replace("\n", " ")
+            for w in warns:
+                print(f"  [WARN] {head[:24]}...: {w}")
             if errors:
                 all_rejects.append((path.name, head, " / ".join(errors)))
                 continue
@@ -435,6 +551,9 @@ def main() -> None:
             valid_posts.append(post)
 
     print(f"\n[PARSE] 検証合格 {len(valid_posts)}件 / 隔離 {len(all_rejects)}件")
+
+    # 文体多様性レポート（警告のみ・dry-runでも表示）
+    diversity_report(valid_posts)
 
     # QC審査
     if valid_posts and not args.no_qc and not args.dry_run:

@@ -31,6 +31,7 @@ knowledge.xlsx → mini_bulk_generator.py → [Gemini API] → stock_posts_draft
 | `x_poster.py` | tweepy v2/v1ラッパー | |
 | `prompts.py` | システムプロンプト・カテゴリ・トーン定義 | ペルソナv2「3つの顔」対応 v6 |
 | `ingest_raw_contents.py` | 定額Web LLM出力のドロップ＆パース取り込み | 生成コスト0円・QCのみ約1円/件 |
+| `drafts/gemini_gem_prompt_optimized_v3.md` | Gem/NotebookLM用マスタープロンプトの単一ソース | `--print-prompt` が最新版を自動出力 |
 | `utils/merge_new_posts.py` | outbox差分のConoHa側マージ（冪等） | push_drafts_to_conoha.sh から実行 |
 | `prune_dead_posts.py` | 死にポストの安全削除（毎時最大2件） | ConoHa Cron |
 | `config.py` | APIキー・パス設定 | **Read/Edit 絶対禁止** |
@@ -107,4 +108,4 @@ knowledge.xlsx → mini_bulk_generator.py → [Gemini API] → stock_posts_draft
 - モデル名変更前に必ず `client.models.list()` で利用可能か確認する
 - `BLOCK_NONE` セーフティ設定は意図的 — 変更禁止
 - `migrate_csv.py` は再実行禁止（データ重複が発生する）
-- `tone_sample_*.txt` は個人情報 — Read/Edit禁止
+- `tone_sample_*.txt` はトーン学習用サンプル — Read可（条件は `.claude/rules/security.md` 参照）・Edit禁止・コミット禁止
