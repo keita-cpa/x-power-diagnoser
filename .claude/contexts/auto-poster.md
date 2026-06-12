@@ -2,16 +2,20 @@
 
 ## 役割
 
-X自動投稿・永久機関。ConoHa VPS上でCronが `conoha_worker.py` を定期実行。
-CSVの投稿ストックをXに自動投稿し、OGP画像を自動生成・ALTテキストを付与する。
+X自動投稿・永久機関。ConoHa WING（共用レンタルサーバー・root権限なし）上でCronが
+`conoha_worker.py` を定期実行。CSVの投稿ストックをXに自動投稿し、OGP画像を自動生成・ALTテキストを付与する。
 
 ---
 
-## エントリーポイント（ConoHa Cron）
+## エントリーポイント（ConoHa WING Cron・2026-06-12実測）
 
 ```
-*/5 * * * * /root/x-auto/venv/bin/python /root/x-auto/conoha_worker.py >> /root/x-auto/logs/cron.log 2>&1
+*/5 * * * * cd ~/x-auto && /usr/local/bin/python conoha_worker.py > cron_run.log 2>&1
 ```
+
+- 実行Python: `/usr/local/bin/python` = **Python 3.6.15**（venvなし）。
+  **サーバーで実行されるファイルに3.7+構文（`list[dict]`注釈等）を入れないこと**
+- ログは `~/x-auto/cron_run.log`（毎回上書き＝最新実行分のみ）
 
 **パス変更が必要な場合**: `docs/SOP_Manual.md` §4「ConoHaのCronパス変更手順」を参照。
 
@@ -69,18 +73,21 @@ mini_bulk_generator.py → [Gemini API] → stock_posts_draft.csv (ストック�
 
 ---
 
-## ConoHaへのデプロイ
+## ConoHa WINGへのデプロイ
+
+WING本番の接続情報（`c9994802@www1156.conoha.ne.jp`・SSHポート**8022**・
+`/home/c9994802/x-auto`・鍵 `/c/Users/yotak/Documents/x-auto/key-2026-03-24-22-28.pem`）は
+スクリプトの既定値に設定済み。環境変数の事前exportは不要。
 
 ```bash
-# 環境変数を設定してから実行
-export CONOHA_USER="root"
-export CONOHA_HOST="xxx.xxx.xxx.xxx"
-export CONOHA_DEPLOY_PATH="/root/x-auto"
-export SSH_KEY="/c/Projects/x-integrated-platform/apps/auto-poster/key-*.pem"
-
 bash scripts/deploy_to_conoha.sh --dry-run  # まず確認
 bash scripts/deploy_to_conoha.sh            # 実行
+bash scripts/push_drafts_to_conoha.sh       # outbox差分CSVのみの本番マージ
 ```
+
+注意: `sniper_radar.py` / `mini_bulk_generator.py` / `therapist_introducer.py` /
+`ingest_raw_contents.py` 等のローカル実行スクリプトはPython 3.9構文を含む。
+サーバー（Python 3.6.15）で実行しないこと。
 
 ---
 

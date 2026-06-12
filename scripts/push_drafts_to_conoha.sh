@@ -1,29 +1,31 @@
 #!/usr/bin/env bash
 # scripts/push_drafts_to_conoha.sh
 #
-# ingest_raw_contents.py が生成した outbox 差分CSVを ConoHa VPS へ転送し、
+# ingest_raw_contents.py が生成した outbox 差分CSVを ConoHa WING へ転送し、
 # 本番の stock_posts_draft.csv へ安全にマージする（管理ID/投稿文 照合・追記のみ）。
 #
 # 使用法:
 #   bash scripts/push_drafts_to_conoha.sh --dry-run   # 送信対象のプレビュー（ネットワーク接続なし）
 #   bash scripts/push_drafts_to_conoha.sh             # 実際に転送・マージ
 #
-# 必須環境変数（deploy_to_conoha.sh と共通）:
-#   export CONOHA_USER="root"
-#   export CONOHA_HOST="133.xxx.xxx.xxx"
-#   export CONOHA_DEPLOY_PATH="/root/x-auto"
-#   export SSH_KEY="/c/Projects/x-integrated-platform/apps/auto-poster/key-*.pem"
+# 既定値は ConoHa WING 本番環境（環境変数で上書き可能）:
+#   CONOHA_USER="c9994802"
+#   CONOHA_HOST="www1156.conoha.ne.jp"
+#   CONOHA_PORT="8022"                          # WINGのSSHポート（22ではない）
+#   CONOHA_DEPLOY_PATH="/home/c9994802/x-auto"
+#   SSH_KEY="/c/Users/yotak/Documents/x-auto/key-2026-03-24-22-28.pem"
+#   CONOHA_PYTHON="/usr/local/bin/python"       # WING標準Python（3.6.15）
 #
-# 任意:
-#   export CONOHA_PYTHON="./venv/bin/python"   # 既定: python3
+# 注意: WINGのPythonは 3.6.15。サーバーで実行するスクリプトは3.6互換構文のみ。
 
 set -euo pipefail
 
-CONOHA_USER="${CONOHA_USER:-}"
-CONOHA_HOST="${CONOHA_HOST:-}"
-CONOHA_DEPLOY_PATH="${CONOHA_DEPLOY_PATH:-}"
-SSH_KEY="${SSH_KEY:-}"
-CONOHA_PYTHON="${CONOHA_PYTHON:-python3}"
+CONOHA_USER="${CONOHA_USER:-c9994802}"
+CONOHA_HOST="${CONOHA_HOST:-www1156.conoha.ne.jp}"
+CONOHA_PORT="${CONOHA_PORT:-8022}"
+CONOHA_DEPLOY_PATH="${CONOHA_DEPLOY_PATH:-/home/c9994802/x-auto}"
+SSH_KEY="${SSH_KEY:-/c/Users/yotak/Documents/x-auto/key-2026-03-24-22-28.pem}"
+CONOHA_PYTHON="${CONOHA_PYTHON:-/usr/local/bin/python}"
 
 MONOREPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 OUTBOX_DIR="${MONOREPO_ROOT}/apps/auto-poster/data/outbox"
@@ -77,12 +79,15 @@ SSH_OPTS="-o StrictHostKeyChecking=accept-new -o ConnectTimeout=10"
 if [[ -n "$SSH_KEY" ]]; then
   SSH_OPTS="${SSH_OPTS} -i ${SSH_KEY}"
 fi
+# ssh は -p / scp は -P でポート指定（WINGは8022）
+SSH_CMD_OPTS="${SSH_OPTS} -p ${CONOHA_PORT}"
+SCP_CMD_OPTS="${SSH_OPTS} -P ${CONOHA_PORT}"
 
 mkdir -p "$SENT_DIR"
 
 # ── 転送・マージ ───────────────────────────────────────────────
 # shellcheck disable=SC2086
-ssh ${SSH_OPTS} "${CONOHA_USER}@${CONOHA_HOST}" "mkdir -p '${CONOHA_DEPLOY_PATH}/data/inbox'"
+ssh ${SSH_CMD_OPTS} "${CONOHA_USER}@${CONOHA_HOST}" "mkdir -p '${CONOHA_DEPLOY_PATH}/data/inbox'"
 
 FAIL=0
 for f in "${PENDING[@]}"; do
@@ -90,8 +95,8 @@ for f in "${PENDING[@]}"; do
   echo ""
   echo "[PUSH] ${fname} を転送中..."
   # shellcheck disable=SC2086
-  if scp ${SSH_OPTS} "$f" "${CONOHA_USER}@${CONOHA_HOST}:${CONOHA_DEPLOY_PATH}/data/inbox/${fname}" \
-     && ssh ${SSH_OPTS} "${CONOHA_USER}@${CONOHA_HOST}" \
+  if scp ${SCP_CMD_OPTS} "$f" "${CONOHA_USER}@${CONOHA_HOST}:${CONOHA_DEPLOY_PATH}/data/inbox/${fname}" \
+     && ssh ${SSH_CMD_OPTS} "${CONOHA_USER}@${CONOHA_HOST}" \
           "cd '${CONOHA_DEPLOY_PATH}' && ${CONOHA_PYTHON} utils/merge_new_posts.py 'data/inbox/${fname}'"; then
     mv "$f" "${SENT_DIR}/${fname}"
     echo "[OK] ${fname} をマージ完了 → outbox/sent/ へ移動"

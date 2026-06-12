@@ -22,7 +22,7 @@
 | パス | 内容 | デプロイ先 |
 |---|---|---|
 | `apps/power-diagnoser/` | X戦闘力診断 FastAPI | Render (自動デプロイ) |
-| `apps/auto-poster/` | X自動投稿・永久機関 Python CLI | ConoHa VPS (Cron) |
+| `apps/auto-poster/` | X自動投稿・永久機関 Python CLI | ConoHa WING (Cron・Python 3.6) |
 | `.claude/skills/` | モノレポ共通スキル（context-budget / llm-cost-optimizer / content-engine） | — |
 | `.claude/agents/` | 専門サブエージェント（security-reviewer） | — |
 | `docs/knowledge/X_Algorithm/` | Xアルゴリズム参照ナレッジ（技術層） | 読み取り専用 |

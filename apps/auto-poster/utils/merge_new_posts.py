@@ -1,27 +1,35 @@
 """
 merge_new_posts.py — outbox差分CSVを本番ストックCSVへ安全にマージする（ConoHa側で実行）
 
-使い方（ConoHa上、x-autoルートで）:
-    python3 utils/merge_new_posts.py data/inbox/new_posts_20260611_120000.csv
+使い方（ConoHa WING上、x-autoルートで）:
+    /usr/local/bin/python utils/merge_new_posts.py data/inbox/new_posts_20260611_120000.csv
 
 設計:
 - 管理ID または 投稿文 が既存と一致する行はスキップ（冪等 — 同じファイルを2回流しても安全）
 - 本番CSVの既存行・postedステータスには一切触れない（追記のみ）
 - 追記前バックアップ + 追記後の列数/行数アサーション（csv-safety.md 準拠）
+- ConoHa WING の /usr/local/bin/python は Python 3.6.15 — このファイルは3.6互換構文のみ使用可
+  （list[dict] 等のPEP 585注釈は def 時に TypeError になるため typing.List を使う）
 """
 
 import csv
+import io
 import shutil
 import sys
 from datetime import datetime
 from pathlib import Path
+from typing import List
+
+# ssh非TTY実行時（cron含む）はstdoutがASCIIになり日本語printで落ちるため強制UTF-8化
+if (sys.stdout.encoding or "").lower() not in ("utf-8", "utf8"):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
 
 _APP_ROOT  = Path(__file__).resolve().parent.parent
 DRAFT_CSV  = _APP_ROOT / "data" / "drafts" / "stock_posts_draft.csv"
 FIELDNAMES = ["管理ID", "カテゴリ", "フォーマット", "投稿文", "リプライ文", "画像タイトル", "ALT", "ステータス"]
 
 
-def load_rows(path: Path) -> list[dict]:
+def load_rows(path: Path) -> List[dict]:
     with open(path, encoding="utf-8-sig", newline="") as f:
         reader = csv.DictReader(f)
         if reader.fieldnames != FIELDNAMES:
@@ -42,7 +50,7 @@ def main() -> None:
 
     incoming = load_rows(incoming_path)
 
-    existing: list[dict] = []
+    existing: List[dict] = []
     if DRAFT_CSV.exists():
         existing = load_rows(DRAFT_CSV)
     existing_ids    = {r["管理ID"] for r in existing}

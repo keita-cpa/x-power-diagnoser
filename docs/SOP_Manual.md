@@ -1,8 +1,26 @@
 # x-integrated-platform 運用マニュアル (SOP)
 
 **対象読者**: エンジニア以外のオペレーター  
-**最終更新**: 2026-06-12（ペルソナv2・ドロップ＆パース補充・リプライ運用を反映）  
-**環境**: Windows 11 + Git Bash / ConoHa VPS / Render (PaaS)
+**最終更新**: 2026-06-12（ConoHa WING実環境への記載統一・ペルソナv2・ドロップ＆パース補充・リプライ運用を反映）  
+**環境**: Windows 11 + Git Bash / ConoHa WING（共用レンタルサーバー） / Render (PaaS)
+
+### ConoHa WING 本番環境（実測値・2026-06-12確認）
+
+| 項目 | 値 |
+|---|---|
+| サーバー種別 | ConoHa **WING**（VPSではない・root権限なし） |
+| SSHユーザー名 | `c9994802` |
+| SSHホスト | `www1156.conoha.ne.jp` |
+| SSHポート | **8022**（標準の22ではない。`ssh -p 8022` / `scp -P 8022`） |
+| デプロイ先パス | `/home/c9994802/x-auto`（`~/x-auto`） |
+| Python実行パス | `/usr/local/bin/python`（**Python 3.6.15**・仮想環境なし） |
+| SSH秘密鍵 | `C:\Users\yotak\Documents\x-auto\key-2026-03-24-22-28.pem`（Git Bash表記: `/c/Users/yotak/Documents/x-auto/key-2026-03-24-22-28.pem`） |
+| Cronログ | `~/x-auto/cron_run.log`（**毎回上書き＝最新実行分のみ**） |
+
+> **重要（Python 3.6制約）**: サーバー上でCron実行されるファイル
+> （`conoha_worker.py` / `auto_poster.py` / `x_poster.py` / `prune_dead_posts.py` /
+> `utils/merge_new_posts.py`）には Python 3.7以降の構文（`list[dict]` 注釈等）を
+> 入れないこと。違反すると import 時に `TypeError` で自動投稿が止まる。
 
 ---
 
@@ -36,7 +54,7 @@ C:\Projects\x-integrated-platform\
 │   ├── power-diagnoser/    ← Xアカウント戦闘力診断ツール
 │   │                          （Renderというクラウドサービスで動作）
 │   └── auto-poster/        ← X自動投稿システム・永久機関
-│                              （ConoHa VPSサーバーで動作）
+│                              （ConoHa WINGサーバーで動作）
 │
 ├── docs/
 │   ├── knowledge/
@@ -67,7 +85,7 @@ GitHubにコードをアップロード（push）すると、Renderが自動的�
 
 #### `apps/auto-poster/` — X自動投稿システム
 
-ConoHa VPSサーバー上で動作しています。
+ConoHa WINGサーバー上で動作しています。
 5分おきにサーバーが自動的に `conoha_worker.py` を実行し、Xに投稿します。
 
 **重要ファイル（絶対に削除禁止）:**
@@ -94,7 +112,7 @@ ConoHa VPSサーバー上で動作しています。
 | **日次** | 2分 | X投稿が正常に出ているか確認（§2-1） | §2-1 |
 | **日次** | 5分 | 自分の投稿に届いたリプライへ**全返信**（著者返信=ReplyEngagedByAuthorシグナルで投稿スコアが二重加算） | — |
 | **週次** | 15分 | `/project:sniper-run` → リプライ案レビュー → 手動送信 | §10 |
-| **週次** | 1分 | ストック残数確認（cron.logに `[WARN] 原稿ストック残り` が出ていないか） | §2-1 |
+| **週次** | 1分 | ストック残数確認（cron_run.logに `[WARN] 原稿ストック残り` が出ていないか） | §2-1 |
 | **月次** | 60分 | ① `/project:monthly-analytics` → ② weightチューニング → ③ 死にポスト処理 → ④ 原稿補充 → ⑤ 本番反映 | §11 → §7 → §8 |
 
 > 月次タスクは毎月初旬にまとめて実施するのが効率的です（分析→改善→補充が1セット）。
@@ -108,24 +126,26 @@ Xのアカウントページを開き、直近の投稿が正常に行われて�
 **方法B: サーバーログの確認（詳しく確認したい場合）**
 
 1. Git Bashを開く（Windowsのスタートメニューで「Git Bash」を検索）
-2. 以下のコマンドを入力してサーバーに接続:
+2. 以下のコマンドを入力してサーバーに接続（ポート8022に注意）:
    ```bash
-   ssh -i "/c/Projects/x-integrated-platform/apps/auto-poster/key-2026-03-24-22-28.pem" root@[ConoHaのIPアドレス]
+   ssh -p 8022 -i "/c/Users/yotak/Documents/x-auto/key-2026-03-24-22-28.pem" c9994802@www1156.conoha.ne.jp
    ```
-3. 接続後、直近のログを確認:
+3. 接続後、直近のログを確認（cron_run.log は毎回上書きされるため最新実行分のみ表示されます）:
    ```bash
-   tail -20 /root/x-auto/logs/cron.log
+   cat ~/x-auto/cron_run.log
    ```
-4. 投稿ストックの残数を確認（**8件未満になると cron.log に `[WARN]` が自動出力されます**。補充は §8 の手順）:
+4. 投稿ストックの残数を確認（**8件未満になると cron_run.log に `[WARN]` が自動出力されます**。補充は §8 の手順）:
    ```bash
-   python3 -c "
+   PYTHONIOENCODING=utf-8 /usr/local/bin/python -c "
    import csv
-   with open('/root/x-auto/data/drafts/stock_posts_draft.csv', encoding='utf-8-sig') as f:
+   with open('/home/c9994802/x-auto/data/drafts/stock_posts_draft.csv', encoding='utf-8-sig') as f:
        rows = list(csv.DictReader(f))
        empty = [r for r in rows if not r.get('ステータス')]
-       print(f'未投稿ストック数: {len(empty)}件')
+       print('未投稿ストック数: {}件'.format(len(empty)))
    "
    ```
+   > `PYTHONIOENCODING=utf-8` はWINGのPython 3.6が日本語出力で
+   > `UnicodeEncodeError` になるのを防ぐおまじないです（付け忘れてもデータは壊れません）。
 
 ### 2-2. X診断ツールの確認
 
@@ -142,8 +162,8 @@ Xのアカウントページを開き、直近の投稿が正常に行われて�
 ### 前提条件
 
 - Git Bashがインストールされていること
-- ConoHaのIPアドレスを知っていること
-- SSH秘密鍵のパスを知っていること（例: `C:\Projects\x-integrated-platform\apps\auto-poster\key-*.pem`）
+- SSH秘密鍵 `C:\Users\yotak\Documents\x-auto\key-2026-03-24-22-28.pem` が存在すること
+- デプロイするPythonファイルが **Python 3.6互換**であること（冒頭の「ConoHa WING 本番環境」の重要注意を参照）
 
 ### 手順
 
@@ -151,19 +171,20 @@ Xのアカウントページを開き、直近の投稿が正常に行われて�
 
 Windowsのスタートメニューで「Git Bash」を検索して起動します。
 
-**ステップ2: 環境変数を設定する**
+**ステップ2: 環境変数の設定は不要（既定値がWING本番に設定済み）**
 
-以下を1行ずつ入力してEnterキーを押します（毎回必要）:
+`deploy_to_conoha.sh` には ConoHa WING の接続情報
+（`c9994802@www1156.conoha.ne.jp`・ポート8022・`/home/c9994802/x-auto`・鍵パス）が
+既定値として入っているため、そのまま実行できます。
+別サーバーへ送りたい場合のみ環境変数で上書きします:
 
 ```bash
-export CONOHA_USER="root"
-export CONOHA_HOST="133.xxx.xxx.xxx"
-export CONOHA_DEPLOY_PATH="/root/x-auto"
-export SSH_KEY="/c/Projects/x-integrated-platform/apps/auto-poster/key-2026-03-24-22-28.pem"
+export CONOHA_USER="c9994802"
+export CONOHA_HOST="www1156.conoha.ne.jp"
+export CONOHA_PORT="8022"
+export CONOHA_DEPLOY_PATH="/home/c9994802/x-auto"
+export SSH_KEY="/c/Users/yotak/Documents/x-auto/key-2026-03-24-22-28.pem"
 ```
-
-> **注意**: `133.xxx.xxx.xxx` の部分は実際のConoHaのIPアドレスに変えてください。
-> `key-2026-03-24-22-28.pem` の部分は実際の鍵ファイル名に変えてください。
 
 **ステップ3: dry-run（テスト）で内容を確認する**
 
@@ -189,11 +210,16 @@ bash scripts/deploy_to_conoha.sh
 
 **ステップ5: デプロイ後の動作確認**
 
+構文チェック（import確認）のみを行います。`conoha_worker.py` を手動で直接実行すると
+Cronと二重で投稿が走る可能性があるため、手動実行はしません。
+
 ```bash
-ssh -i "$SSH_KEY" ${CONOHA_USER}@${CONOHA_HOST} "cd ${CONOHA_DEPLOY_PATH} && ./venv/bin/python conoha_worker.py"
+ssh -p 8022 -i "/c/Users/yotak/Documents/x-auto/key-2026-03-24-22-28.pem" c9994802@www1156.conoha.ne.jp \
+  "cd ~/x-auto && /usr/local/bin/python -m py_compile conoha_worker.py auto_poster.py x_poster.py utils/merge_new_posts.py && echo OK"
 ```
 
-エラーが出なければ成功です。
+`OK` が表示されれば成功です。その後、次のCron実行（最大5分後）の `cron_run.log` と
+Xの投稿を確認してください。
 
 ---
 
@@ -212,7 +238,7 @@ ssh -i "$SSH_KEY" ${CONOHA_USER}@${CONOHA_HOST} "cd ${CONOHA_DEPLOY_PATH} && ./v
 **ステップ1: ConoHaのサーバーにSSHで接続する**
 
 ```bash
-ssh -i "/c/Projects/x-integrated-platform/apps/auto-poster/key-2026-03-24-22-28.pem" root@[ConoHaのIPアドレス]
+ssh -p 8022 -i "/c/Users/yotak/Documents/x-auto/key-2026-03-24-22-28.pem" c9994802@www1156.conoha.ne.jp
 ```
 
 **ステップ2: 現在のCron設定を確認する**
@@ -221,11 +247,14 @@ ssh -i "/c/Projects/x-integrated-platform/apps/auto-poster/key-2026-03-24-22-28.
 crontab -l
 ```
 
-以下のような行が表示されます:
+以下のような行が表示されます（2026-06-12時点の本番設定）:
 
 ```
-*/5 * * * * /root/x-auto/venv/bin/python /root/x-auto/conoha_worker.py >> /root/x-auto/logs/cron.log 2>&1
+*/5 * * * * cd ~/x-auto && /usr/local/bin/python conoha_worker.py > cron_run.log 2>&1
 ```
+
+> **メモ**: WINGでは仮想環境（venv）を使わず、標準の `/usr/local/bin/python` で実行します。
+> Cronは ConoHa WING のコントロールパネル（サーバー管理 → Cron）からも編集できます。
 
 **ステップ3: Cron設定を編集する**
 
@@ -240,8 +269,8 @@ crontab -e
 矢印キーでカーソルを移動して、変更が必要な部分を書き換えます。
 
 変更例:
-- **変更前**: `/root/x-auto/conoha_worker.py`
-- **変更後**: `/home/新しいユーザー名/x-auto/conoha_worker.py`
+- **変更前**: `cd ~/x-auto && /usr/local/bin/python conoha_worker.py`
+- **変更後**: `cd ~/新しいフォルダ名 && /usr/local/bin/python conoha_worker.py`
 
 **ステップ5: 保存して終了する**
 
@@ -257,13 +286,13 @@ crontab -l
 
 変更後のパスが表示されれば成功です。
 
-**ステップ7: 動作確認（手動で1回実行）**
+**ステップ7: 動作確認（構文チェック）**
 
 ```bash
-/root/x-auto/venv/bin/python /root/x-auto/conoha_worker.py
+cd ~/x-auto && /usr/local/bin/python -m py_compile conoha_worker.py && echo OK
 ```
 
-エラーが出なければ成功です。5分後にXの投稿を確認してください。
+`OK` が出れば成功です。次のCron実行（最大5分後）の `cron_run.log` とXの投稿を確認してください。
 
 ---
 
@@ -318,46 +347,44 @@ crontab -l
 **確認手順:**
 
 ```bash
-# サーバーに接続
-ssh -i "/c/Projects/x-integrated-platform/apps/auto-poster/key-*.pem" root@[ConoHaのIP]
+# サーバーに接続（ポート8022）
+ssh -p 8022 -i "/c/Users/yotak/Documents/x-auto/key-2026-03-24-22-28.pem" c9994802@www1156.conoha.ne.jp
 
-# ログを確認
-tail -50 /root/x-auto/logs/cron.log
+# ログを確認（cron_run.log は毎回上書き＝最新実行分のみ）
+cat ~/x-auto/cron_run.log
 
-# 手動で実行してエラーを確認
-cd /root/x-auto
-./venv/bin/python conoha_worker.py
+# 構文・importエラーがないか確認
+cd ~/x-auto
+/usr/local/bin/python -m py_compile conoha_worker.py auto_poster.py x_poster.py && echo OK
 ```
 
 **よくある原因と解決策:**
 
 | エラーメッセージ | 原因 | 解決策 |
 |---|---|---|
-| `ModuleNotFoundError` | Pythonライブラリが不足 | `./venv/bin/pip install -r requirements.txt` |
-| `FileNotFoundError: stock_posts_draft.csv` | 投稿ストックファイルが存在しない | `mini_bulk_generator.py` で再生成 |
+| `ModuleNotFoundError` | Pythonライブラリが不足 | `/usr/local/bin/python -m pip install --user ライブラリ名` |
+| `TypeError: 'type' object is not subscriptable` | Python 3.7+の構文（`list[dict]`等）をデプロイした | 該当ファイルを3.6互換に修正して再デプロイ（冒頭の重要注意を参照） |
+| `UnicodeEncodeError: 'ascii' codec ...` | 日本語printがASCII端末で失敗 | コマンドの先頭に `PYTHONIOENCODING=utf-8 ` を付ける |
+| `FileNotFoundError: stock_posts_draft.csv` | 投稿ストックファイルが存在しない | §8 のドロップ＆パース補充で再生成 |
 | `tweepy.errors.Unauthorized` | X APIキーが無効 | `config.py` のAPIキーを確認・更新 |
 | `JSONDecodeError` | `schedule.json` が破損 | `schedule.json` を削除して再実行 |
 
-**Cronサービスが停止している場合:**
+**Cronが動いていない様子の場合:**
 
-```bash
-systemctl status cron  # 状態確認
-systemctl restart cron  # 再起動
-```
+WINGは共用サーバーのためroot権限がなく、`systemctl` は使えません。
+`crontab -l` で登録行が残っているか確認し、消えている場合は
+ConoHa WING コントロールパネル（サーバー管理 → Cron）から再登録してください。
 
 ---
 
 ### Q: 投稿ストックが0件になった
 
-`mini_bulk_generator.py` を実行してストックを補充します:
+§8 のドロップ＆パース方式でローカルで原稿を作成し、
+`bash scripts/push_drafts_to_conoha.sh` で本番へマージします（推奨・コスト最安）。
 
-```bash
-# サーバー上で実行
-cd /root/x-auto
-./venv/bin/python mini_bulk_generator.py
-```
-
-または `knowledge.xlsx` を更新してからローカルで実行してConoHaにデプロイします。
+> **注意**: サーバー上での `mini_bulk_generator.py` 実行は行いません。
+> ローカル最新版はPython 3.9構文を含み、WINGのPython 3.6では動かないためです。
+> 生成系スクリプトはすべてローカルで実行し、CSV差分だけをpushする運用です。
 
 ---
 
@@ -382,10 +409,10 @@ SSH鍵のパスまたはパーミッションに問題があります:
 
 ```bash
 # パーミッションを修正（Git Bashで実行）
-chmod 600 "/c/Projects/x-integrated-platform/apps/auto-poster/key-*.pem"
+chmod 600 "/c/Users/yotak/Documents/x-auto/key-2026-03-24-22-28.pem"
 
-# SSH接続テスト
-ssh -i "/c/Projects/x-integrated-platform/apps/auto-poster/key-*.pem" -v root@[ConoHaのIP] exit
+# SSH接続テスト（ポート8022）
+ssh -p 8022 -i "/c/Users/yotak/Documents/x-auto/key-2026-03-24-22-28.pem" -v c9994802@www1156.conoha.ne.jp exit
 ```
 
 ---
@@ -427,13 +454,15 @@ git commit -m "chore: remove accidentally committed .env files"
 
 ```bash
 # 接続テスト（タイムアウト5秒）
-ssh -i "$SSH_KEY" -o ConnectTimeout=5 ${CONOHA_USER}@${CONOHA_HOST} echo "接続成功"
+ssh -p 8022 -i "/c/Users/yotak/Documents/x-auto/key-2026-03-24-22-28.pem" -o ConnectTimeout=5 c9994802@www1156.conoha.ne.jp echo "接続成功"
 ```
 
 接続できない場合:
-1. ConoHaの管理パネルでサーバーが起動していることを確認
-2. IPアドレスが正しいことを確認（`CONOHA_HOST` の値）
-3. ConoHaのファイアウォール設定でSSH（ポート22）が許可されているか確認
+1. ポートが **8022** になっているか確認（標準の22では接続できません）
+2. ホスト名 `www1156.conoha.ne.jp`・ユーザー名 `c9994802` が正しいか確認
+3. ConoHa WING コントロールパネルで「SSH」が有効になっているか確認
+   （WINGのSSHは接続元IP制限がかかる場合があります。回線変更後に繋がらなくなったら
+   コントロールパネルのSSH設定を確認）
 
 ---
 
@@ -485,17 +514,13 @@ apps/auto-poster/data/analytics/dead_posts_queue.csv
 
 4. ファイルを閉じます。
 
-5. デプロイスクリプトで `dead_posts_queue.csv` を ConoHa に転送します:
+5. `dead_posts_queue.csv` を ConoHa WING に転送します（scpのポート指定は大文字 `-P`）:
 
    ```bash
    # Git Bash で実行
-   export CONOHA_USER="root"
-   export CONOHA_HOST="133.xxx.xxx.xxx"   # 実際のIPアドレスに変更
-   export SSH_KEY="/c/Projects/x-integrated-platform/apps/auto-poster/key-2026-03-24-22-28.pem"
-
-   scp -i "$SSH_KEY" \
+   scp -P 8022 -i "/c/Users/yotak/Documents/x-auto/key-2026-03-24-22-28.pem" \
      apps/auto-poster/data/analytics/dead_posts_queue.csv \
-     ${CONOHA_USER}@${CONOHA_HOST}:/root/x-auto/data/analytics/dead_posts_queue.csv
+     c9994802@www1156.conoha.ne.jp:/home/c9994802/x-auto/data/analytics/dead_posts_queue.csv
    ```
 
 > **注意**: `dead_posts_queue.csv` は `.gitignore` 対象のため Git ではなく
@@ -510,14 +535,14 @@ ConoHa サーバーに SSH で接続し、Cron に削除ワーカーを登録し
 **接続:**
 
 ```bash
-ssh -i "/c/Projects/x-integrated-platform/apps/auto-poster/key-2026-03-24-22-28.pem" root@[ConoHaのIPアドレス]
+ssh -p 8022 -i "/c/Users/yotak/Documents/x-auto/key-2026-03-24-22-28.pem" c9994802@www1156.conoha.ne.jp
 ```
 
 **dry-run で事前確認（推奨）:**
 
 ```bash
-cd /root/x-auto
-./venv/bin/python prune_dead_posts.py --dry-run
+cd ~/x-auto
+PYTHONIOENCODING=utf-8 /usr/local/bin/python prune_dead_posts.py --dry-run
 ```
 
 `[DRY-RUN] 削除予定: ID=...` が表示されれば正常です。
@@ -532,7 +557,7 @@ crontab -e
 以下の1行を追加します（毎時0分に最大2件ずつ削除）:
 
 ```
-0 * * * * cd /root/x-auto && ./venv/bin/python prune_dead_posts.py >> /root/x-auto/logs/prune.log 2>&1
+0 * * * * cd ~/x-auto && PYTHONIOENCODING=utf-8 /usr/local/bin/python prune_dead_posts.py >> prune.log 2>&1
 ```
 
 保存して終了（`Ctrl+O` → `Enter` → `Ctrl+X`）。
@@ -553,7 +578,7 @@ crontab -l
 
 ```bash
 # ConoHa サーバー上で確認
-tail -20 /root/x-auto/data/analytics/pruned_log.txt
+tail -20 ~/x-auto/data/analytics/pruned_log.txt
 ```
 
 出力例:
@@ -600,6 +625,8 @@ tail -20 /root/x-auto/data/analytics/pruned_log.txt
    ```
 
 ### 注意
+- `push_drafts_to_conoha.sh` には WING の接続情報（ポート8022・`/usr/local/bin/python` での
+  マージ実行）が既定値として組み込まれているため、環境変数の設定は不要
 - Web版のRPA自動操作（Chrome MCP等）は**規約違反で定額アカウントBANリスクがあるため禁止**
   （この方式を採用した経緯: docs/MASTER_ARCHITECTURE.md §7）
 - ConoHa側の `stock_posts_draft.csv` が常に正。マージは追記のみで `posted` ステータスに触れない

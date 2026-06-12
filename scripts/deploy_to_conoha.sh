@@ -1,25 +1,32 @@
 #!/usr/bin/env bash
 # scripts/deploy_to_conoha.sh
 #
-# apps/auto-poster/ を ConoHa VPS へ rsync でデプロイする。
+# apps/auto-poster/ を ConoHa WING へ rsync でデプロイする。
 #
 # 使用法:
 #   bash scripts/deploy_to_conoha.sh --dry-run   # プレビュー（推奨: 最初に実行）
 #   bash scripts/deploy_to_conoha.sh             # 実際にデプロイ
 #
-# 必須環境変数（実行前に export してください）:
-#   export CONOHA_USER="root"
-#   export CONOHA_HOST="133.xxx.xxx.xxx"
-#   export CONOHA_DEPLOY_PATH="/root/x-auto"
-#   export SSH_KEY="/c/Projects/x-integrated-platform/apps/auto-poster/key-2026-03-24-22-28.pem"
+# 既定値は ConoHa WING 本番環境（環境変数で上書き可能）:
+#   CONOHA_USER="c9994802"
+#   CONOHA_HOST="www1156.conoha.ne.jp"
+#   CONOHA_PORT="8022"                          # WINGのSSHポート（22ではない）
+#   CONOHA_DEPLOY_PATH="/home/c9994802/x-auto"
+#   SSH_KEY="/c/Users/yotak/Documents/x-auto/key-2026-03-24-22-28.pem"
+#
+# 警告: WINGの実行環境は /usr/local/bin/python = Python 3.6.15（仮想環境なし）。
+#       サーバー上でCron実行されるファイル（conoha_worker.py / auto_poster.py /
+#       x_poster.py / prune_dead_posts.py / utils/merge_new_posts.py）に
+#       Python 3.7以降の構文（list[dict]注釈・walrus演算子等）を入れないこと。
 
 set -euo pipefail
 
 # ── 設定変数（環境変数で上書き可能）────────────────────────────
-CONOHA_USER="${CONOHA_USER:-}"
-CONOHA_HOST="${CONOHA_HOST:-}"
-CONOHA_DEPLOY_PATH="${CONOHA_DEPLOY_PATH:-}"
-SSH_KEY="${SSH_KEY:-}"
+CONOHA_USER="${CONOHA_USER:-c9994802}"
+CONOHA_HOST="${CONOHA_HOST:-www1156.conoha.ne.jp}"
+CONOHA_PORT="${CONOHA_PORT:-8022}"
+CONOHA_DEPLOY_PATH="${CONOHA_DEPLOY_PATH:-/home/c9994802/x-auto}"
+SSH_KEY="${SSH_KEY:-/c/Users/yotak/Documents/x-auto/key-2026-03-24-22-28.pem}"
 
 MONOREPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SRC="${MONOREPO_ROOT}/apps/auto-poster/"
@@ -38,10 +45,11 @@ if [[ -z "$CONOHA_USER" || -z "$CONOHA_HOST" || -z "$CONOHA_DEPLOY_PATH" ]]; the
   echo "======================================================"
   echo "[ERROR] 以下の環境変数を設定してください:"
   echo "======================================================"
-  echo "  export CONOHA_USER=\"root\""
-  echo "  export CONOHA_HOST=\"xxx.xxx.xxx.xxx\""
-  echo "  export CONOHA_DEPLOY_PATH=\"/root/x-auto\""
-  echo "  export SSH_KEY=\"/c/Users/yotak/.../key-*.pem\"  # SSH鍵がある場合"
+  echo "  export CONOHA_USER=\"c9994802\""
+  echo "  export CONOHA_HOST=\"www1156.conoha.ne.jp\""
+  echo "  export CONOHA_PORT=\"8022\""
+  echo "  export CONOHA_DEPLOY_PATH=\"/home/c9994802/x-auto\""
+  echo "  export SSH_KEY=\"/c/Users/yotak/Documents/x-auto/key-2026-03-24-22-28.pem\""
   exit 1
 fi
 
@@ -75,6 +83,8 @@ EXCLUDES=(
   "--exclude=schedule.json"         # ランタイム状態（ConoHa側が正）
   "--exclude=*.pem"                 # SSH秘密鍵（絶対除外）
   "--exclude=tone_sample_*.txt"     # 個人情報
+  "--exclude=utils/migrate_csv.py"      # 1回限り・再実行禁止（Python3.9構文でWING非互換）
+  "--exclude=utils/clean_categories.py" # ローカル専用1回限りスクリプト（Windowsパス固定）
   "--exclude=自動生成用ナレッジ/"   # ローカルナレッジ
   "--exclude=drafts/"               # ローカル下書き
   "--exclude=docs/"                 # ドキュメント（不要）
@@ -83,7 +93,8 @@ EXCLUDES=(
 )
 
 # ── SSH オプション ─────────────────────────────────────────────
-SSH_OPTS="-o StrictHostKeyChecking=accept-new -o ConnectTimeout=10"
+# WINGのSSHはポート8022（ssh は -p / scp は -P で指定）
+SSH_OPTS="-p ${CONOHA_PORT} -o StrictHostKeyChecking=accept-new -o ConnectTimeout=10"
 if [[ -n "$SSH_KEY" ]]; then
   SSH_OPTS="${SSH_OPTS} -i ${SSH_KEY}"
 fi
@@ -134,6 +145,7 @@ echo "デプロイ前チェックリスト:"
 echo "  [ ] --dry-run で内容を確認済みか?"
 echo "  [ ] ConoHa上の cron が一時停止不要か（上書きデプロイのため通常不要）"
 echo "  [ ] data/*.csv と schedule.json が除外リストにあることを確認済みか?"
+echo "  [ ] サーバーでCron実行されるファイルが Python 3.6 互換か?（WINGは3.6.15）"
 echo "======================================================"
 echo -n "本当に実行しますか？ (yes/no): "
 read -r CONFIRM
@@ -153,14 +165,14 @@ echo "[DEPLOY 完了]"
 echo "======================================================"
 echo ""
 echo "次のステップ:"
-echo "1. ConoHaに接続して動作確認:"
-echo "   ssh ${SSH_KEY:+-i ${SSH_KEY}} ${CONOHA_USER}@${CONOHA_HOST}"
+echo "1. ConoHaに接続して構文チェック（投稿は走らせない）:"
+echo "   ssh -p ${CONOHA_PORT} ${SSH_KEY:+-i ${SSH_KEY}} ${CONOHA_USER}@${CONOHA_HOST}"
 echo "   cd ${CONOHA_DEPLOY_PATH}"
-echo "   ./venv/bin/python conoha_worker.py"
+echo "   /usr/local/bin/python -m py_compile conoha_worker.py auto_poster.py x_poster.py"
 echo ""
 echo "2. Cronが正しいパスを指しているか確認:"
 echo "   crontab -l"
-echo "   期待されるパス: ${CONOHA_DEPLOY_PATH}/conoha_worker.py"
+echo "   期待される行: cd ~/x-auto && /usr/local/bin/python conoha_worker.py > cron_run.log 2>&1"
 echo ""
-echo "3. ログで直近の投稿を確認:"
-echo "   tail -20 ${CONOHA_DEPLOY_PATH}/logs/cron.log"
+echo "3. ログで直近の実行を確認（cron_run.log は毎回上書き＝最新実行分のみ）:"
+echo "   cat ${CONOHA_DEPLOY_PATH}/cron_run.log"
