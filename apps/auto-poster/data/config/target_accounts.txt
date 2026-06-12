@@ -1,0 +1,19 @@
+# sniper_radar.py の監視対象アカウント（1行1アカウント・@は省略可・# 以降はコメント）
+# このファイルを編集するだけで、コード変更なしに監視対象を増減できます。
+# 選定基準: 哲学・人間味・仕事への姿勢を発信しているセラピストを優先（ペルソナv2）
+
+# セラピスト系（高コンバージョン・優先）
+sub20250209
+jibunmigakuzo
+uDonshi9532
+kkk_cun
+
+# 既存VIPアカウント
+nekokoroconsul1
+mensaesthet
+sugawara11
+765naruko
+96yurisub
+doki_doki_ryuga
+rin_ring_ange
+nyakomiya

@@ -93,10 +93,13 @@ FIELDNAMES = ['管理ID', 'カテゴリ', 'フォーマット', '投稿文', '�
 ## 復旧手順
 
 ### 列が8列でない場合
+バックアップファイル（`stock_posts_draft_backup_*.csv`）から復元する。
+`ingest_raw_contents.py` は取り込みのたびにバックアップを作成するため、直近のものを使う。
 ```bash
-venv/Scripts/python migrate_csv.py
+cp data/drafts/stock_posts_draft_backup_YYYYMMDD.csv data/drafts/stock_posts_draft.csv
 ```
-注意: `migrate_csv.py` は**再実行可能か事前確認**すること（重複データが発生する可能性あり）。
+バックアップが無い場合は、列ズレの原因行を特定して手動修正する
+（pandasで読み込み `df.columns.tolist()` と各行の列数を確認）。
 
 ### ファイルが破損した場合
 1. Gitの最新コミットからリストアを試みる（`.gitignore` でCSVは除外されているため、自力復旧が必要）

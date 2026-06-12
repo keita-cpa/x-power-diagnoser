@@ -302,14 +302,14 @@ def main() -> None:
     print(f"therapist_introducer.py (v5.3 洗練・温度最適化版)")
     print(f"対象: @{username}")
     if force_mode:
-        print("⚠️ [--force] モードが有効です。履歴チェックをスキップします。")
+        print("[WARN] [--force] モードが有効です。履歴チェックをスキップします。")
     print("=" * 60)
 
     # 二重紹介のブロック
     if not force_mode and check_history(username):
-        print(f"\n⚠️ 警告: @{username} は過去に紹介済みです！")
+        print(f"\n[WARN] @{username} は過去に紹介済みです！")
         print("  ブランド毀損（二重紹介）を防ぐため処理を停止します。")
-        print("  💡 ※テスト・推敲目的で強制的に再作成する場合は、末尾に --force を付けて実行してください。")
+        print("  [HINT] テスト・推敲目的で強制的に再作成する場合は、末尾に --force を付けて実行してください。")
         print(f"  例: python therapist_introducer.py --target {username} --force")
         sys.exit(1)
 
@@ -369,9 +369,9 @@ def main() -> None:
     print("=" * 60)
     print(introduction_with_mention)
     print("=" * 60)
-    print(f"\n✨ ドラフト保存完了: {draft_path}")
+    print(f"\n[OK] ドラフト保存完了: {draft_path}")
     print(f"文字数: {char_count} 文字")
-    print("📝 ターミナル、または保存されたドラフト（.mdファイル）の内容を確認し、Xに投下してください！")
+    print("[NEXT] ターミナル、または保存されたドラフト（.mdファイル）の内容を確認し、Xに投下してください！")
 
 
 if __name__ == "__main__":

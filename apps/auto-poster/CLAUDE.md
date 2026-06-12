@@ -35,10 +35,9 @@ knowledge.xlsx → mini_bulk_generator.py → [Gemini API] → stock_posts_draft
 | `utils/merge_new_posts.py` | outbox差分のConoHa側マージ（冪等） | push_drafts_to_conoha.sh から実行 |
 | `prune_dead_posts.py` | 死にポストの安全削除（毎時最大2件） | ConoHa Cron |
 | `config.py` | APIキー・パス設定 | **Read/Edit 絶対禁止** |
-| `sniper_radar.py` | VIPアカウント監視・リプライ起案 | |
+| `sniper_radar.py` | VIPアカウント監視・リプライ起案（2モード: 法律ファクト擁護型／共感承認型） | 対象は `data/config/target_accounts.txt` で管理・`--target` で単一指定可 |
 | `therapist_introducer.py` | 指定アカウントの紹介長文ポスト生成（ターミナル出力） | CSV書き込みなし |
 | `conoha_worker.py` | Cronスケジューラ | |
-| `migrate_csv.py` | 1回限りの移行スクリプト | **再実行禁止** |
 
 ## Slash Commands（`/project:xxx` で呼び出し）
 | コマンド | 説明 |
@@ -107,5 +106,4 @@ knowledge.xlsx → mini_bulk_generator.py → [Gemini API] → stock_posts_draft
 - `stock_posts_draft.csv` を削除するとストックが全滅する
 - モデル名変更前に必ず `client.models.list()` で利用可能か確認する
 - `BLOCK_NONE` セーフティ設定は意図的 — 変更禁止
-- `migrate_csv.py` は再実行禁止（データ重複が発生する）
 - `tone_sample_*.txt` はトーン学習用サンプル — Read可（条件は `.claude/rules/security.md` 参照）・Edit禁止・コミット禁止

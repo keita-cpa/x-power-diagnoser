@@ -60,4 +60,4 @@ sys.stdout.buffer.write(f'行数: {len(df)}\n列: {list(df.columns)}\n'.encode('
 | `ModuleNotFoundError: No module named 'google'` | `venv/Scripts/pip install google-genai` |
 | `ModuleNotFoundError: No module named 'PIL'` | `venv/Scripts/pip install Pillow` |
 | `404 NOT_FOUND` (モデル廃止) | `venv/Scripts/python -c "from google import genai; from config import GEMINI_API_KEY; c=genai.Client(api_key=GEMINI_API_KEY); [print(m.name) for m in c.models.list()]"` でモデル一覧を確認 |
-| CSV列が8列でない | `venv/Scripts/python utils/migrate_csv.py` を実行して補完 |
+| CSV列が8列でない | `.claude/rules/csv-safety.md` の復旧手順を参照（バックアップから復元） |

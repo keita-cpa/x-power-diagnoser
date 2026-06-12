@@ -681,7 +681,9 @@ tail -20 ~/x-auto/data/analytics/pruned_log.txt
 
 ### VIPリストの管理
 
-- 編集場所: `apps/auto-poster/sniper_radar.py` の `TARGET_ACCOUNTS`
+- 編集場所: `apps/auto-poster/data/config/target_accounts.txt`（1行1アカウント・@省略可・`#` コメント可）。
+  ファイルを編集するだけで反映され、コード変更は不要。ファイルが無い場合のみ
+  `sniper_radar.py` 内の `DEFAULT_TARGET_ACCOUNTS` にフォールバックする
 - 選定基準（ペルソナv2）: **哲学・人間味・仕事への姿勢を発信しているセラピスト**を優先。
   発信に固有のディテールがある人ほど「具体的な事実への言及」で自己重要感を満たすリプライが書ける
 - セラピスト/業界系はプロフィールクリック率1.4〜2.4%（一般アカウントの約20倍）

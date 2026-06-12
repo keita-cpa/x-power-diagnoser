@@ -1,6 +1,7 @@
 # /project:sniper-run — VIPアカウント監視・リプライ起案コマンド
 
-`sniper_radar.py` を実行し、TARGET_ACCOUNTSの最新ツイートをスクリーニングしてリプライ案をCSV出力する。
+`sniper_radar.py` を実行し、監視対象アカウント（`data/config/target_accounts.txt` で管理）の
+最新ツイートをスクリーニングしてリプライ案をCSV出力する。
 
 ## 事前確認
 
@@ -8,13 +9,9 @@
 
 ```bash
 cd C:/Projects/x-integrated-platform/apps/auto-poster
-venv/Scripts/python -c "
-import sys
-# TARGET_ACCOUNTSを表示（APIキーは読まない）
-exec(open('sniper_radar.py', encoding='utf-8').read().split('def ')[0])
-sys.stdout.buffer.write(f'監視対象: {TARGET_ACCOUNTS}\n件数: {len(TARGET_ACCOUNTS)}\n'.encode('utf-8'))
-"
+cat data/config/target_accounts.txt
 ```
+（ファイルが無い場合は `sniper_radar.py` 内の `DEFAULT_TARGET_ACCOUNTS` にフォールバックされる）
 
 ```bash
 venv/Scripts/python -c "
@@ -34,6 +31,12 @@ else:
 ```bash
 cd C:/Projects/x-integrated-platform/apps/auto-poster
 venv/Scripts/python sniper_radar.py
+```
+
+特定の1アカウントだけ即時スキャンする場合（「@xxx に今すぐリプライ案がほしい」とき）:
+
+```bash
+venv/Scripts/python sniper_radar.py --target ユーザー名
 ```
 
 ## 実行後の確認
@@ -66,7 +69,7 @@ sys.stdout.buffer.write(latest[['取得日時','ユーザー名','対象ツイ�
 | `401 Unauthorized` | X Bearer Tokenの期限切れ。config.pyのX_BEARER_TOKENを確認（直接読まずユーザーに確認を依頼） |
 | `429 Too Many Requests` | X APIレート制限。15分待ってから再実行 |
 | `404 NOT_FOUND` (Geminiモデル) | `.claude/rules/model-routing.md` の廃止対応手順を参照 |
-| ユーザー名が見つからない | TARGET_ACCOUNTSのアカウントが削除・非公開化された可能性。sniper_radar.pyを確認 |
+| ユーザー名が見つからない | 監視対象アカウントが削除・非公開化された可能性。data/config/target_accounts.txt を確認 |
 
 ## 注意事項
 - X APIのレート制限（15分/15リクエスト）に注意

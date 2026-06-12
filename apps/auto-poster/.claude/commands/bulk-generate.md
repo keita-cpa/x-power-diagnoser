@@ -59,5 +59,5 @@ sys.stdout.buffer.write(f'--- 生成後 ---\n総行数: {total}\n未投稿スト
 | `ModuleNotFoundError` | `venv/Scripts/pip install google-genai openpyxl pandas` |
 | `404 NOT_FOUND` (モデル廃止) | `.claude/rules/model-routing.md` の廃止対応手順を参照 |
 | `FileNotFoundError: knowledge.xlsx` | knowledge.xlsx がプロジェクトルートに存在するか確認 |
-| CSV列が8列でない | `.claude/rules/csv-safety.md` の復旧手順を参照（`utils/migrate_csv.py` を実行） |
+| CSV列が8列でない | `.claude/rules/csv-safety.md` の復旧手順を参照（バックアップから復元） |
 | 文字化け | `encoding='utf-8-sig'` が使われているか確認（`.claude/rules/coding-style.md`） |

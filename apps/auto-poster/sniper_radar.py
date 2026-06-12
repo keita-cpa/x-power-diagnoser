@@ -29,17 +29,19 @@ from prompts import SYSTEM_PROMPT, _TONE_REPLY
 # 定数
 # ──────────────────────────────────────────
 
-# TODO: TARGET_ACCOUNTS は将来的に config.py に移動してください
 # ※ セラピスト/業界系アカウントを優先（プロフィールクリック率1.4〜2.4% vs 一般0.1%）
 # ※ ペルソナv2選定基準: 哲学・人間味・仕事への姿勢を発信しているセラピストを優先する。
 #    リプライは実測AlgoScoreがメイン投稿の8.3倍の主戦場であり、
 #    「具体的な事実への言及で自己重要感を満たす」相手（発信に固有のディテールがある人）ほど効果が高い。
-TARGET_ACCOUNTS = [
+# 監視対象は data/config/target_accounts.txt（1行1アカウント・#コメント可）で管理する。
+# ファイルが存在しない場合のみ、以下のフォールバックリストを使う。
+DEFAULT_TARGET_ACCOUNTS = [
     # セラピスト系（高コンバージョン・優先）
     "sub20250209", "jibunmigakuzo", "uDonshi9532", "kkk_cun",
     # 既存VIPアカウント
     "nekokoroconsul1", "mensaesthet", "sugawara11", "765naruko", "96yurisub", "doki_doki_ryuga", "rin_ring_ange", "nyakomiya",
 ]
+TARGETS_FILE = Path(__file__).parent / "data" / "config" / "target_accounts.txt"
 SCOUT_CSV   = str(Path(__file__).parent / "data" / "logs" / "scouted_targets.csv")
 CSV_COLUMNS = ["取得日時", "対象URL", "ユーザー名", "対象ツイート", "AIリプライ案"]
 
@@ -47,6 +49,29 @@ SCREEN_MODEL = "gemini-2.5-flash-lite"
 REPLY_MODEL  = "gemini-3-flash-preview"
 
 MAX_RESULTS = 10  # 1アカウントあたりの取得ツイート数
+
+# ──────────────────────────────────────────
+# Step 0: 監視対象の読み込み
+# ──────────────────────────────────────────
+
+def load_target_accounts() -> list[str]:
+    """
+    data/config/target_accounts.txt から監視対象を読み込む。
+    形式: 1行1アカウント（@は付けても付けなくてもよい）。# 以降はコメント。
+    ファイルが無い・有効な行が1つもない場合は DEFAULT_TARGET_ACCOUNTS にフォールバック。
+    """
+    if not TARGETS_FILE.exists():
+        return list(DEFAULT_TARGET_ACCOUNTS)
+    accounts = []
+    for line in TARGETS_FILE.read_text(encoding="utf-8-sig").splitlines():
+        name = line.split("#", 1)[0].strip().lstrip("@")
+        if name:
+            accounts.append(name)
+    if not accounts:
+        print(f"[WARN] {TARGETS_FILE} に有効なアカウントがありません。フォールバックを使用します")
+        return list(DEFAULT_TARGET_ACCOUNTS)
+    return accounts
+
 
 # ──────────────────────────────────────────
 # Step 1: Bearer Token 動的生成
@@ -192,24 +217,36 @@ def draft_reply(tweet_text: str, gemini_client) -> str:
     """
     gemini-3-flash-preview でリプライ案を起案する。
     system_instruction に SYSTEM_PROMPT + _TONE_REPLY を適用。
-    目的: 相手の愚痴・工夫を法的ファクトで擁護し、セラピストの魅力を間接的に底上げする。
+    ツイートの話題に応じて2モードを使い分ける（判定はプロンプト内でGeminiが行う）:
+      A) お金・法律・労務の話題 → 法的ファクトによる客観的擁護
+      B) 感情・日常・体験談     → 受けの一拍＋具体的事実の承認（法律ファクトは出さない）
     返り値: リプライ案テキスト（140字以内）
     """
     prompt = f"""以下のツイートに対して、@Keita_CPA（Big4出身の公認会計士・税理士）として
 リプライ案を1つ起案してください。
 
-【このリプライの設計思想】
-相手が日常の工夫・愚痴・苦労を書いているなら、
-法律や税務の客観的なファクト（条文・判例・数字）を使って
-「客観的に擁護・正当化」すること。
+【最初にやること: モード判定】
+対象ツイートの話題を読み、以下のどちらか1つを内部で選ぶこと（判定結果は出力しない）。
 
-直接褒めることは禁止。
-「法律から見ても、あなたのやり方は正しい」という客観的事実でそっと背中を押すこと。
+■ モードA【ファクト擁護型】— お金・税務・契約・労務・店との取り分・罰則など、
+  法律や数字が絡む話題のとき:
+  相手の工夫・愚痴・苦労を、法律や税務の客観的なファクト（条文・判例・数字）を使って
+  「客観的に擁護・正当化」する。
+  直接褒めることは禁止。「法律から見ても、あなたのやり方は正しい」という
+  客観的事実でそっと背中を押すこと。
+  ファクトを提示する際は必ず「中学生でも直感的にわかる」平易な言葉に翻訳を添えること。
 
+■ モードB【共感・承認型】— 感情の吐露・日常の出来事・体験談・季節の話など、
+  法律や数字が絡まない話題のとき:
+  法律・税務のファクトを無理にこじつけることを【絶対禁止】する。
+  まず相手の言葉を「そうなんですね」「それは〜ですよね」と一拍受け止め（全肯定リズム）、
+  そのうえでツイートに書かれた【具体的な事実・言葉・行動】をひとつ取り上げて、
+  それが持つ意味や気遣いを言語化する（ありきたりな褒め言葉での置き換えは禁止）。
+  解決策の提示・アドバイスは不要。隣に座る一言でよい。
+
+【共通の目的】
 このリプライを読んだ第三者が「このセラピスト、ちゃんとしてるんだな」と
-自然に感じる空間を作ることが、最大の目的。
-
-ファクトを提示する際は必ず「中学生でも直感的にわかる」平易な言葉に翻訳を添えること。
+自然に感じる空間を作ること。
 
 ---
 対象ツイート:
@@ -263,10 +300,26 @@ def append_to_scout_csv(row: dict, csv_path: str):
 # ──────────────────────────────────────────
 
 def main():
+    # 引数パース: --target ユーザー名 が指定されたらそのアカウントだけを即時スキャン
+    args = sys.argv[1:]
+    target_accounts = None
+    if "--target" in args:
+        idx = args.index("--target")
+        if idx + 1 < len(args):
+            target_accounts = [args[idx + 1].lstrip("@")]
+        else:
+            print("[ERROR] --target の後にユーザー名を指定してください。")
+            print("  例: python sniper_radar.py --target nyakomiya")
+            sys.exit(1)
+    if target_accounts is None:
+        target_accounts = load_target_accounts()
+
     print("=" * 60)
     print("sniper_radar.py 起動")
     print(f"実行日時: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}")
-    print(f"監視対象: {TARGET_ACCOUNTS}")
+    source = "--target指定" if "--target" in args else (
+        f"{TARGETS_FILE.name}" if TARGETS_FILE.exists() else "フォールバック(コード内蔵)")
+    print(f"監視対象（{source}）: {target_accounts}")
     print("=" * 60)
 
     # Gemini クライアント初期化
@@ -293,7 +346,7 @@ def main():
 
     print("\n[3/4] ツイート取得・スクリーニング・起案を開始...")
 
-    for username in TARGET_ACCOUNTS:
+    for username in target_accounts:
         print(f"\n--- @{username} ---")
 
         tweets = fetch_recent_tweets(username, bearer_token)
@@ -339,7 +392,7 @@ def main():
     # サマリー
     print("\n" + "=" * 60)
     print("[実行サマリー]")
-    print(f"  監視アカウント数  : {len(TARGET_ACCOUNTS)}")
+    print(f"  監視アカウント数  : {len(target_accounts)}")
     print(f"  ツイート取得数    : {total_fetched}")
     print(f"  重複スキップ数    : {total_skipped}")
     print(f"  スクリーニング通過: {total_passed}")
