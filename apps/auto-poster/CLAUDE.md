@@ -108,4 +108,5 @@ knowledge.xlsx → mini_bulk_generator.py → [Gemini API] → stock_posts_draft
 - `stock_posts_draft.csv` を削除するとストックが全滅する
 - モデル名変更前に必ず `client.models.list()` で利用可能か確認する
 - `BLOCK_NONE` セーフティ設定は意図的 — 変更禁止
+- **対話型CLI（`mini_bulk_generator.py` 等）を `printf`/パイプで自律実行しない**・長文生成はGemini ULTRAへ委譲 → `.claude/rules/cost-and-delegation.md`
 - `tone_sample_*.txt` はトーン学習用サンプル — Read可（条件は `.claude/rules/security.md` 参照）・Edit禁止・コミット禁止
