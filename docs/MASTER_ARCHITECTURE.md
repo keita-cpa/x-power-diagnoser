@@ -54,7 +54,7 @@ C:/Projects/x-integrated-platform/
 
 ### 死にポスト全自動クレンジング
 
-アカウント品質維持のため、月次分析時に「投稿から48時間以上経過」「AlgoScore下位10%未満」「PClick=0」のポストを `dead_posts_queue.csv` に抽出。VS Codeでの目視確認後、ConoHa上のCronが毎時最大2件ずつ安全に自動削除する。
+アカウント品質維持のため、月次分析時に「投稿から48時間以上経過」「6指標すべて0（Like/Reply/RT/BM/PClick/Detail）」「IMP<中央値の50%」かつ【保存版】等のホワイトリスト非該当のポストを `dead_posts_queue.csv` に抽出（精度重視・全条件AND）。VS Codeでの目視確認後、ConoHa上のCronが毎時最大2件・1日最大6件（DAILY_CAP）ずつ安全に自動削除する。
 
 ### デプロイとGit運用ルール
 

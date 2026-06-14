@@ -226,8 +226,10 @@ for fname, label in [('data/analytics/analytics_posts.csv','=== メイン投稿 
 
 ## Step 5: 死にポストの特定 → dead_posts_queue.csv 出力
 
-AlgoScore下位かつプロフクリック0の「死にポスト」をキューファイルに出力する。
-リプライは高価値アセットのため対象外。メイン投稿（analytics_posts.csv）のみ処理する。
+「死にポスト」を精度重視の全条件ANDで判定し、キューファイルに出力する（削除は不可逆のため安全側に倒す）。
+判定: ①投稿から48時間経過 ②6指標すべて0（Like/Reply/RT/BM/PClick/Detail）③IMP < 中央値の50%。
+除外: 【保存版】等のホワイトリスト語を含む投稿・リプライ（@始まり）。メイン投稿（analytics_posts.csv）のみ処理する。
+※ ホワイトリスト語は prune_dead_posts.py の WHITELIST と同期すること。
 
 ```bash
 venv/Scripts/python -c "
@@ -246,6 +248,7 @@ except FileNotFoundError:
 
 # 列名正規化（Step 3と同じマッピング）
 JP_COL_MAP = {
+    'IMP':    'インプレッション数',
     'Like':   'いいね',
     'RT':     'リポスト',
     'Reply':  '返信',
@@ -260,6 +263,7 @@ for short, jp in JP_COL_MAP.items():
 if not col_map:
     for col in df.columns:
         cl = col.lower().replace(' ', '').replace('_', '')
+        if 'impression' in cl or 'impres' in cl:  col_map['IMP']    = col
         if 'like' in cl or 'favorite' in cl:      col_map['Like']   = col
         if 'retweet' in cl and 'quote' not in cl: col_map['RT']     = col
         if 'reply' in cl:                          col_map['Reply']  = col
@@ -289,23 +293,33 @@ date_col = next((c for c in df.columns if '日付' in c or c.lower() == 'date'),
 id_col   = next((c for c in df.columns if 'ポストID' in c or c.lower() in ('tweet id', 'post id', 'id')), df.columns[0])
 text_col = next((c for c in df.columns if 'ポスト本文' in c or 'tweet text' in c.lower()), df.columns[2])
 
-# 48時間経過チェック
+# --- 死にポスト判定（精度重視・全条件AND / 削除は不可逆のため安全側に倒す）---
+# 1) 48時間経過（初動IMPが落ち着く猶予）
 df['_posted_at'] = pd.to_datetime(df[date_col], errors='coerce')
 now = datetime.datetime.now()
 elapsed_ok = (now - df['_posted_at']).dt.total_seconds() >= 48 * 3600
 
-# 下位10%閾値
-threshold = df['AlgoScore'].quantile(0.10)
+# 2) 完全無反応（6指標すべて0。1つでも反応があれば残す）
+SIGNALS = ['Like', 'Reply', 'RT', 'BM', 'PClick', 'Detail']
+zero_engagement = pd.Series(True, index=df.index)
+for k in SIGNALS:
+    zero_engagement &= (df.get(k, pd.Series(0, index=df.index)) == 0)
 
-# PClick=0チェック
-pclick_zero = df.get('PClick', pd.Series(0, index=df.index)) == 0
+# 3) リーチ下限割れ（IMP < 中央値の50%。高IMPで今後伸び得る投稿は残す保険）
+imp = df.get('IMP', pd.Series(0, index=df.index))
+imp_floor = imp.median() * 0.5
+imp_low = imp < imp_floor
 
-# 3条件すべてを満たす行を抽出
-dead_mask = elapsed_ok & (df['AlgoScore'] < threshold) & pclick_zero
+# 除外) エバーグリーン・ホワイトリスト（本文ラベル・全文判定）。prune_dead_posts.py の WHITELIST と同期
+WHITELIST = ['【保存版】', '緊急レポート', '保存推奨', '完全版', '報告書']
+not_whitelisted = df[text_col].astype(str).apply(lambda t: not any(w in t for w in WHITELIST))
+
+# 全条件ANDを満たす行を抽出
+dead_mask = elapsed_ok & zero_engagement & imp_low & not_whitelisted
 dead = df[dead_mask].copy()
 
 if dead.empty:
-    print('[INFO] 死にポストは検出されませんでした。(閾値 AlgoScore < {:.1f})'.format(threshold))
+    print('[INFO] 死にポストは検出されませんでした。(基準: 48h経過 & 全6指標0 & IMP<{:.0f} & 非WL)'.format(imp_floor))
 else:
     queue = pd.DataFrame({
         'ポストID':      dead[id_col].astype(str),
@@ -313,8 +327,8 @@ else:
         '本文先頭20文字': dead[text_col].astype(str).str[:20],
     })
     queue.to_csv(QUEUE_PATH, encoding='utf-8-sig', index=False)
-    print('[OK] 死にポスト {}件 を {} に出力しました (閾値 AlgoScore < {:.1f})'.format(
-        len(queue), QUEUE_PATH, threshold))
+    print('[OK] 死にポスト {}件 を {} に出力 (基準: 48h経過 & 全6指標0 & IMP<{:.0f} & WL{}語除外)'.format(
+        len(queue), QUEUE_PATH, imp_floor, len(WHITELIST)))
     print()
     print(queue.to_string(index=False))
 "

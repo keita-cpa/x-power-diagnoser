@@ -2,12 +2,20 @@
 prune_dead_posts.py -- 死にポスト自動クレンジングワーカー
 
 dead_posts_queue.csv を読み込み、X API v2 でポストを削除する。
-安全装置: 1回の実行につき最大 MAX_DELETIONS 件しか削除しない。
-削除済み行はキューから除外し、pruned_log.txt に削除履歴を追記する。
+判定しきい値は monthly-analytics.md の Step 5（キュー生成側）にある。本ワーカーは
+キューを実行（削除）する側で、削除直前の最終安全装置を担う。
+
+安全装置（多層）:
+- MAX_DELETIONS : 1回の実行で削除する上限（毎時Cron＝毎時最大2件）
+- DAILY_CAP     : 1日（暦日）の削除上限。pruned_log.txt の当日[DELETED]件数で判定し暴走を防ぐ
+- WHITELIST     : 本文先頭にラベルを含むエバーグリーン投稿は削除直前にスキップ（Step5の全文判定の二重防御）
+削除済み行はキューから除外し、pruned_log.txt に履歴を追記する。削除は不可逆のため安全側に倒す。
 
 Usage:
-    python prune_dead_posts.py           # 最大2件を実際に削除
+    python prune_dead_posts.py           # 最大 MAX_DELETIONS 件を実際に削除（DAILY_CAP内）
     python prune_dead_posts.py --dry-run # 削除対象を表示のみ（実削除なし）
+
+注意: ConoHa WING の Python 3.6.15 で動かすため f-string・新しい型注釈は使わないこと。
 """
 
 import sys
@@ -20,8 +28,13 @@ BASE_DIR   = pathlib.Path(__file__).parent
 QUEUE_PATH = BASE_DIR / 'data' / 'analytics' / 'dead_posts_queue.csv'
 LOG_PATH   = BASE_DIR / 'data' / 'analytics' / 'pruned_log.txt'
 
-MAX_DELETIONS = 2
+MAX_DELETIONS = 2      # 1回（毎時Cron）あたりの削除上限
+DAILY_CAP     = 6      # 1暦日あたりの削除上限（不具合時の暴走防止）
 QUEUE_FIELDNAMES = ['ポストID', '日付', '本文先頭20文字']
+
+# エバーグリーン保護: 本文（先頭20字）にこれらを含む投稿は削除しない。
+# Step 5（全文判定）を通り抜けた場合の最終フェイルセーフ。monthly-analytics.md Step 5 と同期すること。
+WHITELIST = ['【保存版】', '緊急レポート', '保存推奨', '完全版', '報告書']
 
 
 # ---------------------------------------------------------------------------
@@ -44,19 +57,34 @@ def save_queue(rows):
         writer.writerows(rows)
 
 
-def append_log(post_id, posted_at, text_preview, dry_run=False):
-    """pruned_log.txt に削除履歴を1行追記する。"""
+def append_log(post_id, posted_at, text_preview, label='[DELETED]'):
+    """pruned_log.txt に履歴を1行追記する。label例: [DELETED] / [DRY-RUN] / [SKIP-WHITELIST]"""
     LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    mode_label = '[DRY-RUN]' if dry_run else '[DELETED]'
     timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     entry = (
-        f'{timestamp} {mode_label} '
-        f'ID={post_id} | '
-        f'投稿日={posted_at} | '
-        f'本文={text_preview}\n'
+        '{ts} {label} ID={pid} | 投稿日={pa} | 本文={tp}\n'.format(
+            ts=timestamp, label=label, pid=post_id, pa=posted_at, tp=text_preview)
     )
     with open(LOG_PATH, 'a', encoding='utf-8') as f:
         f.write(entry)
+
+
+def count_today_deletions():
+    """pruned_log.txt から「本日（暦日）の実削除[DELETED]件数」を数える。DAILY_CAP判定用。"""
+    if not LOG_PATH.exists():
+        return 0
+    today = datetime.datetime.now().strftime('%Y-%m-%d')
+    n = 0
+    with open(LOG_PATH, encoding='utf-8') as f:
+        for line in f:
+            if line.startswith(today) and '[DELETED]' in line:
+                n += 1
+    return n
+
+
+def is_whitelisted(text_preview):
+    """本文先頭にホワイトリスト語を含むか（最終フェイルセーフ）。"""
+    return any(w in text_preview for w in WHITELIST)
 
 
 # ---------------------------------------------------------------------------
@@ -65,7 +93,8 @@ def append_log(post_id, posted_at, text_preview, dry_run=False):
 
 def main():
     parser = argparse.ArgumentParser(
-        description='死にポスト自動クレンジングワーカー (最大 {} 件/回)'.format(MAX_DELETIONS)
+        description='死にポスト自動クレンジングワーカー (毎回最大{}件 / 日次上限{}件)'.format(
+            MAX_DELETIONS, DAILY_CAP)
     )
     parser.add_argument(
         '--dry-run',
@@ -80,7 +109,34 @@ def main():
         print('       /project:monthly-analytics の Step 5 を先に実行してください。')
         return
 
-    print('[INFO] キュー件数: {}件 | 最大削除数: {}件/回'.format(len(queue), MAX_DELETIONS))
+    print('[INFO] キュー件数: {}件 | 毎回上限: {}件 | 日次上限: {}件'.format(
+        len(queue), MAX_DELETIONS, DAILY_CAP))
+
+    # --- 最終フェイルセーフ1: ホワイトリスト除去（Step5の全文判定の二重防御）---
+    protected = [r for r in queue if is_whitelisted(r.get('本文先頭20文字', ''))]
+    if protected:
+        for r in protected:
+            print('[SKIP-WHITELIST] 保護対象のためスキップ: ID={} | 本文={}'.format(
+                r.get('ポストID', '').strip(), r.get('本文先頭20文字', '').strip()))
+            append_log(r.get('ポストID', '').strip(), r.get('日付', '').strip(),
+                       r.get('本文先頭20文字', '').strip(), label='[SKIP-WHITELIST]')
+        # 保護対象はキューから恒久除外（再試行しない）
+        queue = [r for r in queue if r not in protected]
+        if not args.dry_run:
+            save_queue(queue)
+    if not queue:
+        print('[INFO] ホワイトリスト除外後、削除対象は残っていません。')
+        return
+
+    # --- 最終フェイルセーフ2: 日次上限（DAILY_CAP）---
+    today_deleted = count_today_deletions()
+    daily_remaining = max(0, DAILY_CAP - today_deleted)
+    allowed = min(MAX_DELETIONS, daily_remaining)
+    print('[INFO] 本日の実削除: {}件 / 日次残り: {}件 → 今回の許容削除数: {}件'.format(
+        today_deleted, daily_remaining, allowed))
+    if allowed == 0:
+        print('[INFO] 日次上限 DAILY_CAP={} に到達。今回は削除せずキューを据え置きます。'.format(DAILY_CAP))
+        return
 
     # クライアント初期化（dry-run 時はスキップ）
     client = None
@@ -93,8 +149,8 @@ def main():
             print('        config.py の X_API_KEY / X_ACCESS_TOKEN を確認してください。')
             sys.exit(1)
 
-    targets   = queue[:MAX_DELETIONS]
-    remaining = queue[MAX_DELETIONS:]
+    targets   = queue[:allowed]
+    remaining = queue[allowed:]
     failed    = []
     done_count = 0
 
@@ -106,14 +162,14 @@ def main():
         if args.dry_run:
             print('[DRY-RUN] 削除予定: ID={} | 投稿日={} | 本文={}'.format(
                 post_id, posted_at, text_prev))
-            append_log(post_id, posted_at, text_prev, dry_run=True)
+            append_log(post_id, posted_at, text_prev, label='[DRY-RUN]')
             done_count += 1
         else:
             try:
                 client.delete_tweet(id=post_id, user_auth=True)
                 print('[OK] 削除完了: ID={} | 投稿日={} | 本文={}'.format(
                     post_id, posted_at, text_prev))
-                append_log(post_id, posted_at, text_prev, dry_run=False)
+                append_log(post_id, posted_at, text_prev, label='[DELETED]')
                 done_count += 1
             except Exception as e:
                 print('[ERROR] 削除失敗 (次回リトライ): ID={} | {}'.format(post_id, e))
