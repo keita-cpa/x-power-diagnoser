@@ -31,20 +31,24 @@ knowledge.xlsx → mini_bulk_generator.py → [Gemini API] → stock_posts_draft
 | `x_poster.py` | tweepy v2/v1ラッパー | |
 | `prompts.py` | システムプロンプト・カテゴリ・トーン定義 | ペルソナv2「3つの顔」対応 v6 |
 | `ingest_raw_contents.py` | 定額Web LLM出力のドロップ＆パース取り込み | 生成コスト0円・QCのみ約1円/件 |
-| `drafts/gemini_gem_prompt_optimized_v3.md` | Gem/NotebookLM用マスタープロンプトの単一ソース | `--print-prompt` が最新版を自動出力 |
+| `drafts/gemini_gem_prompt_optimized_v3.md` | Gem/NotebookLM用マスタープロンプトの単一ソース（投稿生成用） | `--print-prompt` が最新版を自動出力 |
+| `drafts/gem_mobile_assistant_reply_quote_v2.md` | スマホ運用Gem用プロンプト（リプライ＆引用リポストのスマホ起案） | アプローチA・中距離(柔らかい敬語)・湿度排除・二人称「あなた」不使用(本Gem固有) |
 | `utils/merge_new_posts.py` | outbox差分のConoHa側マージ（冪等） | push_drafts_to_conoha.sh から実行 |
 | `prune_dead_posts.py` | 死にポストの安全削除（毎時最大2件） | ConoHa Cron |
 | `config.py` | APIキー・パス設定 | **Read/Edit 絶対禁止** |
-| `sniper_radar.py` | VIPアカウント監視・リプライ起案（2モード: 法律ファクト擁護型／共感承認型） | 対象は `data/config/target_accounts.txt` で管理・`--target` で単一指定可 |
+| `sniper_radar.py` | VIPアカウント監視・リプライ起案（共感・承認デフォルト／専門は質問時のみ・72h再接触インターバル） | 対象は `data/config/target_accounts.txt` で管理・`--target` で単一指定可 |
+| `quote_reposter.py` | 引用リポスト起案（実測最高フォーマット・代弁型・全肯定のみ） | 出力 `data/logs/quote_drafts.csv`・sniperと履歴共有で72hインターバル・投稿は手動承認 |
 | `therapist_introducer.py` | 指定アカウントの紹介長文ポスト生成（ターミナル出力） | CSV書き込みなし |
 | `conoha_worker.py` | Cronスケジューラ | |
 
 ## Slash Commands（`/project:xxx` で呼び出し）
 | コマンド | 説明 |
 |---|---|
+| `/project:stock-check` | ローカルとConoHa本番のストック残数をSSHで即時確認 |
 | `/project:test-run` | ヘルスチェック（import確認・API疎通・CSV検証） |
 | `/project:bulk-generate` | mini_bulk_generator.py を安全実行・ストック数報告 |
 | `/project:sniper-run` | sniper_radar.py を実行・新規スカウト数報告 |
+| `/project:quote-run` | quote_reposter.py を実行・引用リポスト案を起案・新規件数報告 |
 | `/project:introduce-therapist @username` | 指定アカウントの紹介長文ポストを生成・ターミナル出力 |
 | `/project:monthly-analytics` | 月次X Analytics CSV分析→AlgoScoreレポート出力 |
 | `/project:ingest-drafts` | raw_contents の取り込み→検証→QC→CSV追記→本番反映案内 |
