@@ -106,12 +106,20 @@ def fetch_my_tweets(max_count):
     二段取得（400エラー回避）:
       パス1: 全期間の public_metrics（最大 max_count 件）
       パス2: 直近29日のみ non_public_metrics（profile_clicks 等）
-    Returns: (tweets, non_public_map)
+    Returns: (tweets, non_public_map, user_metrics)
+      user_metrics: {"followers": int, "following": int, "ff_ratio": float}
     """
     client = get_client()
-    me = client.get_me(user_auth=True)
+    me = client.get_me(user_auth=True, user_fields=["public_metrics"])
     uid = me.data.id
     print(f"[FETCH] @{me.data.username} の直近 {max_count} 件を取得中...")
+
+    # FF比率の収集
+    user_pm = getattr(me.data, "public_metrics", None) or {}
+    followers = int(user_pm.get("followers_count", 0))
+    following = int(user_pm.get("following_count", 0))
+    ff_ratio = round(followers / following, 2) if following > 0 else 0.0
+    user_metrics = {"followers": followers, "following": following, "ff_ratio": ff_ratio}
 
     tweets = _fetch_pages(
         client, uid, max_count,
@@ -134,7 +142,7 @@ def fetch_my_tweets(max_count):
     except Exception as e:
         print(f"[WARN] non_public_metrics の取得に失敗（profile_clicks=0で続行）: {e}")
 
-    return tweets, non_public_map
+    return tweets, non_public_map, user_metrics
 
 
 # ──────────────────────────────────────────
@@ -260,25 +268,75 @@ def _to_int(v) -> int:
         return 0
 
 
-def summarize(rows: list[dict]) -> str:
+def summarize(rows: list[dict], user_metrics: dict = None) -> str:
     if not rows:
         return "[INFO] データがありません"
     lines = []
-    lines.append(f"対象: {len(rows)} 件（post {sum(1 for r in rows if r['type']=='post')} / reply {sum(1 for r in rows if r['type']=='reply')}）")
+
+    # ── FF比率セクション ──────────────────────────────
+    if user_metrics:
+        followers = user_metrics.get("followers", 0)
+        following = user_metrics.get("following", 0)
+        ff_ratio  = user_metrics.get("ff_ratio", 0.0)
+        ff_warn   = " [WARNING: FF比率 < 1.0 = フォローが多すぎる]" if ff_ratio < 1.0 and following > 0 else ""
+        ff_ideal  = " [GOOD: 健全なFF比率]" if ff_ratio >= 2.0 else ""
+        lines.append(f"FF比率: フォロワー {followers:,} / フォロー {following:,} = {ff_ratio:.2f}{ff_warn}{ff_ideal}")
+        lines.append("")
+
+    # ── 基本統計 ──────────────────────────────────────
+    post_rows  = [r for r in rows if r["type"] == "post"]
+    reply_rows = [r for r in rows if r["type"] == "reply"]
+    lines.append(f"対象: {len(rows)} 件（post {len(post_rows)} / reply {len(reply_rows)}）")
     lines.append("")
+
+    # ── IMPトレンド・スパム検知 ───────────────────────
+    now = datetime.now(timezone.utc)
+    cutoff_7d  = (now - timedelta(days=7)).strftime("%Y-%m-%d")
+    cutoff_30d = (now - timedelta(days=30)).strftime("%Y-%m-%d")
+    recent_7d  = [r for r in post_rows if (r.get("created_at") or "") >= cutoff_7d]
+    recent_30d = [r for r in post_rows if (r.get("created_at") or "") >= cutoff_30d]
+    if recent_7d and recent_30d:
+        avg_7d  = statistics.mean(_to_int(r["impressions"]) for r in recent_7d)
+        avg_30d = statistics.mean(_to_int(r["impressions"]) for r in recent_30d)
+        trend_pct = (avg_7d / avg_30d * 100) if avg_30d > 0 else 0
+        trend_str = f"{trend_pct:.0f}%（直近7日平均 {avg_7d:.0f} vs 30日平均 {avg_30d:.0f}）"
+        if trend_pct < 50:
+            lines.append(f"[WARNING] IMP急落を検知: 7日平均が30日平均の {trend_pct:.0f}% にとどまる")
+            lines.append("  → スパム判定・著者多様性ペナルティ・Shadow Banの可能性あり")
+            lines.append(f"  IMP推移: {trend_str}")
+        elif trend_pct < 75:
+            lines.append(f"[CAUTION] IMP低下傾向: {trend_str}")
+        else:
+            lines.append(f"IMP推移（健全）: {trend_str}")
+        lines.append("")
+
+    # ── エンゲージ率サマリー ─────────────────────────
+    if post_rows:
+        total_imp  = sum(_to_int(r["impressions"]) for r in post_rows)
+        total_rep  = sum(_to_int(r["replies"])     for r in post_rows)
+        total_bkm  = sum(_to_int(r["bookmarks"])   for r in post_rows)
+        total_pclk = sum(_to_int(r["profile_clicks"]) for r in post_rows)
+        if total_imp > 0:
+            lines.append("エンゲージ率（post のみ・参考値）:")
+            lines.append(f"  リプライ率  : {total_rep  / total_imp * 100:.3f}%  （{total_rep} / {total_imp} IMP）")
+            lines.append(f"  ブックマーク率: {total_bkm  / total_imp * 100:.3f}%  （{total_bkm} / {total_imp} IMP）")
+            lines.append(f"  プロフクリック率: {total_pclk / total_imp * 100:.3f}%  （{total_pclk} / {total_imp} IMP・直近29日のみ有効）")
+            lines.append("")
+
+    # ── カテゴリ別集計 ─────────────────────────────
     lines.append("カテゴリ別 AlgoScore_api（Detail除外の参考値）:")
-    lines.append(f"{'カテゴリ':<20} {'件数':>4} {'平均':>8} {'中央値':>8} {'平均IMP':>10}")
+    lines.append(f"{'カテゴリ':<22} {'件数':>4} {'平均':>8} {'中央値':>8} {'平均IMP':>10}")
 
     by_cat: dict[str, list[dict]] = {}
     for r in rows:
         by_cat.setdefault(r["カテゴリ"], []).append(r)
     for cat, group in sorted(by_cat.items(), key=lambda kv: -statistics.mean(_to_int(r["algo_score_api"]) for r in kv[1])):
         scores = [_to_int(r["algo_score_api"]) for r in group]
-        imps = [_to_int(r["impressions"]) for r in group]
-        note = " ※少数" if len(group) < 5 else ""
-        lines.append(f"{cat:<20} {len(group):>4} {statistics.mean(scores):>8.1f} {statistics.median(scores):>8.1f} {statistics.mean(imps):>10.1f}{note}")
+        imps   = [_to_int(r["impressions"])    for r in group]
+        note   = " ※少数" if len(group) < 5 else ""
+        lines.append(f"{cat:<22} {len(group):>4} {statistics.mean(scores):>8.1f} {statistics.median(scores):>8.1f} {statistics.mean(imps):>10.1f}{note}")
 
-    posts = sorted((r for r in rows), key=lambda r: -_to_int(r["algo_score_api"]))
+    posts = sorted(rows, key=lambda r: -_to_int(r["algo_score_api"]))
     lines.append("")
     lines.append("TOP 5:")
     for r in posts[:5]:
@@ -293,7 +351,7 @@ def summarize(rows: list[dict]) -> str:
 # AI定性分析（プロンプト生成 / Gemini実行）
 # ──────────────────────────────────────────
 
-def build_analysis_prompt(rows: list[dict]) -> str:
+def build_analysis_prompt(rows: list[dict], user_metrics: dict = None) -> str:
     posts = sorted(rows, key=lambda r: -_to_int(r["algo_score_api"]))
     top = posts[:10]
     worst = [r for r in posts[-10:] if r not in top]
@@ -309,6 +367,13 @@ def build_analysis_prompt(rows: list[dict]) -> str:
             )
         return "\n\n".join(out)
 
+    ff_section = ""
+    if user_metrics:
+        followers = user_metrics.get("followers", 0)
+        following = user_metrics.get("following", 0)
+        ff_ratio  = user_metrics.get("ff_ratio", 0.0)
+        ff_section = f"\n【FF比率】フォロワー {followers:,} / フォロー {following:,} = {ff_ratio:.2f}"
+
     return f"""あなたはSNSグロースに精通したデータアナリストです。
 以下は、メンエスセラピスト向けに発信するX（Twitter）アカウント @Keita_CPA
 （ペルソナ: メンエスを愛する良客 × Big4出身CPA × 話すと楽しい人）の実測パフォーマンスデータです。
@@ -316,10 +381,10 @@ def build_analysis_prompt(rows: list[dict]) -> str:
 
 【スコアの定義】
 AlgoScore_api = リプライ数×5 + プロフクリック×4 + ブックマーク×3 + リポスト×3 + いいね×1
-（注: 詳細クリックは含まれない参考値。プロフクリックは直近29日の投稿のみ計測）
+（注: 詳細クリックは含まれない参考値。プロフクリックは直近29日の投稿のみ計測）{ff_section}
 
 【統計サマリー】
-{summarize(rows)}
+{summarize(rows, user_metrics)}
 
 【高エンゲージメント投稿（TOP10・全文）】
 {fmt(top)}
@@ -365,9 +430,10 @@ def main() -> None:
     parser.add_argument("--ai", action="store_true", help="Gemini Proで定性分析（約3〜5円）")
     args = parser.parse_args()
 
+    user_metrics = None
     if not args.no_fetch:
         try:
-            tweets, non_public_map = fetch_my_tweets(args.max)
+            tweets, non_public_map, user_metrics = fetch_my_tweets(args.max)
         except Exception as e:
             msg = str(e)
             if "429" in msg or "Too Many" in msg:
@@ -394,18 +460,18 @@ def main() -> None:
 
     print()
     print("=" * 60)
-    print(summarize(rows))
+    print(summarize(rows, user_metrics))
     print("=" * 60)
 
     if args.print_analysis_prompt:
         print()
         print("----- 以下を NotebookLM / Gemini ULTRA に貼り付けてください -----")
-        print(build_analysis_prompt(rows))
+        print(build_analysis_prompt(rows, user_metrics))
 
     if args.ai:
         print()
         print("[AI] Gemini Pro で定性分析中...")
-        report = run_gemini_analysis(build_analysis_prompt(rows))
+        report = run_gemini_analysis(build_analysis_prompt(rows, user_metrics))
         out = PERF_CSV.parent / f"self_analysis_{datetime.now():%Y-%m-%d}.md"
         out.write_text(f"# 自己アカウント分析レポート（{datetime.now():%Y-%m-%d}）\n\n{report}\n", encoding="utf-8")
         print(f"[AI] レポート保存: {out}")

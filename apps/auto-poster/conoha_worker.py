@@ -35,11 +35,13 @@ from auto_poster import execute_single_post, find_target, load_csv
 
 _BASE_DIR       = Path(__file__).parent
 SCHEDULE_JSON   = str(_BASE_DIR / "schedule.json")
-CANDIDATE_HOURS = [7, 12, 18, 22]   # 朝の通勤7時台・昼休み12時台・夕方18時台・夜22時台（最低4時間間隔）
-MIN_POSTS       = 4
-MAX_POSTS       = 4
+CANDIDATE_HOURS = [7, 12, 18, 22]   # 候補枠（最低4時間間隔）。ここから毎日1〜2枠を抽選し規則性を消す
+# メイン投稿はフォロワーゼロ期には「質の陳列棚」。量より質に転換し、bot感・Show Less誘発を避ける。
+# 余ったリソースはリプライ・引用リポスト（交流エンジン）へ全振りする（PLAN.md / persona.md 参照）。
+MIN_POSTS       = 1
+MAX_POSTS       = 2
 WINDOW_MINUTES  = 10   # 予定時刻から何分以内を「有効」とするか
-STOCK_ALERT_THRESHOLD = 8   # 残ストックがこの件数未満になったらcronログに早期警告（2日分）
+STOCK_ALERT_THRESHOLD = 8   # 残ストックがこの件数未満になったらcronログに早期警告（1〜2件/日で約4〜8日分）
 
 
 # ──────────────────────────────────────────
