@@ -176,8 +176,8 @@ media_id = media.media_id
 
 ```bash
 # 構文チェック
-venv/Scripts/python -m py_compile prompts.py post_generator.py auto_poster.py
+python -m py_compile prompts.py post_generator.py auto_poster.py
 
 # インポートチェック
-venv/Scripts/python -c "import prompts, post_generator; print('imports OK')"
+python -c "import prompts, post_generator; print('imports OK')"
 ```

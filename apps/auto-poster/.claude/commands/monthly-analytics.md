@@ -17,7 +17,7 @@ OneDriveのEdgeダウンロードフォルダから最新のX Analytics CSVを�
 
 ```bash
 cd C:/Projects/x-integrated-platform/apps/auto-poster
-venv/Scripts/python -c "
+python -c "
 import pathlib, shutil, sys, io, datetime
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
@@ -56,7 +56,7 @@ CSVが見つからない場合: X(Twitter)のアナリティクス画面から�
 ## Step 2: 最新ファイルの自動検出 + posts / replies 分割
 
 ```bash
-venv/Scripts/python -c "
+python -c "
 import glob, os, sys, io
 import pandas as pd
 
@@ -96,7 +96,7 @@ print(f'リプライ:   {len(replies)}件 -> data/analytics/analytics_replies.cs
 ## Step 3: AlgoScoreスコアリングと分析レポート
 
 ```bash
-venv/Scripts/python -c "
+python -c "
 import pandas as pd, sys, io
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
@@ -232,7 +232,7 @@ for fname, label in [('data/analytics/analytics_posts.csv','=== メイン投稿 
 ※ ホワイトリスト語は prune_dead_posts.py の WHITELIST と同期すること。
 
 ```bash
-venv/Scripts/python -c "
+python -c "
 import pandas as pd, sys, io, datetime
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')

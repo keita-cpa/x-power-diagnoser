@@ -10,13 +10,13 @@
 
 ```bash
 cd C:/Projects/x-integrated-platform/apps/auto-poster
-venv/Scripts/python -c "from post_generator import generate_post, generate_meta_text; from config import GEMINI_API_KEY; print('imports OK')"
+python -c "from post_generator import generate_post, generate_meta_text; from config import GEMINI_API_KEY; print('imports OK')"
 ```
 
 **Step 2: API疎通確認（Gemini）**
 
 ```bash
-venv/Scripts/python -c "
+python -c "
 from google import genai
 from config import GEMINI_API_KEY
 client = genai.Client(api_key=GEMINI_API_KEY)
@@ -28,7 +28,7 @@ import sys; sys.stdout.buffer.write(resp.text.encode('utf-8')); print()
 **Step 3: generate_meta_text の単体テスト**
 
 ```bash
-venv/Scripts/python -c "
+python -c "
 from post_generator import generate_meta_text
 title, alt = generate_meta_text('税務調査が来たとき、セラピストはどう対応すればよいか。')
 import sys
@@ -39,7 +39,7 @@ sys.stdout.buffer.write(f'title={title}\nalt={alt}\n'.encode('utf-8'))
 **Step 4: CSV の現在状態を確認**
 
 ```bash
-venv/Scripts/python -c "
+python -c "
 import pandas as pd, sys
 df = pd.read_csv('data/drafts/stock_posts_draft.csv', encoding='utf-8-sig')
 sys.stdout.buffer.write(f'行数: {len(df)}\n列: {list(df.columns)}\n'.encode('utf-8'))
@@ -59,5 +59,5 @@ sys.stdout.buffer.write(f'行数: {len(df)}\n列: {list(df.columns)}\n'.encode('
 |---|---|
 | `ModuleNotFoundError: No module named 'google'` | `venv/Scripts/pip install google-genai` |
 | `ModuleNotFoundError: No module named 'PIL'` | `venv/Scripts/pip install Pillow` |
-| `404 NOT_FOUND` (モデル廃止) | `venv/Scripts/python -c "from google import genai; from config import GEMINI_API_KEY; c=genai.Client(api_key=GEMINI_API_KEY); [print(m.name) for m in c.models.list()]"` でモデル一覧を確認 |
+| `404 NOT_FOUND` (モデル廃止) | `python -c "from google import genai; from config import GEMINI_API_KEY; c=genai.Client(api_key=GEMINI_API_KEY); [print(m.name) for m in c.models.list()]"` でモデル一覧を確認 |
 | CSV列が8列でない | `.claude/rules/csv-safety.md` の復旧手順を参照（バックアップから復元） |

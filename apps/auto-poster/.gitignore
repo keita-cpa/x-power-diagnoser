@@ -18,6 +18,7 @@ venv/
 
 # ログ
 *.log
+data/analytics/pruned_log.txt
 
 # OS
 .DS_Store

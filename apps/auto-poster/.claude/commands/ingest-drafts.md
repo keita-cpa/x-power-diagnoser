@@ -12,13 +12,13 @@ ls data/raw_contents/*.txt 2>/dev/null || echo "NO_FILES"
 ```
 
 `NO_FILES` の場合はユーザーに案内して終了:
-1. マスタープロンプトを出力して見せる: `venv/Scripts/python ingest_raw_contents.py --print-prompt --count 12`
-2. 「このプロンプトを NotebookLM / Gemini ULTRA に貼り、出力を data/raw_contents/ に .txt 保存してください」
+1. マスタープロンプトを出力して見せる: `python ingest_raw_contents.py --print-prompt`
+2. 「このプロンプトを Gemini ULTRA に貼り、出力を data/raw_contents/ に .txt 保存してください」
 
 ## Step 1: dry-run でプレビュー
 
 ```bash
-venv/Scripts/python ingest_raw_contents.py --dry-run --no-qc
+python ingest_raw_contents.py --dry-run --no-qc
 ```
 
 取り込み予定件数と隔離予定（理由付き）を報告する。
@@ -36,7 +36,7 @@ raw_contents の該当 .txt を直接修正して救済する:
 ## Step 3: 本実行（QC審査つき）
 
 ```bash
-venv/Scripts/python ingest_raw_contents.py
+python ingest_raw_contents.py
 ```
 
 - QC審査（Gemini Pro・3基準）が実行される。[REJECT] は rejected/ に理由付きで隔離される
@@ -72,6 +72,6 @@ bash scripts/push_drafts_to_conoha.sh             # ユーザーOK後に実行�
 |---|---|
 | ブロック区切りが見つからない | Web LLMが形式を守っていない。`--print-prompt` の【出力フォーマット】を再度貼って再生成 |
 | カテゴリ不正が多発 | マスタープロンプトのカテゴリ名と prompts.py の同期を確認 |
-| `ModuleNotFoundError` | `venv/Scripts/pip install google-genai openpyxl pandas` |
+| `ModuleNotFoundError` | `pip install google-genai openpyxl pandas` |
 | QCで全件リジェクト | knowledge.xlsx と無関係な資料で生成された可能性。NotebookLMのソース設定を確認 |
 | CSV列が8列でない | `.claude/rules/csv-safety.md` の復旧手順を参照 |

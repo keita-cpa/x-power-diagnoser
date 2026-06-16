@@ -13,13 +13,13 @@
 
 ```bash
 cd C:/Projects/x-integrated-platform/apps/auto-poster
-venv/Scripts/python -m py_compile therapist_introducer.py && echo "[OK] 構文チェック通過"
+python -m py_compile therapist_introducer.py && echo "[OK] 構文チェック通過"
 ```
 
 X APIのレート制限状況を確認する（直近15分以内にsniper_radar.pyを実行した場合は注意）:
 
 ```bash
-venv/Scripts/python -c "
+python -c "
 import sys
 target = '$ARGUMENTS'.lstrip('@') or '（引数未指定）'
 sys.stdout.buffer.write(f'対象アカウント: @{target}\n'.encode('utf-8'))
@@ -34,7 +34,7 @@ sys.stdout.buffer.write(b'注意: sniper_radar.py直後の実行はレート制�
 
 ```bash
 cd C:/Projects/x-integrated-platform/apps/auto-poster
-venv/Scripts/python therapist_introducer.py $ARGUMENTS
+python therapist_introducer.py $ARGUMENTS
 ```
 
 ---

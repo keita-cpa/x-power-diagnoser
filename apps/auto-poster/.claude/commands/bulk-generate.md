@@ -8,7 +8,7 @@
 
 ```bash
 cd C:/Projects/x-integrated-platform/apps/auto-poster
-venv/Scripts/python -c "
+python -c "
 import pandas as pd, sys
 df = pd.read_csv('data/drafts/stock_posts_draft.csv', encoding='utf-8-sig')
 pending = df[df['ステータス'].isna() | (df['ステータス'] == '')].shape[0]
@@ -23,7 +23,7 @@ sys.stdout.buffer.write(f'総行数: {total}\n未投稿（ストック）: {pend
 
 ```bash
 cd C:/Projects/x-integrated-platform/apps/auto-poster
-venv/Scripts/python mini_bulk_generator.py
+python mini_bulk_generator.py
 ```
 
 対話型CLIが起動する。ユーザーが件数・カテゴリを入力するまで待機。
@@ -33,7 +33,7 @@ venv/Scripts/python mini_bulk_generator.py
 生成完了後、結果を確認して報告する:
 
 ```bash
-venv/Scripts/python -c "
+python -c "
 import pandas as pd, sys
 df = pd.read_csv('data/drafts/stock_posts_draft.csv', encoding='utf-8-sig')
 pending = df[df['ステータス'].isna() | (df['ステータス'] == '')].shape[0]

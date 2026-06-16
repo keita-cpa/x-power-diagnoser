@@ -14,7 +14,7 @@ cat data/config/target_accounts.txt
 （ファイルが無い場合は `sniper_radar.py` 内の `DEFAULT_TARGET_ACCOUNTS` にフォールバックされる）
 
 ```bash
-venv/Scripts/python -c "
+python -c "
 import pandas as pd, sys, os
 if os.path.exists('data/logs/scouted_targets.csv'):
     df = pd.read_csv('data/logs/scouted_targets.csv', encoding='utf-8-sig')
@@ -30,19 +30,19 @@ else:
 
 ```bash
 cd C:/Projects/x-integrated-platform/apps/auto-poster
-venv/Scripts/python sniper_radar.py
+python sniper_radar.py
 ```
 
 特定の1アカウントだけ即時スキャンする場合（「@xxx に今すぐリプライ案がほしい」とき）:
 
 ```bash
-venv/Scripts/python sniper_radar.py --target ユーザー名
+python sniper_radar.py --target ユーザー名
 ```
 
 ## 実行後の確認
 
 ```bash
-venv/Scripts/python -c "
+python -c "
 import pandas as pd, sys
 df = pd.read_csv('data/logs/scouted_targets.csv', encoding='utf-8-sig')
 latest = df.tail(5)

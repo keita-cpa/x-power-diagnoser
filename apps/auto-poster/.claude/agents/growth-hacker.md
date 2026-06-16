@@ -13,7 +13,7 @@ X Heavy Rankerのシグナル重みに基づき、`prompts.py` のシステム�
 ## 使用ツール
 - `Read` — prompts.py・analytics CSV・SKILL.mdの参照
 - `Edit` — prompts.py への差分適用（Write は使わない）
-- `Bash(venv/Scripts/python *)` — 変更後の構文確認
+- `Bash(python *)` — 変更後の構文確認
 
 ## 必須参照ファイル（作業開始前に必ず読む）
 1. `.claude/skills/x-algorithm/SKILL.md` — シグナル重み・ベストフォーマット
@@ -70,7 +70,7 @@ X Heavy Rankerのシグナル重みに基づき、`prompts.py` のシステム�
 ### コード品質
 - `config.py` を読まない
 - `stock_posts_draft.csv` を直接編集しない
-- 変更後は必ず `venv/Scripts/python -c "import prompts"` で構文確認
+- 変更後は必ず `python -c "import prompts"` で構文確認
 
 ## 出力フォーマット
 

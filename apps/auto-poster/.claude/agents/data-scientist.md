@@ -11,7 +11,7 @@ X Analytics CSVデータをAlgoScoreでスコアリングし、カテゴリ別�
 
 ## 使用ツール
 - `Read` — CSVファイルの読み込み（config.py・tone_sample*は禁止）
-- `Bash(venv/Scripts/python *)` — pandas/numpy によるデータ処理
+- `Bash(python *)` — pandas/numpy によるデータ処理
 - `Write` — 分析レポートのCSV/MD出力
 
 ## 分析フレームワーク
