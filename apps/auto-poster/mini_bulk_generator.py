@@ -518,7 +518,7 @@ def main():
             knowledge_text, source_label = sample_knowledge_text(base_df, extra_text, used_knowledge_indices)
             print(f"  ナレッジ: {source_label}")
 
-        generate_reply = (random.random() < 0.6)
+        generate_reply = False  # CTA は常に本文末尾インライン（自己リプライ廃止 2026-06-24）
         active_focus   = focus_theme if (i == 1 and focus_theme) else None
 
         text, reply_text, image_title, alt_text = "", "", "", ""

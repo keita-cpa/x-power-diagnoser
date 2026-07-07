@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>気くばり手帖 標準運用フロー</title>
+<style>
+  :root {
+    --ink: #2b2b2b; --sub: #666; --line: #ddd;
+    --accent: #6b4f3a; --bg: #faf8f5; --card: #fff;
+    --ok: #2e7d32; --ng: #b3402a; --warn-bg: #fdf3e7; --warn-line: #e0b070;
+    --user: #1a5276; --claude: #6b4f3a; --auto: #4a7043;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Yu Gothic UI", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+    color: var(--ink); background: var(--bg);
+    max-width: 880px; margin: 0 auto; padding: 32px 20px 64px;
+    line-height: 1.8;
+  }
+  h1 { font-size: 1.5rem; border-bottom: 3px solid var(--accent); padding-bottom: 10px; }
+  h2 { font-size: 1.15rem; margin-top: 2.2em; border-left: 5px solid var(--accent); padding-left: 10px; }
+  .meta { color: var(--sub); font-size: 0.85rem; }
+  .warn {
+    background: var(--warn-bg); border-left: 5px solid var(--warn-line);
+    padding: 12px 16px; margin: 18px 0; border-radius: 0 6px 6px 0;
+  }
+  table { border-collapse: collapse; width: 100%; margin: 14px 0; background: var(--card); font-size: 0.9rem; }
+  th, td { border: 1px solid var(--line); padding: 8px 12px; text-align: left; vertical-align: top; }
+  th { background: #f0ebe4; white-space: nowrap; }
+  code { background: #f0ebe4; padding: 1px 6px; border-radius: 4px; font-size: 0.85em; }
+  .step {
+    background: var(--card); border: 1px solid var(--line); border-radius: 8px;
+    padding: 14px 18px; margin: 12px 0; position: relative;
+  }
+  .step .no {
+    display: inline-block; background: var(--accent); color: #fff;
+    border-radius: 50%; width: 28px; height: 28px; text-align: center;
+    line-height: 28px; font-weight: bold; margin-right: 10px; font-size: 0.9rem;
+  }
+  .step b.title { font-size: 1.02rem; }
+  .role { font-size: 0.75rem; padding: 2px 8px; border-radius: 10px; color: #fff; margin-left: 8px; vertical-align: middle; }
+  .r-user { background: var(--user); }
+  .r-claude { background: var(--claude); }
+  .r-auto { background: var(--auto); }
+  .branch { margin: 8px 0 0 38px; padding: 8px 12px; border-left: 3px dashed var(--ng); background: #fdf5f3; font-size: 0.9rem; border-radius: 0 6px 6px 0; }
+  .arrow { text-align: center; color: var(--sub); margin: -4px 0; font-size: 1.1rem; }
+  ul { margin: 6px 0; padding-left: 22px; }
+  li { margin: 3px 0; }
+  .ok { color: var(--ok); font-weight: bold; }
+  .ng { color: var(--ng); font-weight: bold; }
+  footer { margin-top: 48px; color: var(--sub); font-size: 0.8rem; border-top: 1px solid var(--line); padding-top: 12px; }
+</style>
+</head>
+<body>
+
+<h1>気くばり手帖 標準運用フロー</h1>
+<p class="meta">2026-07-06 制定（制度v2.1準拠）/ 単一ソース: <code>docs/introduction_system.md</code> /
+凡例: <span class="role r-user">ユーザー</span> <span class="role r-claude">Claude</span> <span class="role r-auto">自動</span></p>
+
+<div class="warn">
+<b>初期セットアップ（1回だけ・未完了）</b><br>
+□ 目次ポスト「気くばり手帖」を投稿する（本文は introduction_system.md §4・「お店やサービスの話も書きません」の1行入り）<br>
+□ 目次にその1（@rin_ring_ange）・その2（@96yuridayo）を自己リプライで遡及追記する<br>
+□ X APIクレジットの補充可否を判断する（現在402。未補充の間、素材収集はブラウザ収集で代替）
+</div>
+
+<h2>週次サイクル（週1件上限・木曜夜投稿）</h2>
+
+<div class="step"><span class="no">0</span><b class="title">選定</b><span class="role r-user">ユーザー</span><span class="role r-claude">Claude</span>
+<ul>
+<li>候補は「会ったことも施術を受けたこともない人」のみ（§2 最上位ルール）</li>
+<li>target_accounts.txt 掲載・公開情報で「いいな」と思った実感・素材が6:4比率を書ける量あるか（§6）</li>
+<li>再紹介は3条件（前回から3か月以上・新素材・年1回）を確認。サブ垢は同一人物扱い（§5）</li>
+</ul>
+<div class="branch">素材不足 → 紹介せず交流から始める（スペース感想リプ・引用が最初の一手）。翌週以降に再検討</div>
+</div>
+<div class="arrow">↓</div>
+
+<div class="step"><span class="no">1</span><b class="title">投稿前グレーチェック（5分・除外基準方式）</b><span class="role r-claude">Claude</span><span class="role r-user">ユーザー</span>
+<ul>
+<li>① 本人のリンク先（lit.link等）に性的示唆がないか ② 在籍店ページに健全店の範囲を超える（おそれのある）表記がないか（内容非公開のリピーター限定コース等はグレー扱い） ③ 摘発報道の軽い検索 ④ 年齢疑義</li>
+<li>結果は台帳の波及メモに記録（実施日・判定・根拠）</li>
+</ul>
+<div class="branch"><b>ひとつでも該当 → 紹介しない。</b>迷ったら保守側（見送り）・最終判断は公認会計士本人。
+<span class="ok">交流は通常どおり継続してよい</span>（紹介だけが資格者名義の資産）</div>
+</div>
+<div class="arrow">↓</div>
+
+<div class="step"><span class="no">2</span><b class="title">素材収集</b><span class="role r-auto">自動</span><span class="role r-claude">Claude</span>
+<ul>
+<li>通常: <code>therapist_introducer.py</code> がX APIで自動取得（プロフィール・通常ポスト・リプライ）</li>
+<li>X API停止時: ブラウザで公開タイムラインを収集（2026-07-06のその3で実証済みの代替経路）</li>
+<li>スペースの声を素材にする場合: ユーザーの聴取メモ（観察の要約のみ・逐語書き起こし禁止）をGem手動運用または生成ランナーに追加入力</li>
+<li>除外するもの: 固定ポスト等の宣伝（源氏名・店・地域が出るため）／本人から @Keita_CPA 宛の返信（自分との関係に触れないため）</li>
+</ul>
+</div>
+<div class="arrow">↓</div>
+
+<div class="step"><span class="no">3</span><b class="title">生成</b><span class="role r-auto">自動</span>
+<ul>
+<li><code>python therapist_introducer.py --target ID</code>（正式な再紹介は <code>--reintroduce</code>・推敲用再生成は <code>--force</code>）</li>
+<li>シリーズ行「気くばり手帖 そのN」の採番・付与、台帳への記録、<code>drafts/intro_*.md</code> 保存まで自動</li>
+</ul>
+</div>
+<div class="arrow">↓</div>
+
+<div class="step"><span class="no">4</span><b class="title">QC・推敲</b><span class="role r-claude">Claude</span>
+<ul>
+<li>QC3基準（法令・説教/暴言・事実）＋ v2チェック: 対面・施術の示唆なし／自分とのやり取りへの言及なし／店・地域・源氏名なし／リプライの逐語引用なし／シリーズ行の重複なし／結び形式（関西弁1文＋気遣い1文＋╰ᘏᗢ ☕︎）</li>
+<li>「交流してくれる人」は第三者への返しぶりの抽象観察1〜2文で伝える</li>
+</ul>
+</div>
+<div class="arrow">↓</div>
+
+<div class="step"><span class="no">5</span><b class="title">投稿（木曜夜）</b><span class="role r-user">ユーザー</span>
+<ul>
+<li>ドラフトを最終確認し、Xプレミアム長文ポストとして手動投稿（自動投稿はしない）</li>
+</ul>
+</div>
+<div class="arrow">↓</div>
+
+<div class="step"><span class="no">6</span><b class="title">目次追記・台帳記入</b><span class="role r-user">ユーザー</span>
+<ul>
+<li>目次ポストに自己リプライ: <code>そのN 「紹介文中の言葉から6〜12字」 @username さん</code></li>
+<li>台帳（introductions_log.csv）にポストURLを記入</li>
+</ul>
+</div>
+<div class="arrow">↓</div>
+
+<div class="step"><span class="no">7</span><b class="title">フォロー（波及ループ）</b><span class="role r-user">ユーザー</span><span class="role r-claude">Claude</span>
+<ul>
+<li>本人の反応への返信し返しを最優先（ただし紹介と対面関係を結びつける発言はしない）</li>
+<li>反応した同業セラピスト個人（フォロワー20〜5,000）を target_accounts.txt 追加候補に</li>
+<li>1週間後: 台帳の「本人反応」列を記入（like/repost/quote/reply）。固定・プロフ採用に気づいたら「資産採用」列へ</li>
+</ul>
+</div>
+
+<h2>月次レビュー（/project:monthly-analytics 時）</h2>
+<table>
+<tr><th>指標</th><th>見方</th></tr>
+<tr><td>本人反応率（repost以上÷紹介数）</td><td>5割未満なら文章の型ではなく選定（素材の深さ）を疑う</td></tr>
+<tr><td>資産採用数</td><td>固定・プロフに使われた件数。制度の集客価値の直接証拠</td></tr>
+<tr><td>波及接点数</td><td>紹介経由で target_accounts に増えた数</td></tr>
+<tr><td>North Star接続</td><td>紹介済みの相手からのDM・パーソナル相談の発生</td></tr>
+<tr><td>制度全体</td><td>その12（約3か月）到達時に制度全体をレビュー。10件でX記事アーカイブ化を検討</td></tr>
+</table>
+
+<h2>よくある迷いと答え（クイックリファレンス）</h2>
+<table>
+<tr><th>迷い</th><th>答え</th></tr>
+<tr><td>会ったことがある・施術を受けた人を書きたい</td><td class="ng">書かない（§2 最上位ルール）。交流は通常どおり</td></tr>
+<tr><td>本人や店から「書いて」と頼まれた</td><td class="ng">書かない（§5）。返し方の例文は §5-2</td></tr>
+<tr><td>店がグレーだが本人はいい人</td><td class="ng">書かない（除外基準）。<span class="ok">交流は継続可</span></td></tr>
+<tr><td>スペースで知っただけの人</td><td>素材が足りれば可。足りなければ交流開始のトリガーとして扱う</td></tr>
+<tr><td>サブ垢を見つけた</td><td>同一人物として扱う。再紹介は3か月以上＋新素材＋年1回</td></tr>
+<tr><td>自分と仲良くしてくれることを伝えたい</td><td class="ng">自分とのやり取りには触れない。第三者への返しぶりの抽象観察で伝える</td></tr>
+<tr><td>紹介した人の店に行った・行きたい</td><td>関係は一切公言しない（2026-07-06決定）。紹介と対面関係を結びつけない</td></tr>
+<tr><td>投稿ペースを上げたい</td><td class="ng">週1上限は動かさない。希少性が制度の通貨価値</td></tr>
+</table>
+
+<h2>現在の状態（2026-07-06時点）</h2>
+<table>
+<tr><th>件</th><th>状態</th></tr>
+<tr><td>その1 @rin_ring_ange / その2 @96yuridayo</td><td>投稿済み（旧運用）。目次への遡及追記が未了</td></tr>
+<tr><td>その3 @96yurisub（再紹介）</td><td><b>投稿保留・ユーザー判断待ち</b>。グレーチェックで在籍店に闇夜コース等の非公開コース表記を検出（本人タグ・リンク先はクリーン・摘発報道なし）。改稿済みドラフト: <code>drafts/intro_96yurisub_20260706_010457.md</code>。見送りなら台帳その3をボツ記録に変更し、番号3は次の人に払い出し直す</td></tr>
+<tr><td>X API</td><td>402（クレジット切れ）。sniper・daily_menu・自動素材収集に影響。補充までブラウザ収集で代替</td></tr>
+</table>
+
+<footer>
+標準運用フロー v1.0（2026-07-06）/ ルールの単一ソースは docs/introduction_system.md（本フローは手順への展開）。
+制度改訂時は本ファイルも同期すること。
+</footer>
+
+</body>
+</html>

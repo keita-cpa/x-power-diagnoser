@@ -406,6 +406,109 @@ AlgoScore_api = リプライ数×5 + プロフクリック×4 + ブックマー�
 - リプライ（type=reply）とメイン投稿は性質が異なるため分けて論じること"""
 
 
+def recommend_weights(rows: list[dict]) -> str:
+    """
+    実測AlgoScore_api/件 vs 現在のweight を比較し、調整案を出力する。
+
+    参考: 『loop設計』VERIFY→ITERATE原則
+          → Analytics後に weight を自動推薦し、人間が prompts.py に反映する
+    """
+    from prompts import POST_CATEGORIES
+
+    # v6カテゴリのみ対象（旧カテゴリは除外）
+    v6_cats = list(POST_CATEGORIES.keys())
+
+    # 実測AlgoScore平均/件（postのみ）
+    post_rows = [r for r in rows if r["type"] == "post"]
+    actual: dict[str, list[float]] = {cat: [] for cat in v6_cats}
+    for r in post_rows:
+        cat = r["カテゴリ"]
+        if cat in actual:
+            actual[cat].append(_to_int(r["algo_score_api"]))
+
+    lines = []
+    lines.append("=" * 68)
+    lines.append("【weight調整推薦（loop設計 VERIFY→ITERATE）】")
+    lines.append("  実測AlgoScore/件 vs 現在weight を比較 → prompts.py に反映するか判断")
+    lines.append("=" * 68)
+    lines.append(f"{'カテゴリ':<26} {'現weight':>8} {'実測平均':>8} {'件数':>5} {'推薦':>8}")
+    lines.append("-" * 68)
+
+    stats = []
+    for cat in v6_cats:
+        current_w = POST_CATEGORIES[cat].get("weight", 0)
+        scores    = actual.get(cat, [])
+        avg_score = sum(scores) / len(scores) if scores else 0.0
+        stats.append((cat, current_w, avg_score, len(scores)))
+
+    # 実測平均でランク付け（件数5未満は判断保留）
+    ranked_by_actual  = sorted([s for s in stats if s[3] >= 5], key=lambda x: -x[2])
+    ranked_by_weight  = sorted(stats, key=lambda x: -x[1])
+
+    # 推薦weight計算: 実測スコアを正規化し現weightの合計に合わせる
+    total_weight  = sum(s[1] for s in stats)
+    valid_scores  = [s[2] for s in stats if s[3] >= 5]
+    score_min     = min(valid_scores) if valid_scores else 0
+    score_max     = max(valid_scores) if valid_scores else 1
+
+    suggestions: dict[str, int] = {}
+    for cat, current_w, avg_score, count in stats:
+        if count < 5:
+            suggestions[cat] = current_w  # データ不足: 維持
+        else:
+            if score_max == score_min:
+                norm = 1.0
+            else:
+                norm = (avg_score - score_min) / (score_max - score_min)
+            # 現weightの ±6 以内に収める
+            raw = 8 + norm * 17  # 8〜25の範囲にマッピング
+            suggestions[cat] = max(5, min(35, round(raw)))
+
+    # 合計が100になるよう正規化
+    s_total = sum(suggestions.values())
+    if s_total > 0:
+        scale = total_weight / s_total
+        suggestions = {k: max(5, round(v * scale)) for k, v in suggestions.items()}
+        # 端数調整で合計をtotal_weightに合わせる
+        diff = total_weight - sum(suggestions.values())
+        if diff != 0:
+            key = max(suggestions, key=lambda k: abs(suggestions[k]))
+            suggestions[key] = max(5, suggestions[key] + diff)
+
+    changed = False
+    for cat, current_w, avg_score, count in stats:
+        new_w   = suggestions[cat]
+        delta   = new_w - current_w
+        remark  = ""
+        if count < 5:
+            remark = "(データ不足・維持)"
+        elif abs(delta) >= 3:
+            remark = f"{'UP' if delta > 0 else 'DOWN'} {delta:+d}"
+            changed = True
+        else:
+            remark = "(誤差範囲・維持)"
+        lines.append(f"{cat:<26} {current_w:>8} {avg_score:>8.1f} {count:>5} {new_w:>6} {remark}")
+
+    lines.append("-" * 68)
+    lines.append(f"{'合計':<26} {total_weight:>8} {'':>8} {'':>5} {sum(suggestions.values()):>8}")
+
+    if changed:
+        lines.append("")
+        lines.append("【prompts.py 適用案（変更が大きいカテゴリのみ）】")
+        for cat, current_w, avg_score, count in stats:
+            new_w = suggestions[cat]
+            if abs(new_w - current_w) >= 3 and count >= 5:
+                lines.append(f'    "{cat}": {{"weight": {new_w}}},  # {current_w} -> {new_w}')
+        lines.append("")
+        lines.append("注意: 変更前に必ず growth-hacker エージェントにレビューを依頼すること。")
+        lines.append("      weight改定の最終判断は月次X Analytics CSV（正式AlgoScore）が根拠。")
+    else:
+        lines.append("")
+        lines.append("現在のweightは実測値と整合しています。変更不要です。")
+
+    return "\n".join(lines)
+
+
 def run_gemini_analysis(prompt: str) -> str:
     """Gemini Pro で定性分析を実行する（約3〜5円）。"""
     from post_generator import client, MODEL_NAME, SAFETY_SETTINGS
@@ -428,6 +531,8 @@ def main() -> None:
     parser.add_argument("--no-fetch", action="store_true", help="API取得せず既存CSVで集計のみ")
     parser.add_argument("--print-analysis-prompt", action="store_true", help="定額LLM用の分析プロンプトを出力")
     parser.add_argument("--ai", action="store_true", help="Gemini Proで定性分析（約3〜5円）")
+    parser.add_argument("--recommend-weights", action="store_true",
+                        help="実測AlgoScoreを元にPOST_CATEGORIESのweight調整案を出力（loop設計 ITERATE支援）")
     args = parser.parse_args()
 
     user_metrics = None
@@ -477,6 +582,10 @@ def main() -> None:
         print(f"[AI] レポート保存: {out}")
         print()
         print(report)
+
+    if args.recommend_weights:
+        print()
+        print(recommend_weights(rows))
 
 
 if __name__ == "__main__":

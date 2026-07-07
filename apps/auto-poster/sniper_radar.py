@@ -37,10 +37,14 @@ from prompts import SYSTEM_PROMPT, _TONE_REPLY, _TONE_INFLUENCER_REPLY
 # 監視対象は data/config/target_accounts.txt（1行1アカウント・#コメント可）で管理する。
 # ファイルが存在しない場合のみ、以下のフォールバックリストを使う。
 DEFAULT_TARGET_ACCOUNTS = [
-    # セラピスト系（高コンバージョン・優先）
+    # 継続観察・優先セラピスト
     "sub20250209", "jibunmigakuzo", "uDonshi9532", "kkk_cun",
-    # 既存VIPアカウント
-    "nekokoroconsul1", "mensaesthet", "sugawara11", "765naruko", "96yurisub", "doki_doki_ryuga", "rin_ring_ange", "nyakomiya",
+    # セラピスト個人（target_accounts.txt の内容と同期・ファイル欠損時のフォールバック）
+    "765naruko", "96yurisub", "nyakomiya", "rin_ring_ange",
+    "shiori_7022", "bs_koharu811", "tsuki_labbit", "kyoto__serina",
+    "__pompom__2", "miyu_flora", "rino_230", "revivalmoka",
+    "hinano__armone", "aroma_nonoka2", "tenkasora_", "soraspa7",
+    "tsumugigoat_", "suzu_nyan2525", "kanna_hime57", "hi_oto12", "ioskum10",
 ]
 TARGETS_FILE            = Path(__file__).parent / "data" / "config" / "target_accounts.txt"
 INFLUENCER_TARGETS_FILE = Path(__file__).parent / "data" / "config" / "influencer_accounts.txt"

@@ -1,0 +1,1531 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<ksj:Dataset gml:id="A29Dataset"
+ xmlns:ksj="http://nlftp.mlit.go.jp/ksj/schemas/ksj-app"
+ xmlns:gml="http://www.opengis.net/gml/3.2"
+ xmlns:xlink="http://www.w3.org/1999/xlink"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://nlftp.mlit.go.jp/ksj/schemas/ksj-app KsjAppSchema-A29-v1_0.xsd">
+<gml:description>国土数値情報（用途地域）データ A29-19_01432.xml</gml:description>
+<gml:boundedBy>
+  <gml:EnvelopeWithTimePeriod srsName="JGD2011 / (B, L)" frame="GC / JST">
+    <gml:lowerCorner>43.53455862 141.86420708</gml:lowerCorner>
+    <gml:upperCorner>43.56464048 141.88709427</gml:upperCorner>
+    <gml:beginPosition calendarEraName="西暦">1900</gml:beginPosition>
+    <gml:endPosition indeterminatePosition="unknown"/>
+  </gml:EnvelopeWithTimePeriod>
+</gml:boundedBy>
+<gml:Curve gml:id="cv1_0">
+  <gml:segments>
+    <gml:LineStringSegment>
+      <gml:posList>
+      43.54124623 141.88557576
+      43.54151019 141.88570098
+      43.54280117 141.88567227
+      43.54307917 141.88568069
+      43.54354083 141.88573578
+      43.54362607 141.88574916
+      43.54381442 141.88496364
+      43.54387546 141.88472221
+      43.54405533 141.88401078
+      43.54258175 141.88328406
+      43.54236981 141.88318157
+      43.54166667 141.88284311
+      43.54101803 141.88253931
+      43.54114928 141.88201800
+      43.53952097 141.88120994
+      43.53939119 141.88175267
+      43.53881981 141.88147366
+      43.53783258 141.88099900
+      43.53732575 141.88075547
+      43.53671511 141.88046208
+      43.53624522 141.88023631
+      43.53583414 141.88185378
+      43.53579711 141.88199696
+      43.53455862 141.88685831
+      43.53462597 141.88688306
+      43.53478086 141.88698272
+      43.53484648 141.88699877
+      43.53502605 141.88709427
+      43.53550317 141.88693366
+      43.53665479 141.88656259
+      43.53767043 141.88618298
+      43.53816048 141.88607865
+      43.53937811 141.88586176
+      43.53988962 141.88578924
+      43.53993134 141.88578597
+      43.54002771 141.88570387
+      43.54007817 141.88568545
+      43.54043598 141.88562895
+      43.54075658 141.88560890
+      43.54076738 141.88555450
+      43.54124623 141.88557576
+      </gml:posList>
+    </gml:LineStringSegment>
+  </gml:segments>
+</gml:Curve>
+<gml:Surface gml:id="sf1">
+  <gml:patches>
+    <gml:PolygonPatch>
+      <gml:exterior>
+        <gml:Ring>
+          <gml:curveMember xlink:href="#cv1_0"/>
+        </gml:Ring>
+      </gml:exterior>
+    </gml:PolygonPatch>
+  </gml:patches>
+</gml:Surface>
+<gml:Curve gml:id="cv2_0">
+  <gml:segments>
+    <gml:LineStringSegment>
+      <gml:posList>
+      43.54317781 141.88289544
+      43.54322656 141.88271367
+      43.54342206 141.88189869
+      43.54378986 141.88047247
+      43.54494157 141.88103762
+      43.54569465 141.87799438
+      43.54294503 141.87669632
+      43.54156354 141.88212746
+      43.54317781 141.88289544
+      </gml:posList>
+    </gml:LineStringSegment>
+  </gml:segments>
+</gml:Curve>
+<gml:Surface gml:id="sf2">
+  <gml:patches>
+    <gml:PolygonPatch>
+      <gml:exterior>
+        <gml:Ring>
+          <gml:curveMember xlink:href="#cv2_0"/>
+        </gml:Ring>
+      </gml:exterior>
+    </gml:PolygonPatch>
+  </gml:patches>
+</gml:Surface>
+<gml:Curve gml:id="cv3_0">
+  <gml:segments>
+    <gml:LineStringSegment>
+      <gml:posList>
+      43.54401369 141.87274189
+      43.54515511 141.87328303
+      43.54599453 141.87005225
+      43.54673889 141.87040962
+      43.54675359 141.87034985
+      43.54715399 141.86872260
+      43.54716972 141.86866218
+      43.54634217 141.86827206
+      43.54479350 141.86750528
+      43.54476753 141.86760567
+      43.54434008 141.86925794
+      43.54352572 141.87251556
+      43.54401369 141.87274189
+      </gml:posList>
+    </gml:LineStringSegment>
+  </gml:segments>
+</gml:Curve>
+<gml:Surface gml:id="sf3">
+  <gml:patches>
+    <gml:PolygonPatch>
+      <gml:exterior>
+        <gml:Ring>
+          <gml:curveMember xlink:href="#cv3_0"/>
+        </gml:Ring>
+      </gml:exterior>
+    </gml:PolygonPatch>
+  </gml:patches>
+</gml:Surface>
+<gml:Curve gml:id="cv4_0">
+  <gml:segments>
+    <gml:LineStringSegment>
+      <gml:posList>
+      43.54692847 141.88047447
+      43.54725764 141.87915591
+      43.54680981 141.87892589
+      43.54704891 141.87800574
+      43.54719248 141.87741087
+      43.54542937 141.87655786
+      43.54324729 141.87552064
+      43.54294503 141.87669632
+      43.54569465 141.87799438
+      43.54494157 141.88103762
+      43.54378986 141.88047247
+      43.54342206 141.88189869
+      43.54322656 141.88271367
+      43.54317781 141.88289544
+      43.54559555 141.88406855
+      43.54656500 141.88028954
+      43.54668983 141.88035306
+      43.54692847 141.88047447
+      </gml:posList>
+    </gml:LineStringSegment>
+  </gml:segments>
+</gml:Curve>
+<gml:Surface gml:id="sf4">
+  <gml:patches>
+    <gml:PolygonPatch>
+      <gml:exterior>
+        <gml:Ring>
+          <gml:curveMember xlink:href="#cv4_0"/>
+        </gml:Ring>
+      </gml:exterior>
+    </gml:PolygonPatch>
+  </gml:patches>
+</gml:Surface>
+<gml:Curve gml:id="cv5_0">
+  <gml:segments>
+    <gml:LineStringSegment>
+      <gml:posList>
+      43.54719248 141.87741087
+      43.54781122 141.87497480
+      43.54740667 141.87478917
+      43.54735550 141.87500000
+      43.54723561 141.87547106
+      43.54721206 141.87546041
+      43.54649642 141.87512386
+      43.54643257 141.87509559
+      43.54638749 141.87507563
+      43.54633455 141.87505220
+      43.54599352 141.87490121
+      43.54585162 141.87483896
+      43.54566756 141.87560783
+      43.54548242 141.87634836
+      43.54542937 141.87655786
+      43.54719248 141.87741087
+      </gml:posList>
+    </gml:LineStringSegment>
+  </gml:segments>
+</gml:Curve>
+<gml:Surface gml:id="sf5">
+  <gml:patches>
+    <gml:PolygonPatch>
+      <gml:exterior>
+        <gml:Ring>
+          <gml:curveMember xlink:href="#cv5_0"/>
+        </gml:Ring>
+      </gml:exterior>
+    </gml:PolygonPatch>
+  </gml:patches>
+</gml:Surface>
+<gml:Curve gml:id="cv6_0">
+  <gml:segments>
+    <gml:LineStringSegment>
+      <gml:posList>
+      43.54789517 141.87841072
+      43.54749258 141.87821583
+      43.54704891 141.87800574
+      43.54680981 141.87892589
+      43.54725764 141.87915591
+      43.54692847 141.88047447
+      43.54668983 141.88035306
+      43.54656500 141.88028954
+      43.54559555 141.88406855
+      43.54532260 141.88525380
+      43.54609438 141.88561642
+      43.54623956 141.88503069
+      43.54581836 141.88483506
+      43.54629158 141.88295444
+      43.54672052 141.88315219
+      43.54789517 141.87841072
+      </gml:posList>
+    </gml:LineStringSegment>
+  </gml:segments>
+</gml:Curve>
+<gml:Surface gml:id="sf6">
+  <gml:patches>
+    <gml:PolygonPatch>
+      <gml:exterior>
+        <gml:Ring>
+          <gml:curveMember xlink:href="#cv6_0"/>
+        </gml:Ring>
+      </gml:exterior>
+    </gml:PolygonPatch>
+  </gml:patches>
+</gml:Surface>
+<gml:Curve gml:id="cv7_0">
+  <gml:segments>
+    <gml:LineStringSegment>
+      <gml:posList>
+      43.54599352 141.87490121
+      43.54633455 141.87505220
+      43.54638749 141.87507563
+      43.54643257 141.87509559
+      43.54649642 141.87512386
+      43.54721206 141.87546041
+      43.54723561 141.87547106
+      43.54735550 141.87500000
+      43.54740667 141.87478917
+      43.54781122 141.87497480
+      43.54781634 141.87495463
+      43.54805498 141.87403519
+      43.54840640 141.87421020
+      43.54848638 141.87424818
+      43.54860681 141.87378172
+      43.54872969 141.87328883
+      43.54873900 141.87325150
+      43.54830304 141.87302720
+      43.54828250 141.87301664
+      43.54713925 141.87246103
+      43.54709829 141.87244112
+      43.54708243 141.87251050
+      43.54687130 141.87335470
+      43.54639378 141.87348318
+      43.54503172 141.87375514
+      43.54421723 141.87393943
+      43.54425750 141.87461740
+      43.54436489 141.87461305
+      43.54438122 141.87467939
+      43.54476311 141.87459212
+      43.54524613 141.87450422
+      43.54549777 141.87454572
+      43.54591030 141.87459897
+      43.54589643 141.87465179
+      43.54585162 141.87483896
+      43.54599352 141.87490121
+      </gml:posList>
+    </gml:LineStringSegment>
+  </gml:segments>
+</gml:Curve>
+<gml:Surface gml:id="sf7">
+  <gml:patches>
+    <gml:PolygonPatch>
+      <gml:exterior>
+        <gml:Ring>
+          <gml:curveMember xlink:href="#cv7_0"/>
+        </gml:Ring>
+      </gml:exterior>
+    </gml:PolygonPatch>
+  </gml:patches>
+</gml:Surface>
+<gml:Curve gml:id="cv8_0">
+  <gml:segments>
+    <gml:LineStringSegment>
+      <gml:posList>
+      43.54503172 141.87375514
+      43.54639378 141.87348318
+      43.54687130 141.87335470
+      43.54708243 141.87251050
+      43.54709829 141.87244112
+      43.54713925 141.87246103
+      43.54828250 141.87301664
+      43.54842794 141.87244153
+      43.54856022 141.87191856
+      43.54870331 141.87135275
+      43.54809247 141.87105947
+      43.54756514 141.87080631
+      43.54752225 141.87078572
+      43.54673889 141.87040962
+      43.54599453 141.87005225
+      43.54515511 141.87328303
+      43.54401369 141.87274189
+      43.54369025 141.87399853
+      43.54324729 141.87552064
+      43.54542937 141.87655786
+      43.54548242 141.87634836
+      43.54566756 141.87560783
+      43.54585162 141.87483896
+      43.54589643 141.87465179
+      43.54591030 141.87459897
+      43.54549777 141.87454572
+      43.54524613 141.87450422
+      43.54476311 141.87459212
+      43.54438122 141.87467939
+      43.54436489 141.87461305
+      43.54425750 141.87461740
+      43.54421723 141.87393943
+      43.54503172 141.87375514
+      </gml:posList>
+    </gml:LineStringSegment>
+  </gml:segments>
+</gml:Curve>
+<gml:Surface gml:id="sf8">
+  <gml:patches>
+    <gml:PolygonPatch>
+      <gml:exterior>
+        <gml:Ring>
+          <gml:curveMember xlink:href="#cv8_0"/>
+        </gml:Ring>
+      </gml:exterior>
+    </gml:PolygonPatch>
+  </gml:patches>
+</gml:Surface>
+<gml:Curve gml:id="cv9_0">
+  <gml:segments>
+    <gml:LineStringSegment>
+      <gml:posList>
+      43.54623956 141.88503069
+      43.54626330 141.88504073
+      43.54647275 141.88514000
+      43.54687200 141.88532608
+      43.54696647 141.88537011
+      43.54716722 141.88462694
+      43.54767541 141.88486714
+      43.54791949 141.88498329
+      43.54942735 141.87914564
+      43.54921264 141.87903122
+      43.54914500 141.87900547
+      43.54874739 141.87882328
+      43.54789517 141.87841072
+      43.54672052 141.88315219
+      43.54629158 141.88295444
+      43.54581836 141.88483506
+      43.54623956 141.88503069
+      </gml:posList>
+    </gml:LineStringSegment>
+  </gml:segments>
+</gml:Curve>
+<gml:Surface gml:id="sf9">
+  <gml:patches>
+    <gml:PolygonPatch>
+      <gml:exterior>
+        <gml:Ring>
+          <gml:curveMember xlink:href="#cv9_0"/>
+        </gml:Ring>
+      </gml:exterior>
+    </gml:PolygonPatch>
+  </gml:patches>
+</gml:Surface>
+<gml:Curve gml:id="cv10_0">
+  <gml:segments>
+    <gml:LineStringSegment>
+      <gml:posList>
+      43.54401369 141.87274189
+      43.54515511 141.87328303
+      43.54599453 141.87005225
+      43.54673889 141.87040962
+      43.54752225 141.87078572
+      43.54756514 141.87080631
+      43.54809247 141.87105947
+      43.54870331 141.87135275
+      43.54914792 141.86959478
+      43.54951268 141.86812293
+      43.54888141 141.86783008
+      43.54836028 141.86757457
+      43.54650850 141.86666667
+      43.54518356 141.86603686
+      43.54501297 141.86666667
+      43.54501192 141.86667058
+      43.54479350 141.86750528
+      43.54476753 141.86760567
+      43.54434008 141.86925794
+      43.54352572 141.87251556
+      43.54401369 141.87274189
+      </gml:posList>
+    </gml:LineStringSegment>
+  </gml:segments>
+</gml:Curve>
+<gml:Surface gml:id="sf10">
+  <gml:patches>
+    <gml:PolygonPatch>
+      <gml:exterior>
+        <gml:Ring>
+          <gml:curveMember xlink:href="#cv10_0"/>
+        </gml:Ring>
+      </gml:exterior>
+    </gml:PolygonPatch>
+  </gml:patches>
+</gml:Surface>
+<gml:Curve gml:id="cv11_0">
+  <gml:segments>
+    <gml:LineStringSegment>
+      <gml:posList>
+      43.54589395 141.88638717
+      43.54647642 141.88653161
+      43.54652712 141.88658868
+      43.54659307 141.88660640
+      43.54714269 141.88678124
+      43.54728544 141.88678038
+      43.54797786 141.88696646
+      43.54806780 141.88692969
+      43.54845028 141.88703609
+      43.54859085 141.88703826
+      43.54882572 141.88699760
+      43.54913934 141.88685380
+      43.54925543 141.88675648
+      43.54945443 141.88648654
+      43.54989613 141.88587392
+      43.54935584 141.88561744
+      43.54934009 141.88568036
+      43.54885164 141.88543767
+      43.54814424 141.88508953
+      43.54791949 141.88498329
+      43.54767541 141.88486714
+      43.54716722 141.88462694
+      43.54696647 141.88537011
+      43.54687200 141.88532608
+      43.54647275 141.88514000
+      43.54626330 141.88504073
+      43.54623956 141.88503069
+      43.54609438 141.88561642
+      43.54532260 141.88525380
+      43.54559555 141.88406855
+      43.54317781 141.88289544
+      43.54156354 141.88212746
+      43.54294503 141.87669632
+      43.54324729 141.87552064
+      43.54369025 141.87399853
+      43.54401369 141.87274189
+      43.54352572 141.87251556
+      43.54321161 141.87376283
+      43.54305715 141.87436377
+      43.54291817 141.87500000
+      43.54288000 141.87514278
+      43.54267719 141.87593558
+      43.54250658 141.87662656
+      43.54225678 141.87759483
+      43.54178019 141.87951503
+      43.54172208 141.87974558
+      43.54144994 141.88082517
+      43.54114928 141.88201800
+      43.54101803 141.88253931
+      43.54166667 141.88284311
+      43.54236981 141.88318157
+      43.54258175 141.88328406
+      43.54405533 141.88401078
+      43.54387546 141.88472221
+      43.54381442 141.88496364
+      43.54362607 141.88574916
+      43.54410183 141.88582389
+      43.54422533 141.88586061
+      43.54431389 141.88587531
+      43.54439981 141.88589731
+      43.54446422 141.88591933
+      43.54460111 141.88599278
+      43.54477828 141.88610658
+      43.54489100 141.88615067
+      43.54495544 141.88617269
+      43.54502253 141.88617636
+      43.54508428 141.88617269
+      43.54589395 141.88638717
+      </gml:posList>
+    </gml:LineStringSegment>
+  </gml:segments>
+</gml:Curve>
+<gml:Surface gml:id="sf11">
+  <gml:patches>
+    <gml:PolygonPatch>
+      <gml:exterior>
+        <gml:Ring>
+          <gml:curveMember xlink:href="#cv11_0"/>
+        </gml:Ring>
+      </gml:exterior>
+    </gml:PolygonPatch>
+  </gml:patches>
+</gml:Surface>
+<gml:Curve gml:id="cv12_0">
+  <gml:segments>
+    <gml:LineStringSegment>
+      <gml:posList>
+      43.54977597 141.87670486
+      43.54986075 141.87632067
+      43.54994481 141.87596128
+      43.55008671 141.87542647
+      43.54975247 141.87522431
+      43.54985507 141.87489819
+      43.54848638 141.87424818
+      43.54840640 141.87421020
+      43.54805498 141.87403519
+      43.54781634 141.87495463
+      43.54781122 141.87497480
+      43.54719248 141.87741087
+      43.54704891 141.87800574
+      43.54749258 141.87821583
+      43.54789517 141.87841072
+      43.54819453 141.87729272
+      43.54777446 141.87707831
+      43.54788403 141.87665117
+      43.54807936 141.87588478
+      43.54928631 141.87647528
+      43.54977597 141.87670486
+      </gml:posList>
+    </gml:LineStringSegment>
+  </gml:segments>
+</gml:Curve>
+<gml:Surface gml:id="sf12">
+  <gml:patches>
+    <gml:PolygonPatch>
+      <gml:exterior>
+        <gml:Ring>
+          <gml:curveMember xlink:href="#cv12_0"/>
+        </gml:Ring>
+      </gml:exterior>
+    </gml:PolygonPatch>
+  </gml:patches>
+</gml:Surface>
+<gml:Curve gml:id="cv13_0">
+  <gml:segments>
+    <gml:LineStringSegment>
+      <gml:posList>
+      43.54888141 141.86783008
+      43.54951268 141.86812293
+      43.54998119 141.86834028
+      43.55000000 141.86826444
+      43.55036069 141.86681014
+      43.55039678 141.86666667
+      43.55039869 141.86665908
+      43.55051078 141.86621261
+      43.55065431 141.86565072
+      43.55082544 141.86497853
+      43.55078997 141.86496245
+      43.54921576 141.86420708
+      43.54837303 141.86752008
+      43.54836028 141.86757457
+      43.54888141 141.86783008
+      </gml:posList>
+    </gml:LineStringSegment>
+  </gml:segments>
+</gml:Curve>
+<gml:Surface gml:id="sf13">
+  <gml:patches>
+    <gml:PolygonPatch>
+      <gml:exterior>
+        <gml:Ring>
+          <gml:curveMember xlink:href="#cv13_0"/>
+        </gml:Ring>
+      </gml:exterior>
+    </gml:PolygonPatch>
+  </gml:patches>
+</gml:Surface>
+<gml:Curve gml:id="cv14_0">
+  <gml:segments>
+    <gml:LineStringSegment>
+      <gml:posList>
+      43.55114367 141.88309547
+      43.55118167 141.88287786
+      43.55121103 141.88264656
+      43.55125758 141.88227983
+      43.55126581 141.88200325
+      43.55125653 141.88133789
+      43.55120625 141.88075242
+      43.55113747 141.87994233
+      43.55119298 141.87930081
+      43.55123927 141.87822935
+      43.55108536 141.87815908
+      43.54959194 141.87744636
+      43.54939339 141.87824644
+      43.54936056 141.87838753
+      43.54929447 141.87867508
+      43.54921264 141.87903122
+      43.54942735 141.87914564
+      43.54791949 141.88498329
+      43.54814424 141.88508953
+      43.54885164 141.88543767
+      43.54934009 141.88568036
+      43.54935584 141.88561744
+      43.54989613 141.88587392
+      43.55014532 141.88550102
+      43.55044494 141.88493742
+      43.55077319 141.88428725
+      43.55092200 141.88388161
+      43.55107661 141.88333333
+      43.55114367 141.88309547
+      </gml:posList>
+    </gml:LineStringSegment>
+  </gml:segments>
+</gml:Curve>
+<gml:Surface gml:id="sf14">
+  <gml:patches>
+    <gml:PolygonPatch>
+      <gml:exterior>
+        <gml:Ring>
+          <gml:curveMember xlink:href="#cv14_0"/>
+        </gml:Ring>
+      </gml:exterior>
+    </gml:PolygonPatch>
+  </gml:patches>
+</gml:Surface>
+<gml:Curve gml:id="cv15_0">
+  <gml:segments>
+    <gml:LineStringSegment>
+      <gml:posList>
+      43.54830304 141.87302720
+      43.54913570 141.87345560
+      43.55008001 141.86967717
+      43.55039188 141.86849176
+      43.55121307 141.86515419
+      43.55082544 141.86497853
+      43.55065431 141.86565072
+      43.55051078 141.86621261
+      43.55039869 141.86665908
+      43.55039678 141.86666667
+      43.55036069 141.86681014
+      43.55000000 141.86826444
+      43.54998119 141.86834028
+      43.54951268 141.86812293
+      43.54914792 141.86959478
+      43.54870331 141.87135275
+      43.54856022 141.87191856
+      43.54842794 141.87244153
+      43.54828250 141.87301664
+      43.54830304 141.87302720
+      </gml:posList>
+    </gml:LineStringSegment>
+  </gml:segments>
+</gml:Curve>
+<gml:Surface gml:id="sf15">
+  <gml:patches>
+    <gml:PolygonPatch>
+      <gml:exterior>
+        <gml:Ring>
+          <gml:curveMember xlink:href="#cv15_0"/>
+        </gml:Ring>
+      </gml:exterior>
+    </gml:PolygonPatch>
+  </gml:patches>
+</gml:Surface>
+<gml:Curve gml:id="cv16_0">
+  <gml:segments>
+    <gml:LineStringSegment>
+      <gml:posList>
+      43.55126897 141.87770743
+      43.55131853 141.87741358
+      43.55136399 141.87720797
+      43.55183204 141.87527552
+      43.55109631 141.87491881
+      43.55109530 141.87491832
+      43.55105012 141.87491153
+      43.55102788 141.87490500
+      43.55099478 141.87489343
+      43.55094318 141.87487049
+      43.55088362 141.87484315
+      43.55071564 141.87476603
+      43.55055465 141.87469212
+      43.55042477 141.87463250
+      43.55003989 141.87445581
+      43.55000000 141.87443750
+      43.55001001 141.87439527
+      43.55001074 141.87439222
+      43.55004116 141.87426387
+      43.55005071 141.87422359
+      43.55010358 141.87400056
+      43.55010635 141.87398941
+      43.55011440 141.87395700
+      43.55008460 141.87394381
+      43.54913570 141.87345560
+      43.54873900 141.87325150
+      43.54872969 141.87328883
+      43.54860681 141.87378172
+      43.54848638 141.87424818
+      43.54985507 141.87489819
+      43.54975247 141.87522431
+      43.55008671 141.87542647
+      43.54994481 141.87596128
+      43.54986075 141.87632067
+      43.54977597 141.87670486
+      43.54928631 141.87647528
+      43.54807936 141.87588478
+      43.54788403 141.87665117
+      43.54777446 141.87707831
+      43.54819453 141.87729272
+      43.54789517 141.87841072
+      43.54874739 141.87882328
+      43.54914500 141.87900547
+      43.54921264 141.87903122
+      43.54929447 141.87867508
+      43.54936056 141.87838753
+      43.54939339 141.87824644
+      43.54959194 141.87744636
+      43.55108536 141.87815908
+      43.55123927 141.87822935
+      43.55124068 141.87802409
+      43.55126897 141.87770743
+      </gml:posList>
+    </gml:LineStringSegment>
+  </gml:segments>
+</gml:Curve>
+<gml:Surface gml:id="sf16">
+  <gml:patches>
+    <gml:PolygonPatch>
+      <gml:exterior>
+        <gml:Ring>
+          <gml:curveMember xlink:href="#cv16_0"/>
+        </gml:Ring>
+      </gml:exterior>
+    </gml:PolygonPatch>
+  </gml:patches>
+</gml:Surface>
+<gml:Curve gml:id="cv17_0">
+  <gml:segments>
+    <gml:LineStringSegment>
+      <gml:posList>
+      43.55267115 141.87242763
+      43.55283488 141.87159717
+      43.55299503 141.87076920
+      43.55307397 141.87028385
+      43.55312273 141.86987251
+      43.55162355 141.86906237
+      43.55039188 141.86849176
+      43.55008001 141.86967717
+      43.54913570 141.87345560
+      43.55008460 141.87394381
+      43.55011440 141.87395700
+      43.55010358 141.87400056
+      43.55005071 141.87422359
+      43.55004116 141.87426387
+      43.55001074 141.87439222
+      43.55000000 141.87443750
+      43.55003989 141.87445581
+      43.55042477 141.87463250
+      43.55055465 141.87469212
+      43.55071564 141.87476603
+      43.55088362 141.87484315
+      43.55094318 141.87487049
+      43.55099478 141.87489343
+      43.55102788 141.87490500
+      43.55105012 141.87491153
+      43.55109530 141.87491832
+      43.55183204 141.87527552
+      43.55250236 141.87281017
+      43.55239402 141.87252780
+      43.55267115 141.87242763
+      </gml:posList>
+    </gml:LineStringSegment>
+  </gml:segments>
+</gml:Curve>
+<gml:Surface gml:id="sf17">
+  <gml:patches>
+    <gml:PolygonPatch>
+      <gml:exterior>
+        <gml:Ring>
+          <gml:curveMember xlink:href="#cv17_0"/>
+        </gml:Ring>
+      </gml:exterior>
+    </gml:PolygonPatch>
+  </gml:patches>
+</gml:Surface>
+<gml:Curve gml:id="cv18_0">
+  <gml:segments>
+    <gml:LineStringSegment>
+      <gml:posList>
+      43.55702689 141.87943700
+      43.55716028 141.87896636
+      43.55713191 141.87895204
+      43.55692447 141.87884732
+      43.55664630 141.87870689
+      43.55633819 141.87855135
+      43.55606706 141.87841447
+      43.55583872 141.87829913
+      43.55552643 141.87814139
+      43.55523317 141.87799325
+      43.55497925 141.87786333
+      43.55458906 141.87766368
+      43.55437037 141.87755178
+      43.55432497 141.87752856
+      43.55402101 141.87738541
+      43.55395476 141.87800254
+      43.55390053 141.87888465
+      43.55389731 141.87924705
+      43.55393387 141.88002442
+      43.55396312 141.88091811
+      43.55402638 141.88317200
+      43.55568904 141.88341895
+      43.55592731 141.88310228
+      43.55598892 141.88303100
+      43.55612172 141.88284503
+      43.55616986 141.88270411
+      43.55632888 141.88207730
+      43.55691559 141.87987738
+      43.55693614 141.87979609
+      43.55699014 141.87958240
+      43.55698959 141.87958186
+      43.55702689 141.87943700
+      </gml:posList>
+    </gml:LineStringSegment>
+  </gml:segments>
+</gml:Curve>
+<gml:Surface gml:id="sf18">
+  <gml:patches>
+    <gml:PolygonPatch>
+      <gml:exterior>
+        <gml:Ring>
+          <gml:curveMember xlink:href="#cv18_0"/>
+        </gml:Ring>
+      </gml:exterior>
+    </gml:PolygonPatch>
+  </gml:patches>
+</gml:Surface>
+<gml:Curve gml:id="cv19_0">
+  <gml:segments>
+    <gml:LineStringSegment>
+      <gml:posList>
+      43.55624206 141.88390970
+      43.55693639 141.88298599
+      43.55775357 141.88413192
+      43.55776249 141.88414074
+      43.55814271 141.88364939
+      43.55821930 141.88354759
+      43.55833333 141.88339292
+      43.55837725 141.88333333
+      43.55891023 141.88260098
+      43.55912851 141.88229180
+      43.55922654 141.88215295
+      43.55915675 141.88206300
+      43.55867147 141.88096853
+      43.55850424 141.88060511
+      43.55836068 141.88087668
+      43.55804478 141.88061524
+      43.55699014 141.87958240
+      43.55693614 141.87979609
+      43.55691559 141.87987738
+      43.55632888 141.88207730
+      43.55616986 141.88270411
+      43.55612172 141.88284503
+      43.55598892 141.88303100
+      43.55592731 141.88310228
+      43.55568904 141.88341895
+      43.55624206 141.88390970
+      </gml:posList>
+    </gml:LineStringSegment>
+  </gml:segments>
+</gml:Curve>
+<gml:Surface gml:id="sf19">
+  <gml:patches>
+    <gml:PolygonPatch>
+      <gml:exterior>
+        <gml:Ring>
+          <gml:curveMember xlink:href="#cv19_0"/>
+        </gml:Ring>
+      </gml:exterior>
+    </gml:PolygonPatch>
+  </gml:patches>
+</gml:Surface>
+<gml:Curve gml:id="cv20_0">
+  <gml:segments>
+    <gml:LineStringSegment>
+      <gml:posList>
+      43.55982634 141.88242094
+      43.55987590 141.88252525
+      43.56003727 141.88236782
+      43.55980267 141.88156600
+      43.55977900 141.88139847
+      43.55945339 141.88093167
+      43.55921525 141.88059028
+      43.55918460 141.88062518
+      43.55914878 141.88066597
+      43.55867147 141.88096853
+      43.55915675 141.88206300
+      43.55922654 141.88215295
+      43.55912851 141.88229180
+      43.55891023 141.88260098
+      43.55837725 141.88333333
+      43.55833333 141.88339292
+      43.55821930 141.88354759
+      43.55814271 141.88364939
+      43.55776249 141.88414074
+      43.55775357 141.88413192
+      43.55693639 141.88298599
+      43.55624206 141.88390970
+      43.55568904 141.88341895
+      43.55402638 141.88317200
+      43.55401107 141.88387873
+      43.55396326 141.88472456
+      43.55410095 141.88519784
+      43.55419037 141.88603833
+      43.55451368 141.88618133
+      43.55531017 141.88559823
+      43.55626720 141.88505346
+      43.55763705 141.88430064
+      43.55930277 141.88298534
+      43.55924153 141.88286756
+      43.55982634 141.88242094
+      </gml:posList>
+    </gml:LineStringSegment>
+  </gml:segments>
+</gml:Curve>
+<gml:Surface gml:id="sf20">
+  <gml:patches>
+    <gml:PolygonPatch>
+      <gml:exterior>
+        <gml:Ring>
+          <gml:curveMember xlink:href="#cv20_0"/>
+        </gml:Ring>
+      </gml:exterior>
+    </gml:PolygonPatch>
+  </gml:patches>
+</gml:Surface>
+<gml:Curve gml:id="cv21_0">
+  <gml:segments>
+    <gml:LineStringSegment>
+      <gml:posList>
+      43.56059308 141.87988742
+      43.56062550 141.87976307
+      43.56027022 141.87957805
+      43.56030628 141.87943789
+      43.55972611 141.87914742
+      43.55909711 141.87884525
+      43.55905528 141.87883422
+      43.55738032 141.87802006
+      43.55761033 141.87719407
+      43.55450596 141.87569398
+      43.55427951 141.87656009
+      43.55407210 141.87693884
+      43.55402101 141.87738541
+      43.55432497 141.87752856
+      43.55437037 141.87755178
+      43.55458906 141.87766368
+      43.55497925 141.87786333
+      43.55523317 141.87799325
+      43.55552643 141.87814139
+      43.55583872 141.87829913
+      43.55606706 141.87841447
+      43.55633819 141.87855135
+      43.55664630 141.87870689
+      43.55692447 141.87884732
+      43.55713191 141.87895204
+      43.55716028 141.87896636
+      43.55702689 141.87943700
+      43.55698959 141.87958186
+      43.55699014 141.87958240
+      43.55804478 141.88061524
+      43.55836068 141.88087668
+      43.55850424 141.88060511
+      43.55867147 141.88096853
+      43.55914878 141.88066597
+      43.55918460 141.88062518
+      43.55921525 141.88059028
+      43.55945339 141.88093167
+      43.55976112 141.88051614
+      43.56035983 141.88028703
+      43.56030522 141.88002306
+      43.56059308 141.87988742
+      </gml:posList>
+    </gml:LineStringSegment>
+  </gml:segments>
+</gml:Curve>
+<gml:Surface gml:id="sf21">
+  <gml:patches>
+    <gml:PolygonPatch>
+      <gml:exterior>
+        <gml:Ring>
+          <gml:curveMember xlink:href="#cv21_0"/>
+        </gml:Ring>
+      </gml:exterior>
+    </gml:PolygonPatch>
+  </gml:patches>
+</gml:Surface>
+<gml:Curve gml:id="cv22_0">
+  <gml:segments>
+    <gml:LineStringSegment>
+      <gml:posList>
+      43.55977900 141.88139847
+      43.55980267 141.88156600
+      43.56003727 141.88236782
+      43.56093716 141.88161788
+      43.56181507 141.88083392
+      43.56172350 141.88041275
+      43.56159015 141.87981813
+      43.56035983 141.88028703
+      43.55976112 141.88051614
+      43.55945339 141.88093167
+      43.55977900 141.88139847
+      </gml:posList>
+    </gml:LineStringSegment>
+  </gml:segments>
+</gml:Curve>
+<gml:Surface gml:id="sf22">
+  <gml:patches>
+    <gml:PolygonPatch>
+      <gml:exterior>
+        <gml:Ring>
+          <gml:curveMember xlink:href="#cv22_0"/>
+        </gml:Ring>
+      </gml:exterior>
+    </gml:PolygonPatch>
+  </gml:patches>
+</gml:Surface>
+<gml:Curve gml:id="cv23_0">
+  <gml:segments>
+    <gml:LineStringSegment>
+      <gml:posList>
+      43.56159015 141.87981813
+      43.56231769 141.87952572
+      43.56251970 141.87944325
+      43.56411405 141.87784789
+      43.56309486 141.87733653
+      43.56147764 141.87651922
+      43.56078677 141.87617844
+      43.55985939 141.87570311
+      43.55896176 141.87525566
+      43.55833333 141.87495072
+      43.55825600 141.87484317
+      43.55686481 141.87414392
+      43.55672010 141.87407574
+      43.55669600 141.87407911
+      43.55622128 141.87383103
+      43.55528858 141.87335608
+      43.55526525 141.87334853
+      43.55508028 141.87324450
+      43.55503383 141.87322811
+      43.55500006 141.87326536
+      43.55496760 141.87358204
+      43.55485578 141.87413763
+      43.55450596 141.87569398
+      43.55761033 141.87719407
+      43.55738032 141.87802006
+      43.55905528 141.87883422
+      43.55909711 141.87884525
+      43.55972611 141.87914742
+      43.56030628 141.87943789
+      43.56027022 141.87957805
+      43.56062550 141.87976307
+      43.56059308 141.87988742
+      43.56030522 141.88002306
+      43.56035983 141.88028703
+      43.56159015 141.87981813
+      </gml:posList>
+    </gml:LineStringSegment>
+  </gml:segments>
+</gml:Curve>
+<gml:Surface gml:id="sf23">
+  <gml:patches>
+    <gml:PolygonPatch>
+      <gml:exterior>
+        <gml:Ring>
+          <gml:curveMember xlink:href="#cv23_0"/>
+        </gml:Ring>
+      </gml:exterior>
+    </gml:PolygonPatch>
+  </gml:patches>
+</gml:Surface>
+<gml:Curve gml:id="cv24_0">
+  <gml:segments>
+    <gml:LineStringSegment>
+      <gml:posList>
+      43.56249806 141.88008097
+      43.56265103 141.88000181
+      43.56292664 141.87981708
+      43.56313208 141.87965311
+      43.56464048 141.87812313
+      43.56434064 141.87795858
+      43.56411405 141.87784789
+      43.56251970 141.87944325
+      43.56231769 141.87952572
+      43.56159015 141.87981813
+      43.56172350 141.88041275
+      43.56181507 141.88083392
+      43.56233642 141.88033547
+      43.56232625 141.88016457
+      43.56249806 141.88008097
+      </gml:posList>
+    </gml:LineStringSegment>
+  </gml:segments>
+</gml:Curve>
+<gml:Surface gml:id="sf24">
+  <gml:patches>
+    <gml:PolygonPatch>
+      <gml:exterior>
+        <gml:Ring>
+          <gml:curveMember xlink:href="#cv24_0"/>
+        </gml:Ring>
+      </gml:exterior>
+    </gml:PolygonPatch>
+  </gml:patches>
+</gml:Surface>
+<ksj:DesignatedArea gml:id="da1">
+  <ksj:cda xlink:href="#sf1"/>
+  <ksj:aac codeSpace="AdministrativeAreaCode.xml">01432</ksj:aac>
+  <ksj:pfn>北海道</ksj:pfn>
+  <ksj:lgn>新十津川町</ksj:lgn>
+  <ksj:dac>11</ksj:dac>
+  <ksj:kda>工業地域</ksj:kda>
+  <ksj:bar>60</ksj:bar>
+  <ksj:cbr>200</ksj:cbr>
+  <ksj:src>条件付き公開</ksj:src>
+  <ksj:pdt>
+    <gml:TimeInstant gml:id="da1_TI1">
+      <gml:timePosition></gml:timePosition>
+    </gml:TimeInstant>
+  </ksj:pdt>
+  <ksj:rmk></ksj:rmk>
+</ksj:DesignatedArea>
+<ksj:DesignatedArea gml:id="da2">
+  <ksj:cda xlink:href="#sf2"/>
+  <ksj:aac codeSpace="AdministrativeAreaCode.xml">01432</ksj:aac>
+  <ksj:pfn>北海道</ksj:pfn>
+  <ksj:lgn>新十津川町</ksj:lgn>
+  <ksj:dac>1</ksj:dac>
+  <ksj:kda>第一種低層住居専用地域</ksj:kda>
+  <ksj:bar>40</ksj:bar>
+  <ksj:cbr>60</ksj:cbr>
+  <ksj:src>条件付き公開</ksj:src>
+  <ksj:pdt>
+    <gml:TimeInstant gml:id="da2_TI1">
+      <gml:timePosition></gml:timePosition>
+    </gml:TimeInstant>
+  </ksj:pdt>
+  <ksj:rmk></ksj:rmk>
+</ksj:DesignatedArea>
+<ksj:DesignatedArea gml:id="da3">
+  <ksj:cda xlink:href="#sf3"/>
+  <ksj:aac codeSpace="AdministrativeAreaCode.xml">01432</ksj:aac>
+  <ksj:pfn>北海道</ksj:pfn>
+  <ksj:lgn>新十津川町</ksj:lgn>
+  <ksj:dac>4</ksj:dac>
+  <ksj:kda>第二種中高層住居専用地域</ksj:kda>
+  <ksj:bar>60</ksj:bar>
+  <ksj:cbr>200</ksj:cbr>
+  <ksj:src>条件付き公開</ksj:src>
+  <ksj:pdt>
+    <gml:TimeInstant gml:id="da3_TI1">
+      <gml:timePosition></gml:timePosition>
+    </gml:TimeInstant>
+  </ksj:pdt>
+  <ksj:rmk></ksj:rmk>
+</ksj:DesignatedArea>
+<ksj:DesignatedArea gml:id="da4">
+  <ksj:cda xlink:href="#sf4"/>
+  <ksj:aac codeSpace="AdministrativeAreaCode.xml">01432</ksj:aac>
+  <ksj:pfn>北海道</ksj:pfn>
+  <ksj:lgn>新十津川町</ksj:lgn>
+  <ksj:dac>4</ksj:dac>
+  <ksj:kda>第二種中高層住居専用地域</ksj:kda>
+  <ksj:bar>60</ksj:bar>
+  <ksj:cbr>200</ksj:cbr>
+  <ksj:src>条件付き公開</ksj:src>
+  <ksj:pdt>
+    <gml:TimeInstant gml:id="da4_TI1">
+      <gml:timePosition></gml:timePosition>
+    </gml:TimeInstant>
+  </ksj:pdt>
+  <ksj:rmk></ksj:rmk>
+</ksj:DesignatedArea>
+<ksj:DesignatedArea gml:id="da5">
+  <ksj:cda xlink:href="#sf5"/>
+  <ksj:aac codeSpace="AdministrativeAreaCode.xml">01432</ksj:aac>
+  <ksj:pfn>北海道</ksj:pfn>
+  <ksj:lgn>新十津川町</ksj:lgn>
+  <ksj:dac>5</ksj:dac>
+  <ksj:kda>第一種住居地域</ksj:kda>
+  <ksj:bar>60</ksj:bar>
+  <ksj:cbr>200</ksj:cbr>
+  <ksj:src>条件付き公開</ksj:src>
+  <ksj:pdt>
+    <gml:TimeInstant gml:id="da5_TI1">
+      <gml:timePosition></gml:timePosition>
+    </gml:TimeInstant>
+  </ksj:pdt>
+  <ksj:rmk></ksj:rmk>
+</ksj:DesignatedArea>
+<ksj:DesignatedArea gml:id="da6">
+  <ksj:cda xlink:href="#sf6"/>
+  <ksj:aac codeSpace="AdministrativeAreaCode.xml">01432</ksj:aac>
+  <ksj:pfn>北海道</ksj:pfn>
+  <ksj:lgn>新十津川町</ksj:lgn>
+  <ksj:dac>8</ksj:dac>
+  <ksj:kda>近隣商業地域</ksj:kda>
+  <ksj:bar>80</ksj:bar>
+  <ksj:cbr>300</ksj:cbr>
+  <ksj:src>条件付き公開</ksj:src>
+  <ksj:pdt>
+    <gml:TimeInstant gml:id="da6_TI1">
+      <gml:timePosition></gml:timePosition>
+    </gml:TimeInstant>
+  </ksj:pdt>
+  <ksj:rmk></ksj:rmk>
+</ksj:DesignatedArea>
+<ksj:DesignatedArea gml:id="da7">
+  <ksj:cda xlink:href="#sf7"/>
+  <ksj:aac codeSpace="AdministrativeAreaCode.xml">01432</ksj:aac>
+  <ksj:pfn>北海道</ksj:pfn>
+  <ksj:lgn>新十津川町</ksj:lgn>
+  <ksj:dac>10</ksj:dac>
+  <ksj:kda>準工業地域</ksj:kda>
+  <ksj:bar>60</ksj:bar>
+  <ksj:cbr>200</ksj:cbr>
+  <ksj:src>条件付き公開</ksj:src>
+  <ksj:pdt>
+    <gml:TimeInstant gml:id="da7_TI1">
+      <gml:timePosition></gml:timePosition>
+    </gml:TimeInstant>
+  </ksj:pdt>
+  <ksj:rmk></ksj:rmk>
+</ksj:DesignatedArea>
+<ksj:DesignatedArea gml:id="da8">
+  <ksj:cda xlink:href="#sf8"/>
+  <ksj:aac codeSpace="AdministrativeAreaCode.xml">01432</ksj:aac>
+  <ksj:pfn>北海道</ksj:pfn>
+  <ksj:lgn>新十津川町</ksj:lgn>
+  <ksj:dac>3</ksj:dac>
+  <ksj:kda>第一種中高層住居専用地域</ksj:kda>
+  <ksj:bar>60</ksj:bar>
+  <ksj:cbr>150</ksj:cbr>
+  <ksj:src>条件付き公開</ksj:src>
+  <ksj:pdt>
+    <gml:TimeInstant gml:id="da8_TI1">
+      <gml:timePosition></gml:timePosition>
+    </gml:TimeInstant>
+  </ksj:pdt>
+  <ksj:rmk></ksj:rmk>
+</ksj:DesignatedArea>
+<ksj:DesignatedArea gml:id="da9">
+  <ksj:cda xlink:href="#sf9"/>
+  <ksj:aac codeSpace="AdministrativeAreaCode.xml">01432</ksj:aac>
+  <ksj:pfn>北海道</ksj:pfn>
+  <ksj:lgn>新十津川町</ksj:lgn>
+  <ksj:dac>4</ksj:dac>
+  <ksj:kda>第二種中高層住居専用地域</ksj:kda>
+  <ksj:bar>60</ksj:bar>
+  <ksj:cbr>200</ksj:cbr>
+  <ksj:src>条件付き公開</ksj:src>
+  <ksj:pdt>
+    <gml:TimeInstant gml:id="da9_TI1">
+      <gml:timePosition></gml:timePosition>
+    </gml:TimeInstant>
+  </ksj:pdt>
+  <ksj:rmk></ksj:rmk>
+</ksj:DesignatedArea>
+<ksj:DesignatedArea gml:id="da10">
+  <ksj:cda xlink:href="#sf10"/>
+  <ksj:aac codeSpace="AdministrativeAreaCode.xml">01432</ksj:aac>
+  <ksj:pfn>北海道</ksj:pfn>
+  <ksj:lgn>新十津川町</ksj:lgn>
+  <ksj:dac>1</ksj:dac>
+  <ksj:kda>第一種低層住居専用地域</ksj:kda>
+  <ksj:bar>40</ksj:bar>
+  <ksj:cbr>60</ksj:cbr>
+  <ksj:src>条件付き公開</ksj:src>
+  <ksj:pdt>
+    <gml:TimeInstant gml:id="da10_TI1">
+      <gml:timePosition></gml:timePosition>
+    </gml:TimeInstant>
+  </ksj:pdt>
+  <ksj:rmk></ksj:rmk>
+</ksj:DesignatedArea>
+<ksj:DesignatedArea gml:id="da11">
+  <ksj:cda xlink:href="#sf11"/>
+  <ksj:aac codeSpace="AdministrativeAreaCode.xml">01432</ksj:aac>
+  <ksj:pfn>北海道</ksj:pfn>
+  <ksj:lgn>新十津川町</ksj:lgn>
+  <ksj:dac>5</ksj:dac>
+  <ksj:kda>第一種住居地域</ksj:kda>
+  <ksj:bar>60</ksj:bar>
+  <ksj:cbr>200</ksj:cbr>
+  <ksj:src>条件付き公開</ksj:src>
+  <ksj:pdt>
+    <gml:TimeInstant gml:id="da11_TI1">
+      <gml:timePosition></gml:timePosition>
+    </gml:TimeInstant>
+  </ksj:pdt>
+  <ksj:rmk></ksj:rmk>
+</ksj:DesignatedArea>
+<ksj:DesignatedArea gml:id="da12">
+  <ksj:cda xlink:href="#sf12"/>
+  <ksj:aac codeSpace="AdministrativeAreaCode.xml">01432</ksj:aac>
+  <ksj:pfn>北海道</ksj:pfn>
+  <ksj:lgn>新十津川町</ksj:lgn>
+  <ksj:dac>9</ksj:dac>
+  <ksj:kda>商業地域</ksj:kda>
+  <ksj:bar>80</ksj:bar>
+  <ksj:cbr>400</ksj:cbr>
+  <ksj:src>条件付き公開</ksj:src>
+  <ksj:pdt>
+    <gml:TimeInstant gml:id="da12_TI1">
+      <gml:timePosition></gml:timePosition>
+    </gml:TimeInstant>
+  </ksj:pdt>
+  <ksj:rmk></ksj:rmk>
+</ksj:DesignatedArea>
+<ksj:DesignatedArea gml:id="da13">
+  <ksj:cda xlink:href="#sf13"/>
+  <ksj:aac codeSpace="AdministrativeAreaCode.xml">01432</ksj:aac>
+  <ksj:pfn>北海道</ksj:pfn>
+  <ksj:lgn>新十津川町</ksj:lgn>
+  <ksj:dac>3</ksj:dac>
+  <ksj:kda>第一種中高層住居専用地域</ksj:kda>
+  <ksj:bar>60</ksj:bar>
+  <ksj:cbr>150</ksj:cbr>
+  <ksj:src>条件付き公開</ksj:src>
+  <ksj:pdt>
+    <gml:TimeInstant gml:id="da13_TI1">
+      <gml:timePosition></gml:timePosition>
+    </gml:TimeInstant>
+  </ksj:pdt>
+  <ksj:rmk></ksj:rmk>
+</ksj:DesignatedArea>
+<ksj:DesignatedArea gml:id="da14">
+  <ksj:cda xlink:href="#sf14"/>
+  <ksj:aac codeSpace="AdministrativeAreaCode.xml">01432</ksj:aac>
+  <ksj:pfn>北海道</ksj:pfn>
+  <ksj:lgn>新十津川町</ksj:lgn>
+  <ksj:dac>3</ksj:dac>
+  <ksj:kda>第一種中高層住居専用地域</ksj:kda>
+  <ksj:bar>60</ksj:bar>
+  <ksj:cbr>150</ksj:cbr>
+  <ksj:src>条件付き公開</ksj:src>
+  <ksj:pdt>
+    <gml:TimeInstant gml:id="da14_TI1">
+      <gml:timePosition></gml:timePosition>
+    </gml:TimeInstant>
+  </ksj:pdt>
+  <ksj:rmk></ksj:rmk>
+</ksj:DesignatedArea>
+<ksj:DesignatedArea gml:id="da15">
+  <ksj:cda xlink:href="#sf15"/>
+  <ksj:aac codeSpace="AdministrativeAreaCode.xml">01432</ksj:aac>
+  <ksj:pfn>北海道</ksj:pfn>
+  <ksj:lgn>新十津川町</ksj:lgn>
+  <ksj:dac>5</ksj:dac>
+  <ksj:kda>第一種住居地域</ksj:kda>
+  <ksj:bar>60</ksj:bar>
+  <ksj:cbr>200</ksj:cbr>
+  <ksj:src>条件付き公開</ksj:src>
+  <ksj:pdt>
+    <gml:TimeInstant gml:id="da15_TI1">
+      <gml:timePosition></gml:timePosition>
+    </gml:TimeInstant>
+  </ksj:pdt>
+  <ksj:rmk></ksj:rmk>
+</ksj:DesignatedArea>
+<ksj:DesignatedArea gml:id="da16">
+  <ksj:cda xlink:href="#sf16"/>
+  <ksj:aac codeSpace="AdministrativeAreaCode.xml">01432</ksj:aac>
+  <ksj:pfn>北海道</ksj:pfn>
+  <ksj:lgn>新十津川町</ksj:lgn>
+  <ksj:dac>6</ksj:dac>
+  <ksj:kda>第二種住居地域</ksj:kda>
+  <ksj:bar>60</ksj:bar>
+  <ksj:cbr>200</ksj:cbr>
+  <ksj:src>条件付き公開</ksj:src>
+  <ksj:pdt>
+    <gml:TimeInstant gml:id="da16_TI1">
+      <gml:timePosition></gml:timePosition>
+    </gml:TimeInstant>
+  </ksj:pdt>
+  <ksj:rmk></ksj:rmk>
+</ksj:DesignatedArea>
+<ksj:DesignatedArea gml:id="da17">
+  <ksj:cda xlink:href="#sf17"/>
+  <ksj:aac codeSpace="AdministrativeAreaCode.xml">01432</ksj:aac>
+  <ksj:pfn>北海道</ksj:pfn>
+  <ksj:lgn>新十津川町</ksj:lgn>
+  <ksj:dac>1</ksj:dac>
+  <ksj:kda>第一種低層住居専用地域</ksj:kda>
+  <ksj:bar>40</ksj:bar>
+  <ksj:cbr>60</ksj:cbr>
+  <ksj:src>条件付き公開</ksj:src>
+  <ksj:pdt>
+    <gml:TimeInstant gml:id="da17_TI1">
+      <gml:timePosition></gml:timePosition>
+    </gml:TimeInstant>
+  </ksj:pdt>
+  <ksj:rmk></ksj:rmk>
+</ksj:DesignatedArea>
+<ksj:DesignatedArea gml:id="da18">
+  <ksj:cda xlink:href="#sf18"/>
+  <ksj:aac codeSpace="AdministrativeAreaCode.xml">01432</ksj:aac>
+  <ksj:pfn>北海道</ksj:pfn>
+  <ksj:lgn>新十津川町</ksj:lgn>
+  <ksj:dac>1</ksj:dac>
+  <ksj:kda>第一種低層住居専用地域</ksj:kda>
+  <ksj:bar>40</ksj:bar>
+  <ksj:cbr>60</ksj:cbr>
+  <ksj:src>条件付き公開</ksj:src>
+  <ksj:pdt>
+    <gml:TimeInstant gml:id="da18_TI1">
+      <gml:timePosition></gml:timePosition>
+    </gml:TimeInstant>
+  </ksj:pdt>
+  <ksj:rmk></ksj:rmk>
+</ksj:DesignatedArea>
+<ksj:DesignatedArea gml:id="da19">
+  <ksj:cda xlink:href="#sf19"/>
+  <ksj:aac codeSpace="AdministrativeAreaCode.xml">01432</ksj:aac>
+  <ksj:pfn>北海道</ksj:pfn>
+  <ksj:lgn>新十津川町</ksj:lgn>
+  <ksj:dac>4</ksj:dac>
+  <ksj:kda>第二種中高層住居専用地域</ksj:kda>
+  <ksj:bar>60</ksj:bar>
+  <ksj:cbr>200</ksj:cbr>
+  <ksj:src>条件付き公開</ksj:src>
+  <ksj:pdt>
+    <gml:TimeInstant gml:id="da19_TI1">
+      <gml:timePosition></gml:timePosition>
+    </gml:TimeInstant>
+  </ksj:pdt>
+  <ksj:rmk></ksj:rmk>
+</ksj:DesignatedArea>
+<ksj:DesignatedArea gml:id="da20">
+  <ksj:cda xlink:href="#sf20"/>
+  <ksj:aac codeSpace="AdministrativeAreaCode.xml">01432</ksj:aac>
+  <ksj:pfn>北海道</ksj:pfn>
+  <ksj:lgn>新十津川町</ksj:lgn>
+  <ksj:dac>10</ksj:dac>
+  <ksj:kda>準工業地域</ksj:kda>
+  <ksj:bar>60</ksj:bar>
+  <ksj:cbr>200</ksj:cbr>
+  <ksj:src>条件付き公開</ksj:src>
+  <ksj:pdt>
+    <gml:TimeInstant gml:id="da20_TI1">
+      <gml:timePosition></gml:timePosition>
+    </gml:TimeInstant>
+  </ksj:pdt>
+  <ksj:rmk></ksj:rmk>
+</ksj:DesignatedArea>
+<ksj:DesignatedArea gml:id="da21">
+  <ksj:cda xlink:href="#sf21"/>
+  <ksj:aac codeSpace="AdministrativeAreaCode.xml">01432</ksj:aac>
+  <ksj:pfn>北海道</ksj:pfn>
+  <ksj:lgn>新十津川町</ksj:lgn>
+  <ksj:dac>5</ksj:dac>
+  <ksj:kda>第一種住居地域</ksj:kda>
+  <ksj:bar>60</ksj:bar>
+  <ksj:cbr>200</ksj:cbr>
+  <ksj:src>条件付き公開</ksj:src>
+  <ksj:pdt>
+    <gml:TimeInstant gml:id="da21_TI1">
+      <gml:timePosition></gml:timePosition>
+    </gml:TimeInstant>
+  </ksj:pdt>
+  <ksj:rmk></ksj:rmk>
+</ksj:DesignatedArea>
+<ksj:DesignatedArea gml:id="da22">
+  <ksj:cda xlink:href="#sf22"/>
+  <ksj:aac codeSpace="AdministrativeAreaCode.xml">01432</ksj:aac>
+  <ksj:pfn>北海道</ksj:pfn>
+  <ksj:lgn>新十津川町</ksj:lgn>
+  <ksj:dac>8</ksj:dac>
+  <ksj:kda>近隣商業地域</ksj:kda>
+  <ksj:bar>80</ksj:bar>
+  <ksj:cbr>200</ksj:cbr>
+  <ksj:src>条件付き公開</ksj:src>
+  <ksj:pdt>
+    <gml:TimeInstant gml:id="da22_TI1">
+      <gml:timePosition></gml:timePosition>
+    </gml:TimeInstant>
+  </ksj:pdt>
+  <ksj:rmk></ksj:rmk>
+</ksj:DesignatedArea>
+<ksj:DesignatedArea gml:id="da23">
+  <ksj:cda xlink:href="#sf23"/>
+  <ksj:aac codeSpace="AdministrativeAreaCode.xml">01432</ksj:aac>
+  <ksj:pfn>北海道</ksj:pfn>
+  <ksj:lgn>新十津川町</ksj:lgn>
+  <ksj:dac>1</ksj:dac>
+  <ksj:kda>第一種低層住居専用地域</ksj:kda>
+  <ksj:bar>40</ksj:bar>
+  <ksj:cbr>60</ksj:cbr>
+  <ksj:src>条件付き公開</ksj:src>
+  <ksj:pdt>
+    <gml:TimeInstant gml:id="da23_TI1">
+      <gml:timePosition></gml:timePosition>
+    </gml:TimeInstant>
+  </ksj:pdt>
+  <ksj:rmk></ksj:rmk>
+</ksj:DesignatedArea>
+<ksj:DesignatedArea gml:id="da24">
+  <ksj:cda xlink:href="#sf24"/>
+  <ksj:aac codeSpace="AdministrativeAreaCode.xml">01432</ksj:aac>
+  <ksj:pfn>北海道</ksj:pfn>
+  <ksj:lgn>新十津川町</ksj:lgn>
+  <ksj:dac>5</ksj:dac>
+  <ksj:kda>第一種住居地域</ksj:kda>
+  <ksj:bar>60</ksj:bar>
+  <ksj:cbr>200</ksj:cbr>
+  <ksj:src>条件付き公開</ksj:src>
+  <ksj:pdt>
+    <gml:TimeInstant gml:id="da24_TI1">
+      <gml:timePosition></gml:timePosition>
+    </gml:TimeInstant>
+  </ksj:pdt>
+  <ksj:rmk></ksj:rmk>
+</ksj:DesignatedArea>
+</ksj:Dataset>

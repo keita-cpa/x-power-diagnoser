@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>@Keita_CPA Gem×ナレッジ設計書（2026-07-02）</title>
+<style>
+  body { font-family: "Yu Gothic UI", "Hiragino Sans", sans-serif; max-width: 860px;
+         margin: 0 auto; padding: 20px 16px 60px; background: #f5f6f8; color: #1a1a2e;
+         line-height: 1.7; }
+  h1 { font-size: 1.35rem; }
+  h2 { font-size: 1.1rem; border-left: 4px solid #4a6fa5; padding-left: 10px; margin-top: 40px; }
+  h3 { font-size: .98rem; margin-top: 24px; }
+  .box { background: #fff; border-radius: 10px; padding: 16px 20px; margin: 12px 0;
+         box-shadow: 0 1px 3px rgba(0,0,0,.07); }
+  table { border-collapse: collapse; width: 100%; font-size: .85rem; background: #fff; }
+  th, td { border: 1px solid #dde; padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: #eef1f6; white-space: nowrap; }
+  code { background: #eef1f6; padding: 1px 6px; border-radius: 4px; font-size: .82rem; }
+  .note { color: #555; font-size: .84rem; }
+  .warn { background: #fdf2f2; border-left: 4px solid #c0605f; padding: 10px 14px;
+          font-size: .9rem; border-radius: 0 8px 8px 0; margin: 12px 0; }
+  .ok   { color: #2f7a3d; font-weight: 600; }
+  .ng   { color: #b04a4a; font-weight: 600; }
+  .tag  { font-size: .72rem; padding: 1px 8px; border-radius: 10px; color: #fff;
+          background: #7aa87a; margin-left: 6px; white-space: nowrap; }
+  .tag.manual { background: #c98a3d; }
+  .flow { background: #fff; border-radius: 10px; padding: 14px 18px; font-size: .85rem;
+          font-family: Consolas, monospace; white-space: pre; overflow-x: auto;
+          box-shadow: 0 1px 3px rgba(0,0,0,.07); }
+  ul li { margin: 4px 0; }
+</style>
+</head>
+<body>
+
+<h1>@Keita_CPA Gem×ナレッジ設計書</h1>
+<p class="note">最終更新: 2026-07-02 ／ 各Gemのプロンプト本体は <code>apps/auto-poster/drafts/</code> の各ファイル（単一ソース）。
+このページは「どのGemに・どのナレッジを・なぜ」の設計図です。</p>
+
+<h2>1. ナレッジソースの棚卸し（何が・どこに・どう更新されるか）</h2>
+
+<div class="box">
+<table>
+<tr><th>ソース</th><th>場所</th><th>中身</th><th>更新</th></tr>
+<tr>
+  <td><b>KeitaCPA_投稿済みアーカイブ</b><span class="tag">毎朝自動</span></td>
+  <td>Googleドキュメント<br>（G:\マイドライブ\90_X_KeitaCPA\）</td>
+  <td>投稿済み全文1,025件＋投稿予定ストック（AlgoScore降順）。重複防止の単一ソース</td>
+  <td>毎朝7:30エクスポート → 毎朝4時台にApps Scriptが転記。手作業ゼロ</td>
+</tr>
+<tr>
+  <td>税務ナレッジ3点<span class="tag manual">静的</span></td>
+  <td><code>自動生成用ナレッジ/</code><br>税務調査の立証方法.txt<br>節税と税務否認の分岐点.txt<br>調査官も知らない税務調査の急所.txt</td>
+  <td>知識系投稿・記事の事実の唯一の根拠（RAG制約: この外の数字・条文は書かない）</td>
+  <td>手動（内容追加時のみ）</td>
+</tr>
+<tr>
+  <td><b>検証済み統計・条文抜粋.txt</b><span class="tag manual">育てる</span></td>
+  <td><code>自動生成用ナレッジ/検証済み統計・条文抜粋.txt</code></td>
+  <td>一次ソース検証済みの統計（国税庁令和6事務年度）＋投稿で実際に使う条文の抜粋。
+      Gemが引用してよい事実の追加リスト</td>
+  <td>手動（NotebookLM法令ライブラリで確認 → 運用者が検証 → 追記 → Gemのファイル差し替え）</td>
+</tr>
+<tr>
+  <td><b>検証済みニュース事例.txt</b><span class="tag manual">育てる</span><span class="tag">2026-07-06新設</span></td>
+  <td><code>自動生成用ナレッジ/検証済みニュース事例.txt</code></td>
+  <td>複数の一次・準一次ソースで事実確認済みの企業ニュース・倒産事例（例: 全東信破産）。
+      B型（判例・事例型）記事の追加典拠。業界との関連が未確認の場合は「断定しない」注記を必須化</td>
+  <td>手動（WebSearch/WebFetch等で一次ソース確認 → 運用者が検証 → 追記 → Gemのファイル差し替え）</td>
+</tr>
+<tr>
+  <td>e-Gov法令ライブラリ<span class="tag manual">静的</span></td>
+  <td><code>G:\マイドライブ\05_NotebookLM_Sources\NotebookLM\e-Gov法令\</code></td>
+  <td>租税法一式（所得税法・消費税法・国税通則法・国税徴収法等）・税理士法・公認会計士法・
+      風営法・労働基準法ほか（施行日つき最新版PDF）</td>
+  <td class="ng">Gemには全文を入れない（§4参照）。NotebookLM「法令ライブラリ」の裏取り専用</td>
+</tr>
+<tr>
+  <td>アイキャッチベース画像<span class="tag manual">静的</span></td>
+  <td>アイキャッチGemのナレッジに1枚</td>
+  <td>濃紺レザー＋ゴールドフレーム（テキストなし版）</td>
+  <td>手動（デザイン変更時のみ）</td>
+</tr>
+<tr>
+  <td>X Analytics CSV<span class="tag manual">都度入力</span></td>
+  <td>ナレッジではなく毎回の入力として貼る</td>
+  <td>月次の実測データ</td>
+  <td>月1回ダウンロード</td>
+</tr>
+<tr>
+  <td>書籍ソース（人蕩し術・おもろい話し方 等）</td>
+  <td>NotebookLM（既存ノートブック）</td>
+  <td>戦術原則の学習用</td>
+  <td class="ng">生成系Gemには添付しない（§4参照）</td>
+</tr>
+</table>
+</div>
+
+<h2>2. Gem別ナレッジ構成マトリクス（7 Gem）</h2>
+
+<div class="box">
+<table>
+<tr><th>Gem</th><th>役割</th><th>プロンプトファイル</th><th>添付するナレッジ</th><th>添付しないもの（理由）</th></tr>
+<tr>
+  <td><b>① メイン投稿</b></td>
+  <td>12件一括生成（6カテゴリ）＋SCOUTモード</td>
+  <td><code>gemini_gem_prompt_optimized.md</code></td>
+  <td>税務3点＋<b>投稿済みアーカイブ</b>＋<b>検証済み統計・条文抜粋</b>（計5点）</td>
+  <td>法令全文PDF（誤読・誤適用リスク。§4）／書籍OCR（著作権）／Analytics CSV（役割外）</td>
+</tr>
+<tr>
+  <td><b>② X記事</b></td>
+  <td>長文記事3,000〜4,500字（7/2全面改訂: 読者=セラピスト固定・持ち帰れるもの必須・DM低圧力ブリッジ）</td>
+  <td><code>gemini_gem_article_prompt.md</code></td>
+  <td>税務3点＋<b>投稿済みアーカイブ</b>＋<b>検証済み統計・条文抜粋</b>＋<b>検証済みニュース事例</b>（2026-07-06追加）。
+      テーマ固有の条文はNotebookLM法令ライブラリで抜粋・検証してオーダーシートと一緒に都度貼る</td>
+  <td>法令全文PDF（同左）／書籍OCR（著作権・記事は特に逐語リスク大）</td>
+</tr>
+<tr>
+  <td><b>③ スマホリプライ&引用</b></td>
+  <td>セラピスト向けリプライ・引用の下書き＋<b>会話継続モード（7/2新設・「続き」で1.5往復目）</b></td>
+  <td><code>gem_mobile_assistant_reply_quote.md</code></td>
+  <td>原則ゼロ（軽さ優先）。税の相談に正確に返したい時のみ税務3点</td>
+  <td>投稿済みアーカイブ（リプライは相手起点で重複が起きない。参照ノイズになるだけ）</td>
+</tr>
+<tr>
+  <td><b>④ インフルエンサーリプライ&引用</b></td>
+  <td>同業リスペクト型・知的対等の立ち回り</td>
+  <td><code>gem_influencer_reply_quote.md</code></td>
+  <td>税務3点（条件付き参照: お金・税・経営の主張がある時のみ）</td>
+  <td>投稿済みアーカイブ（同上）</td>
+</tr>
+<tr>
+  <td><b>⑤ セラピスト紹介</b></td>
+  <td>紹介長文ポスト5段構成（週1・木曜夜）</td>
+  <td><code>gem_therapist_introducer.md</code></td>
+  <td>なし（対象者のプロフィール・ポストを毎回貼る＝入力であってナレッジではない）</td>
+  <td>すべて（紹介文は対象者の言葉だけから書くのが設計思想）</td>
+</tr>
+<tr>
+  <td><b>⑥ 分析（データサイエンティスト）</b></td>
+  <td>AlgoScoreレポート・weight変更案（7/2改訂: North Star整合・据え置き許容・記事はBM/PClickで評価）</td>
+  <td><code>gem_analytics_scientist.md</code></td>
+  <td>なし（CSVを毎回貼る。アルゴ定数はプロンプトに内蔵済み）</td>
+  <td>投稿済みアーカイブ（分析対象はCSV側にある）</td>
+</tr>
+<tr>
+  <td><b>⑦ アイキャッチ画像</b></td>
+  <td>X記事用アイキャッチ生成（変更なし・設計完結済み）</td>
+  <td><code>gem_eyecatch_generator.md</code></td>
+  <td>ベース画像1枚のみ</td>
+  <td>テキスト系すべて（画像生成にテキストナレッジは誤動作の元）</td>
+</tr>
+</table>
+<p class="note">設計原則: <b>「入れられるだけ入れる」は禁止。</b>各Gemの仕事に不要なナレッジは判断のノイズになり、
+トーンの混線（例: 紹介Gemに税務資料→紹介文に税の説教が混入）を起こす。最小構成が正解。</p>
+</div>
+
+<h2>3. NotebookLMの使い分け（Gemナレッジとの役割分担）</h2>
+
+<div class="box">
+<table>
+<tr><th>ノートブック</th><th>ソース</th><th>用途</th></tr>
+<tr>
+  <td><b>X運用アーカイブ</b>（推奨・新設）</td>
+  <td>Googleドキュメント「KeitaCPA_投稿済みアーカイブ」＋税務3点</td>
+  <td>「過去に〇〇のテーマ書いた？」「チップ関連で使ってない切り口は？」の対話的な確認。
+      記事執筆前のネタ被りチェック。<b>使う前に「同期」を1クリック</b></td>
+</tr>
+<tr>
+  <td><b>法令ライブラリ</b>（推奨・新設）</td>
+  <td>e-Gov法令PDF: 所得税法・消費税法・国税通則法・国税徴収法・税理士法・公認会計士法・
+      風営法・労働基準法（＋必要に応じ施行令・施行規則）</td>
+  <td>記事・投稿の条文裏取り。「この記述の根拠条文は？」「加算税の率の条文は？」を
+      引用付きで確認 → 検証して「検証済み統計・条文抜粋.txt」へ蓄積。
+      QC審査（法令のこじつけ検出）の照合先としても使う</td>
+</tr>
+<tr>
+  <td>書籍ソース（既存）</td>
+  <td>人蕩し術・おもろい話し方 等のOCR済みMarkdown</td>
+  <td>戦術原則の学習・裏取り専用。<b>ここから文章を生成into投稿はしない</b>（§4）</td>
+</tr>
+</table>
+<p class="note">役割分担: <b>Gemナレッジ=生成時の自動参照（受動的）／NotebookLM=あなたが質問して確かめる場（能動的）。</b>
+同じアーカイブDocを両方に繋いでよい（ソースは1つ、窓口が2つ）。</p>
+</div>
+
+<h2>4. 著作権上の設計判断（書籍OCRを生成系Gemに入れない理由）</h2>
+
+<h3>4-0. 法令とGemの距離（なぜ法令全文をGemに入れないか）</h3>
+<div class="box">
+法令は著作権の対象外（著作権法13条）なので、書籍と違い権利上はGemに入れられます。それでも入れないのは品質判断です:
+<ul>
+<li><b>Gemナレッジは10ファイル上限</b>。所得税法だけで本法＋施行令＋施行規則の大部があり、枠が法令で埋まる</li>
+<li><b>生成時の自動参照は誤読・誤適用が混入しやすい</b>。条文は前提条件・例外・読み替えの塊で、
+    Gemが「それらしく」引いた条文の検証コストは、最初から検証済み抜粋だけを渡すより高くつく。
+    誤引用は国家資格者の信用に直結する</li>
+<li>正しい経路: <b>NotebookLM法令ライブラリで確認（引用付き回答）→ 運用者が検証 →
+    「検証済み統計・条文抜粋.txt」に追記 → Gemはそこだけ引用</b>。
+    Gemが引ける事実の全集合を、常に「人間が検証済みの集合」に保つ</li>
+</ul>
+</div>
+
+<div class="warn">
+書籍OCRコーパスの利用範囲はグローバルルールで確定済み:
+<b>可</b>=私的な学習・論点チェック・裏取り ／ <b>NG</b>=表現の複製・翻案・書籍の文章をベースにした記事生成。<br>
+生成系Gem（①②③④⑤）のナレッジに書籍を入れると、Gemが書籍の表現をそのまま引き写すリスクを
+構造的に排除できません。よって<b>書籍のエッセンスは各プロンプトに「原則」として蒸留済みの分だけを使い、
+原文はNotebookLM（学習用）に隔離</b>します。この設計は変更しないでください。
+</div>
+
+<h2>5. データフロー全体図</h2>
+
+<div class="flow">投稿する
+  └ X Analytics CSV（月1 DL）─→ raw/ ─┬→ 月次分析（⑥分析Gem + Claude）
+                                        └→ export_posts_for_notebooklm.py（毎朝7:30自動）
+                                             └→ G:\...\keita_posted_archive.txt
+                                                  └→ Apps Script（毎朝4時台自動）
+                                                       └→ Googleドキュメント「KeitaCPA_投稿済みアーカイブ」
+                                                            ├→ ①メイン投稿Gem（重複防止・自動参照）
+                                                            ├→ ②X記事Gem（重複防止・自動参照）
+                                                            └→ NotebookLM「X運用アーカイブ」（同期は1クリック）
+生成する
+  ①②のGem出力 → ingest_raw_contents.py → stock_posts_draft.csv → ConoHa自動投稿（1〜2件/日）
+  ※ ストック（未投稿）もアーカイブに毎朝含まれる → 生成済みネタの二重生成も防止</div>
+
+<h2>6. セットアップチェックリスト（残作業）</h2>
+
+<div class="box">
+<ul>
+<li>[ ] ①メイン投稿Gem: ナレッジに「KeitaCPA_投稿済みアーカイブ」（Googleドキュメント）を追加。
+    旧「notebooklm_posts_all.txt」を添付していたら削除</li>
+<li>[ ] <b>②X記事Gem: 現在Gemに設定されているのは7/2改訂前の旧版と判明（2026-07-06確認）。
+    最新版（7/6追記込み）に貼り替えるのが最優先</b>＋アーカイブDoc追加</li>
+<li>[ ] ②X記事Gem: ナレッジに<code>検証済みニュース事例.txt</code>を追加（2026-07-06新設・全東信の初回エントリ入り）</li>
+<li>[ ] ③スマホリプライGem: プロンプトを7/2版に貼り替え（会話継続モード追加）</li>
+<li>[ ] ④インフルエンサーGem: プロンプトを7/2版に貼り替え（「続き」対応追加）</li>
+<li>[ ] ⑥分析Gem: プロンプトを7/2版に貼り替え（North Star整合・据え置き許容）</li>
+<li>[ ] NotebookLM: 新ノートブック「X運用アーカイブ」を作成し、アーカイブDoc＋税務3点をソース登録</li>
+<li>[ ] NotebookLM: 新ノートブック「法令ライブラリ」を作成し、e-Gov法令から
+    所得税法・消費税法・国税通則法・国税徴収法・税理士法・風営法・労働基準法のPDFをソース登録</li>
+<li>[ ] ①メイン投稿Gem・②X記事Gem: ナレッジに「検証済み統計・条文抜粋.txt」を追加
+    （<code>自動生成用ナレッジ/検証済み統計・条文抜粋.txt</code>・国税庁令和6統計の初期データ入り）</li>
+<li>[ ] ⑤紹介Gem・⑦アイキャッチGem: プロンプト変更なし（⑤は運用メモのみ更新・作業不要）</li>
+</ul>
+<p class="note">各Gemのプロンプト貼り替えは、該当ファイルの <code>---</code> より下の全文をコピーして
+Gemの「指示」に上書きするだけです。</p>
+</div>
+
+</body>
+</html>

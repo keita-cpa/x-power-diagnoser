@@ -47,11 +47,11 @@ HISTORY_CSV   = _BASE_DIR / "data" / "logs" / "posted_history.csv"
 FIELDNAMES = ["管理ID", "カテゴリ", "フォーマット", "投稿文", "リプライ文", "画像タイトル", "ALT", "ステータス"]
 
 # post_generator.py の _NO_IMAGE_CATEGORIES と同期すること
-NO_IMAGE_CATEGORIES = {"良客の目線・メンエス愛", "痛みの代弁・がんばりの承認", "趣味・人間味・日常"}
+NO_IMAGE_CATEGORIES = {"良客の目線・メンエス愛", "痛みの代弁・がんばりの承認", "趣味・人間味・日常", "X・SNS自虐/メタネタ"}
 
-# Gem/NotebookLM 用マスタープロンプトの単一ソース（drafts/ 内の最新バージョンを自動検出）
+# Gem/NotebookLM 用マスタープロンプトの単一ソース（改訂記録はファイル内ヘッダーに追記）
 DRAFTS_DIR = _BASE_DIR / "drafts"
-_GEM_PROMPT_GLOB = "gemini_gem_prompt_optimized_v*.md"
+_GEM_PROMPT_FILE = "gemini_gem_prompt_optimized.md"
 
 # 文字数制限（実運用はX Premium長文ポスト 800〜1400字。280字は旧仕様）
 BODY_MAX  = 1400
@@ -60,14 +60,15 @@ TITLE_MAX = 15
 ALT_MAX   = 120
 REPLY_MAX = 1400
 
-# カテゴリ別のBODY下限（gemini_gem_prompt_optimized_v3.md の構成ルールと同期。
+# カテゴリ別のBODY下限（gemini_gem_prompt_optimized_v4.md の構成ルールと同期。
 # 下限割れは「失敗作として書き直す」対象なのでエラー＝隔離する）
 CATEGORY_BODY_MIN = {
-    "良客の目線・メンエス愛":         500,
-    "痛みの代弁・がんばりの承認":     500,
-    "お金と法律のお守り":             800,
-    "施術中のワンシーン・そっと解決": 800,
-    "趣味・人間味・日常":             300,
+    "良客の目線・メンエス愛":         400,
+    "痛みの代弁・がんばりの承認":     400,
+    "お金と法律のお守り":             700,
+    "施術中のワンシーン・そっと解決": 700,
+    "趣味・人間味・日常":             380,
+    "X・SNS自虐/メタネタ":            200,
 }
 
 # 区切りブロック（=の数・前後空白の揺れを許容）
@@ -87,8 +88,8 @@ _EMOJI_RE = re.compile(
     "]"
 )
 
-# v3 NGトーン・温度感ルールの機械チェック（確実な違反 = エラーで隔離）
-# gemini_gem_prompt_optimized_v3.md の【NGトーン・境界線ルール】【温度感・口癖】と同期
+# v4 NGトーン・温度感ルールの機械チェック（確実な違反 = エラーで隔離）
+# gemini_gem_prompt_optimized_v4.md の【NGトーン・境界線ルール】【温度感・口癖】と同期
 HARD_NG_PATTERNS: list[tuple[re.Pattern, str]] = [
     (re.compile("彼女"),                 "三人称「彼女」（距離感ルール違反）"),
     (re.compile("この子"),               "「この子」（距離感ルール違反）"),
@@ -116,19 +117,16 @@ _NET_LAUGH_RE = re.compile(r"(?<![一-龯])笑(?![一-龯ぁ-ん])")
 # ──────────────────────────────────────────
 
 def _find_gem_prompt_md() -> Path | None:
-    """drafts/ 内のGemマスタープロンプト（最新バージョン）を返す。無ければ None。"""
-    def version(p: Path) -> int:
-        m = re.search(r"_v(\d+)\.md$", p.name)
-        return int(m.group(1)) if m else -1
-    candidates = sorted(DRAFTS_DIR.glob(_GEM_PROMPT_GLOB), key=version)
-    return candidates[-1] if candidates else None
+    """drafts/ 内のGemマスタープロンプトを返す。無ければ None。"""
+    p = DRAFTS_DIR / _GEM_PROMPT_FILE
+    return p if p.exists() else None
 
 
 def build_master_prompt(count: int = 12) -> str:
     """Web LLM（NotebookLM / Gemini Gem）に貼るマスタープロンプトを返す。
 
-    drafts/gemini_gem_prompt_optimized_v*.md の最新版を単一ソースとして読み込み、
-    ヘッダーノート（最初の --- より上＝運用メモ）を除去して返す。
+    drafts/gemini_gem_prompt_optimized.md を単一ソースとして読み込み、
+    ヘッダーノート（最初の --- より上＝運用メモ・改訂記録）を除去して返す。
     ファイルが見つからない場合のみ、旧来の組み込みテンプレートにフォールバックする。
     """
     md = _find_gem_prompt_md()

@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>エリアチェッカー運用ガイド — @Keita_CPA</title>
+<style>
+  :root {
+    --navy:   #0d1b2e;
+    --navy2:  #162237;
+    --navy3:  #1e3050;
+    --gold:   #c9a84c;
+    --gold2:  #e8c96e;
+    --green:  #4caf7d;
+    --red:    #e05c5c;
+    --amber:  #e8a44a;
+    --text:   #d4dce8;
+    --muted:  #7a90aa;
+    --border: #2a3f5c;
+    --code-bg:#0b1422;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--navy); color: var(--text); font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif; font-size: 15px; line-height: 1.7; }
+
+  .page { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  /* ヘッダー */
+  .hero { text-align: center; padding: 48px 0 40px; border-bottom: 1px solid var(--border); margin-bottom: 48px; }
+  .hero-badge { display: inline-block; background: var(--navy3); border: 1px solid var(--gold); color: var(--gold); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; padding: 4px 14px; border-radius: 20px; margin-bottom: 20px; }
+  .hero h1 { font-size: 28px; font-weight: 700; color: #fff; margin-bottom: 10px; }
+  .hero p { color: var(--muted); max-width: 540px; margin: 0 auto; }
+
+  /* セクション */
+  section { margin-bottom: 52px; }
+  .section-title { font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 18px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  h2 { font-size: 20px; color: #fff; margin-bottom: 6px; }
+  h3 { font-size: 15px; color: var(--gold2); margin-bottom: 10px; margin-top: 24px; }
+  p { color: var(--text); margin-bottom: 12px; }
+
+  /* カード */
+  .card { background: var(--navy2); border: 1px solid var(--border); border-radius: 10px; padding: 22px 24px; margin-bottom: 16px; }
+  .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .step-num { background: var(--gold); color: var(--navy); font-weight: 700; font-size: 13px; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .card-title { font-size: 16px; font-weight: 600; color: #fff; }
+
+  /* コードブロック */
+  pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; overflow-x: auto; margin: 12px 0; }
+  code { font-family: 'Courier New', Consolas, monospace; font-size: 13px; color: #a8c8f0; }
+  .cmd { color: #7dd3a8; }
+  .cmt { color: var(--muted); }
+  .out { color: #e8c96e; }
+
+  /* バッジ */
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; margin-left: 8px; vertical-align: middle; }
+  .badge-ok     { background: rgba(76,175,125,0.2); color: var(--green); border: 1px solid var(--green); }
+  .badge-cond   { background: rgba(232,164,74,0.2); color: var(--amber); border: 1px solid var(--amber); }
+  .badge-ng     { background: rgba(224,92,92,0.2);  color: var(--red);   border: 1px solid var(--red); }
+  .badge-new    { background: rgba(201,168,76,0.15); color: var(--gold); border: 1px solid var(--gold); }
+
+  /* テーブル */
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+  th { background: var(--navy3); color: var(--gold); font-size: 12px; letter-spacing: 1px; padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+  td { padding: 11px 14px; border-bottom: 1px solid var(--border); vertical-align: top; font-size: 14px; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* フロー矢印 */
+  .flow { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+  .flow-box { background: var(--navy3); border: 1px solid var(--border); border-radius: 8px; padding: 10px 16px; font-size: 13px; text-align: center; }
+  .flow-box strong { display: block; color: #fff; font-size: 14px; }
+  .flow-box span { color: var(--muted); font-size: 11px; }
+  .arrow { color: var(--gold); font-size: 18px; }
+
+  /* CTA投稿プレビュー */
+  .tweet-preview { background: var(--code-bg); border: 1px solid var(--border); border-left: 3px solid var(--gold); border-radius: 8px; padding: 16px 18px; margin: 12px 0; font-size: 14px; line-height: 1.8; white-space: pre-wrap; color: #d4dce8; }
+
+  /* 注意 */
+  .note { background: rgba(201,168,76,0.08); border: 1px solid rgba(201,168,76,0.3); border-radius: 8px; padding: 14px 18px; margin: 12px 0; font-size: 13px; color: var(--text); }
+  .note strong { color: var(--gold); }
+  .warn { background: rgba(224,92,92,0.08); border: 1px solid rgba(224,92,92,0.3); }
+  .warn strong { color: var(--red); }
+
+  /* グリッド */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 680px) { .grid2 { grid-template-columns: 1fr; } .flow { flex-direction: column; } }
+
+  /* バージョン比較 */
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 16px 0; }
+  .compare-box { background: var(--navy2); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+  .compare-box h4 { font-size: 14px; color: var(--gold); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .compare-box ul { list-style: none; }
+  .compare-box li { padding: 5px 0; font-size: 13px; color: var(--text); }
+  .compare-box li::before { content: "・"; color: var(--muted); }
+  @media (max-width: 600px) { .compare { grid-template-columns: 1fr; } }
+
+  /* 見出し錨 */
+  a.anchor { color: inherit; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ヘッダー -->
+  <div class="hero">
+    <div class="hero-badge">Zoning Checker × @Keita_CPA</div>
+    <h1>エリアチェッカー<br>DM運用ガイド</h1>
+    <p>用途地域判定ツールをDM誘導に活用する完全マニュアル。<br>Gem連携・CTA案・実際の返信フローを収録。</p>
+  </div>
+
+  <!-- 目次 -->
+  <section>
+    <div class="section-title">Contents</div>
+    <div class="grid2">
+      <div class="card" style="padding:16px 20px;">
+        <p style="font-size:13px; line-height:2;">
+          1. <a href="#basic" style="color:var(--gold2)">基本の使い方（3ステップ）</a><br>
+          2. <a href="#gem" style="color:var(--gold2)">Gem連携でリプライ案を自動生成</a><br>
+          3. <a href="#gem-prompt" style="color:var(--gold2)">Gemプロンプト（コピー用）</a><br>
+          4. <a href="#cta" style="color:var(--gold2)">CTA案 — プロフィール・ポスト</a>
+        </p>
+      </div>
+      <div class="card" style="padding:16px 20px;">
+        <p style="font-size:13px; line-height:2;">
+          5. <a href="#dm-flow" style="color:var(--gold2)">実際のDM返信フロー</a><br>
+          6. <a href="#limits" style="color:var(--gold2)">現在の制約と対処法</a><br>
+          7. <a href="#roadmap-next" style="color:var(--gold2)">次のステップ</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 基本の使い方 -->
+  <section id="basic">
+    <div class="section-title">1. 基本の使い方</div>
+    <h2>住所 → 1コマンド → リプライ文</h2>
+    <p style="color:var(--muted); margin-bottom:20px;">全国47都道府県・104,702ポリゴン対応。ターミナルで1行叩くだけ。</p>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="step-num">1</div>
+        <div class="card-title">ターミナルでコマンドを実行</div>
+      </div>
+      <pre><code><span class="cmt"># apps/zoning-checker/ ディレクトリで実行</span>
+<span class="cmd">python zoning_checker.py --address "京都府京都市南区"</span></code></pre>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="step-num">2</div>
+        <div class="card-title">出力を確認</div>
+      </div>
+      <pre><code><span class="out">住所: 京都府京都市南区
+------------------------------------------------------------
+座標:     緯度 34.976650, 経度 135.746429
+用途地域: 近隣商業地域
+判定:     [OK]  問題なし
+備考:     制限なし
+
+[X リプライ用テキスト]
+このエリアは 近隣商業地域 です。エステ・サロン系の
+営業は建築基準法上 問題なし の区域になります。
+ただしテナントの建物用途や消防法・条例の確認は
+別途必要ですので、入居前に確認しておくと安心ですよ。</span></code></pre>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="step-num">3</div>
+        <div class="card-title">Xリプライ用テキストをDMに貼り付けて返信</div>
+      </div>
+      <p style="color:var(--muted); font-size:13px;">そのまま使えますが、Gem連携（次章）でペルソナに合った自然な文章に整えることもできます。</p>
+    </div>
+  </section>
+
+  <!-- Gem連携 -->
+  <section id="gem">
+    <div class="section-title">2. Gem連携でリプライ案を自動生成</div>
+    <h2>Gemini ULTRAとのハイブリッド運用</h2>
+
+    <div class="note">
+      <strong>Gemに住所を直接入れて全部やってもらう方法は実現できません。</strong><br>
+      Gemからは国土地理院APIもローカルPickleファイルも呼べないため、ジオコーディング（住所→座標）とポリゴン判定（座標→用途地域）はPythonスクリプト側が行う必要があります。
+    </div>
+
+    <h3>推奨: 2段階ハイブリッド運用</h3>
+
+    <div class="flow">
+      <div class="flow-box"><strong>セラピストDM</strong><span>「○○で開業考えてます」</span></div>
+      <div class="arrow">→</div>
+      <div class="flow-box"><strong>zoning_checker.py</strong><span>ターミナルで1コマンド</span></div>
+      <div class="arrow">→</div>
+      <div class="flow-box"><strong>結果をコピー</strong><span>用途地域名＋判定</span></div>
+      <div class="arrow">→</div>
+      <div class="flow-box"><strong>Gem（DM返信Gem）</strong><span>@Keita_CPA口調に整形</span></div>
+      <div class="arrow">→</div>
+      <div class="flow-box"><strong>DM返信</strong><span>コピペして送信</span></div>
+    </div>
+
+    <h3>Gemに渡す入力テンプレート</h3>
+    <pre><code>【住所】京都府京都市南区
+【用途地域】近隣商業地域
+【判定】OK（問題なし）
+【備考】制限なし
+【セラピストの文脈】「南区で物件を探していて、サロンを開きたい」と相談</code></pre>
+
+    <div class="note">
+      zoning_checker.py の出力からそのままコピペしてもOKです。<br>
+      【セラピストの文脈】には相手が送ってきたDMの内容を貼るとGemがより自然な返信を生成します。
+    </div>
+
+    <h3>Gemが返してくれる出力例</h3>
+    <div class="tweet-preview">南区、確認してみました。
+
+近隣商業地域なので、建築基準法の観点では問題なしのエリアです。サロン系の営業は普通にできます。
+
+ただテナントの建物用途（「事務所」名義など）や消防法の確認は入居前にやっておくと安心ですよ。何かあればまた聞いてください。</div>
+  </section>
+
+  <!-- Gemプロンプト -->
+  <section id="gem-prompt">
+    <div class="section-title">3. Gemプロンプト（コピー用）</div>
+
+    <div class="compare">
+      <div class="compare-box">
+        <h4>簡易版 — DM返信1パターン</h4>
+        <ul>
+          <li>セットアップ5分</li>
+          <li>入力: 判定結果のみ</li>
+          <li>出力: DM返信文1案</li>
+          <li>初心者向け</li>
+        </ul>
+      </div>
+      <div class="compare-box">
+        <h4>詳細版 — 3案＋戦略メモ</h4>
+        <ul>
+          <li>セットアップ10分</li>
+          <li>入力: 判定結果＋相手のDM原文</li>
+          <li>出力: 温度違いの3案＋次の一手</li>
+          <li>運用慣れてきた後向け</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>簡易版プロンプト <span class="badge badge-new">Gemにコピペ</span></h3>
+    <pre><code>あなたは @Keita_CPA です。Big4出身の公認会計士・税理士でありながら、
+メンエス（健全店）を愛する良客でもあります。
+
+セラピストからのDMに対して、エリアの用途地域判定結果をもとに返信文を生成してください。
+
+【キャラクター設定】
+- 一人称: ぼく（「私」「僕」「俺」は使わない）
+- 口調: 柔らかい敬語。語尾に長音（「〜ですよー」「〜ありがとー」）を自然に使う
+- 絵文字禁止 / Markdown太字（**）禁止 / URLリンク禁止
+- 専門知識は「宣言」でなく「ギャップ」で出す（普段は良客、必要な時だけ格の違いがスッと出る）
+- 媚びない・説教しない・恐怖で動かさない
+- 最後の一文はそっと上向きに（重く沈まない）
+- 個別具体的な「あなたの場合はこう申告すべき」という断定はしない
+
+【出力形式】
+DM返信文を1案。100〜140文字程度。免責の一言を最後に添える。
+
+【用途地域と可否の基準】
+- 商業地域 / 近隣商業地域 / 準住居地域 / 第二種住居地域 → 問題なし
+- 第一種住居地域 / 第二種中高層住居専用地域 → 規模次第（条件付き）
+- 低層住居専用地域 / 田園住居地域 / 工業地域 / 工業専用地域 → 原則NG
+
+以下の情報をもとに返信文を生成してください：
+</code></pre>
+
+    <h3>詳細版プロンプト <span class="badge badge-new">Gemにコピペ</span></h3>
+    <pre><code>あなたは @Keita_CPA です。Big4出身の公認会計士・税理士でありながら、
+メンエス（健全店）を愛する良客でもあります。
+
+セラピストからのDMに対して、エリアの用途地域判定結果をもとに返信案を3パターン生成してください。
+
+【キャラクター設定】
+- 一人称: ぼく（「私」「僕」「俺」は使わない）
+- 二人称: あなた（「お前」「あんた」禁止）
+- 口調: 柔らかい敬語。語尾に長音（「〜ですよー」「〜ありがとー」）を自然に使う
+- 絵文字禁止 / Markdown太字（**）禁止 / URLリンク禁止
+- 専門知識は「宣言」でなく「ギャップ」で出す（普段は良客、必要な時だけ格の違いがスッと出る）
+- 媚びない・説教しない・恐怖で動かさない
+- 仙人的達観: 「だいたいそういうものですよねー」の温度感。断言せず留保を入れる
+- 最後の一文はそっと上向きに（重く沈まない）
+- 個別具体的な断定はしない（「行政に確認してください」と添える）
+
+【用途地域と可否の基準】
+- 商業地域 / 近隣商業地域 → 制限なし（問題なし）
+- 準住居地域 / 第二種住居地域 → 大規模でなければ問題なし
+- 第一種住居地域 → 3,000m2以下の店舗は可（条件付き）
+- 第二種中高層住居専用地域 → 1,500m2以下の店舗は可（条件付き）
+- 第一種中高層住居専用地域 → 500m2以下の小規模のみ（条件付き）
+- 低層住居専用地域 / 田園住居地域 → 店舗不可（NG）
+- 工業地域 / 工業専用地域 → サービス業不可（NG）
+
+【出力形式】
+以下の3案を生成してください：
+
+案A（標準）: 判定結果を伝えてそっと背中を押す。100〜140文字。
+案B（丁寧）: 条件や注意点を少し詳しく。150〜200文字。
+案C（一言）: 最短で本質を伝える。60〜80文字。
+
+最後に「次の一手メモ」として、このセラピストとの関係を深めるための
+返信後のアクション（リプライ誘発・フォロー案など）を1〜2行で記載してください。
+
+以下の情報をもとに生成してください：
+</code></pre>
+  </section>
+
+  <!-- CTA案 -->
+  <section id="cta">
+    <div class="section-title">4. CTA案 — プロフィール・ポスト</div>
+
+    <h2>プロフィール記載案</h2>
+
+    <h3>簡易版（最小限）</h3>
+    <div class="tweet-preview">Big4出身の公認会計士・税理士。
+メンエス好きの良客でもあります。
+開業エリアのご相談はDMで気軽にどうぞ。</div>
+
+    <h3>詳細版（ギャップ演出）</h3>
+    <div class="tweet-preview">Big4出身の公認会計士・税理士 / メンエス愛好家。
+セラピストさんの税務・法律・開業の疑問、
+知ってることなら何でも。DMどうぞ。</div>
+
+    <div class="note">
+      <strong>ポイント:</strong> 「エリア判定します」とは書かない。「疑問、知ってることなら何でも」の方が間口が広く、タクシードライバーテスト（読んだ人が次の行動を取りやすいか）に合格する。
+    </div>
+
+    <h2 style="margin-top:36px;">ピン止めポスト（CTA投稿）</h2>
+    <table>
+      <tr>
+        <th>種類</th><th>投稿文案</th><th>狙い</th>
+      </tr>
+      <tr>
+        <td style="white-space:nowrap;"><strong>簡易版</strong><br><span class="badge badge-ok">90字</span></td>
+        <td>
+          <div style="font-size:13px; line-height:1.8;">
+            開業を考えているセラピストさんへ。<br><br>
+            候補エリアが法的に問題ないかどうか、DMに住所を送ってくれたら確認します。<br><br>
+            建築基準法の用途地域という観点から調べてお伝えします。費用はいりません。
+          </div>
+        </td>
+        <td style="font-size:12px; color:var(--muted);">開業検討層を直接ターゲット。摩擦ゼロ。</td>
+      </tr>
+      <tr>
+        <td style="white-space:nowrap;"><strong>詳細版A</strong><br><span class="badge badge-ok">200字</span></td>
+        <td>
+          <div style="font-size:13px; line-height:1.8;">
+            「このエリアで開業していいのか」<br>
+            ぼくがよく聞かれるので、ちゃんと書いておきます。<br><br>
+            答えはたいてい「用途地域を調べればわかります」で、<br>
+            商業地域や近隣商業地域なら基本的に問題なし。<br>
+            住居専用地域に近づくほど制限が出てきます。<br><br>
+            調べるのが面倒な場合は住所をDMしてくれたら確認しますよ。
+          </div>
+        </td>
+        <td style="font-size:12px; color:var(--muted);">教育投稿×CTA。AlgoScore重視型（DWell狙い）。</td>
+      </tr>
+      <tr>
+        <td style="white-space:nowrap;"><strong>詳細版B</strong><br><span class="badge badge-ok">240字</span></td>
+        <td>
+          <div style="font-size:13px; line-height:1.8;">
+            サロン開業で「このビル大丈夫？」って思ったことありませんか。<br><br>
+            建築基準法に「用途地域」という制度があって、<br>
+            エリアによってどんな建物・商売が認められるか決まっています。<br><br>
+            メンエス（健全店）は風営法の対象外なので、<br>
+            基本は用途地域さえ問題なければOKです。<br><br>
+            ぼく、住所を教えてもらったら調べられるので、<br>
+            気になる物件があればDMください。無料です。
+          </div>
+        </td>
+        <td style="font-size:12px; color:var(--muted);">「風営法対象外」の教育×CTA。誤解解消型。</td>
+      </tr>
+    </table>
+
+    <h2 style="margin-top:36px;">定期投稿CTA案（ブロードキャスト型）</h2>
+    <div class="note">ピン止めだけでなく、月に1〜2回ブロードキャストで流すパターン。</div>
+
+    <h3>パターン1: 事例型（AlgoScore高・誤解フック）</h3>
+    <div class="tweet-preview">「住居地域だからサロンは無理」
+
+この思い込みで物件を諦めているセラピストさん、けっこういます。
+
+第二種住居地域や準住居地域は、規模次第でサービス業OKなんですよ。
+
+エリアに迷ったらDMください。住所を教えてもらえれば調べます。</div>
+
+    <h3>パターン2: 共感型（良客の目線）</h3>
+    <div class="tweet-preview">ぼくが通っているお店、前に別のエリアで物件を探していたことがあって。
+
+「あ、そのエリアちょっと微妙かも」って言ったら驚かれたんですが、
+
+開業エリアの法的な確認って、意外と知らないままのことがあります。
+
+気になる方はDMで聞いてください。</div>
+
+    <h3>パターン3: 数字型（スクショ誘発）</h3>
+    <div class="tweet-preview">メンエス開業で問題になりやすい用途地域
+
+NG: 第一種・第二種低層住居専用地域
+   田園住居地域 / 工業地域 / 工業専用地域
+
+OK: 商業地域 / 近隣商業地域
+   準住居地域 / 第二種住居地域
+
+条件付: 第一種住居地域（3,000m2以下）
+   第一種中高層（500m2以下）
+
+調べ方わからない場合はDMどうぞ。</div>
+  </section>
+
+  <!-- DM返信フロー -->
+  <section id="dm-flow">
+    <div class="section-title">5. 実際のDM返信フロー</div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="step-num">1</div>
+        <div class="card-title">セラピストからDMが来る</div>
+      </div>
+      <div class="tweet-preview">はじめまして。京都で開業を考えているんですが、
+南区の物件が候補で、そのエリアが大丈夫かどうか
+調べてもらえますか？</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="step-num">2</div>
+        <div class="card-title">ターミナルで1コマンド（10秒）</div>
+      </div>
+      <pre><code><span class="cmd">python zoning_checker.py --address "京都府京都市南区"</span>
+
+<span class="out">用途地域: 近隣商業地域
+判定:     [OK]  問題なし
+Xリプライ: このエリアは 近隣商業地域 です...</span></code></pre>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="step-num">3</div>
+        <div class="card-title">Gemに結果を貼り付け（必要な場合）</div>
+      </div>
+      <pre><code><span class="cmt"># Gemの「DM返信Gem」に以下を貼る:</span>
+【住所】京都府京都市南区
+【用途地域】近隣商業地域
+【判定】OK（問題なし）
+【セラピストの文脈】南区の物件が候補で開業を考えている</code></pre>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="step-num">4</div>
+        <div class="card-title">Gemが生成した返信をDMに送信</div>
+      </div>
+      <div class="tweet-preview">南区、確認しました。
+
+近隣商業地域なので建築基準法の観点では問題なしです。サロン系の営業は普通にできますよ。
+
+ただテナントの建物用途や消防法の確認は入居前にやっておくと安心ですー。何かあればまた聞いてください。</div>
+    </div>
+
+    <div class="note" style="margin-top:20px;">
+      <strong>所要時間の目安:</strong> ステップ2（コマンド実行）は10秒。Gem整形を加えても1〜2分。スクリプトを使わずGemだけで回す場合は3〜5分。
+    </div>
+  </section>
+
+  <!-- 制約 -->
+  <section id="limits">
+    <div class="section-title">6. 現在の制約と対処法</div>
+
+    <table>
+      <tr>
+        <th>制約</th><th>詳細</th><th>対処法</th>
+      </tr>
+      <tr>
+        <td><span class="badge badge-ng">未対応</span><br>那覇市</td>
+        <td style="font-size:13px;">国土数値情報（令和元年版）に那覇市のポリゴンデータが未収録</td>
+        <td style="font-size:13px;">「那覇市役所の都市計画課で確認できますよ」と案内</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-cond">注意</span><br>番地精度</td>
+        <td style="font-size:13px;">「○○区」だけの入力は区の中心座標になる。ポリゴン境界付近で誤判定の可能性あり</td>
+        <td style="font-size:13px;">「丁目番地まで」の住所で再確認を促す</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-cond">注意</span><br>全自動化不可</td>
+        <td style="font-size:13px;">GemにAPIアクセス機能がないため、住所入力だけで完結しない</td>
+        <td style="font-size:13px;">2段階ハイブリッド運用（Python→Gem）で対応</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-ng">免責</span><br>参考情報</td>
+        <td style="font-size:13px;">建築基準法の用途地域のみの判定。条例・消防法・建物用途は別途確認が必要</td>
+        <td style="font-size:13px;">毎回の返信に免責一言を添える（Gemプロンプトに組み込み済み）</td>
+      </tr>
+    </table>
+  </section>
+
+  <!-- 次のステップ -->
+  <section id="roadmap-next">
+    <div class="section-title">7. 次のステップ</div>
+
+    <div class="grid2">
+      <div class="card">
+        <h3 style="margin-top:0;">Phase 1（今すぐ）</h3>
+        <ul style="font-size:13px; list-style:none;">
+          <li style="padding:5px 0; border-bottom:1px solid var(--border);">✓ zoning_checker.py 全国対応完了</li>
+          <li style="padding:5px 0; border-bottom:1px solid var(--border);">□ Gemを作成してプロンプトを設定</li>
+          <li style="padding:5px 0; border-bottom:1px solid var(--border);">□ プロフィール文を更新</li>
+          <li style="padding:5px 0;">□ ピン止めポストを投稿</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0;">Phase 2（2週間以内）</h3>
+        <ul style="font-size:13px; list-style:none;">
+          <li style="padding:5px 0; border-bottom:1px solid var(--border);">□ DM履歴管理（contacts.csv）</li>
+          <li style="padding:5px 0; border-bottom:1px solid var(--border);">□ 定期CTA投稿をauto_poster.pyに追加</li>
+          <li style="padding:5px 0;">□ /project:relationship-check 実装</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="note" style="margin-top:20px;">
+      <strong>Gemの作り方（30秒）:</strong><br>
+      Gemini Ultra → 「Gem を作成」→ 名前「エリア判定DM返信」→ 上記プロンプトを「指示」欄に貼る → 保存
+    </div>
+  </section>
+
+  <div style="text-align:center; color:var(--muted); font-size:12px; margin-top:40px; padding-top:24px; border-top:1px solid var(--border);">
+    @Keita_CPA — zoning-checker v1.0 / 更新: 2026-06-27 / データ: 国土数値情報 A29 令和元年版
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<ksj:Dataset gml:id="A29Dataset"
+ xmlns:ksj="http://nlftp.mlit.go.jp/ksj/schemas/ksj-app"
+ xmlns:gml="http://www.opengis.net/gml/3.2"
+ xmlns:xlink="http://www.w3.org/1999/xlink"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://nlftp.mlit.go.jp/ksj/schemas/ksj-app KsjAppSchema-A29-v1_0.xsd">
+<gml:description>国土数値情報（用途地域）データ A29-19_11383.xml</gml:description>
+<gml:boundedBy>
+  <gml:EnvelopeWithTimePeriod srsName="JGD2011 / (B, L)" frame="GC / JST">
+    <gml:lowerCorner>36.21650063 139.12663272</gml:lowerCorner>
+    <gml:upperCorner>36.22320631 139.13620336</gml:upperCorner>
+    <gml:beginPosition calendarEraName="西暦">1900</gml:beginPosition>
+    <gml:endPosition indeterminatePosition="unknown"/>
+  </gml:EnvelopeWithTimePeriod>
+</gml:boundedBy>
+<gml:Curve gml:id="cv1_0">
+  <gml:segments>
+    <gml:LineStringSegment>
+      <gml:posList>
+      36.22191111 139.13500544
+      36.22104613 139.13426906
+      36.22153594 139.13342635
+      36.22150033 139.13337438
+      36.22275124 139.13123363
+      36.22271489 139.13120048
+      36.22265534 139.13114619
+      36.22272098 139.13100103
+      36.22282249 139.13103497
+      36.22320631 139.13035055
+      36.22319179 139.13021432
+      36.22241556 139.12953400
+      36.22161405 139.12883353
+      36.22157406 139.12883873
+      36.22112167 139.12963684
+      36.21770902 139.12663272
+      36.21650063 139.12870720
+      36.21660910 139.12880346
+      36.21778136 139.12984383
+      36.21745192 139.13041569
+      36.21652089 139.13198446
+      36.22017623 139.13524528
+      36.22125014 139.13620336
+      36.22137040 139.13617378
+      36.22199341 139.13508357
+      36.22191111 139.13500544
+      </gml:posList>
+    </gml:LineStringSegment>
+  </gml:segments>
+</gml:Curve>
+<gml:Surface gml:id="sf1">
+  <gml:patches>
+    <gml:PolygonPatch>
+      <gml:exterior>
+        <gml:Ring>
+          <gml:curveMember xlink:href="#cv1_0"/>
+        </gml:Ring>
+      </gml:exterior>
+    </gml:PolygonPatch>
+  </gml:patches>
+</gml:Surface>
+<ksj:DesignatedArea gml:id="da1">
+  <ksj:cda xlink:href="#sf1"/>
+  <ksj:aac codeSpace="AdministrativeAreaCode.xml">11383</ksj:aac>
+  <ksj:pfn>埼玉県</ksj:pfn>
+  <ksj:lgn>神川町</ksj:lgn>
+  <ksj:dac>12</ksj:dac>
+  <ksj:kda>工業専用地域</ksj:kda>
+  <ksj:bar>60</ksj:bar>
+  <ksj:cbr>200</ksj:cbr>
+  <ksj:src></ksj:src>
+  <ksj:pdt>
+    <gml:TimeInstant gml:id="da1_TI1">
+      <gml:timePosition></gml:timePosition>
+    </gml:TimeInstant>
+  </ksj:pdt>
+  <ksj:rmk></ksj:rmk>
+</ksj:DesignatedArea>
+</ksj:Dataset>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>余韻手帖・判断メモ: スペースだけで知った人をどう扱うか</title>
+<style>
+  :root {
+    --ink: #2b2b2b; --sub: #666; --line: #ddd;
+    --accent: #6b4f3a; --bg: #faf8f5; --card: #fff;
+    --ok: #2e7d32; --ng: #b3402a; --warn-bg: #fdf3e7; --warn-line: #e0b070;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Yu Gothic UI", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+    color: var(--ink); background: var(--bg);
+    max-width: 860px; margin: 0 auto; padding: 32px 20px 64px;
+    line-height: 1.85;
+  }
+  h1 { font-size: 1.5rem; border-bottom: 3px solid var(--accent); padding-bottom: 10px; }
+  h2 { font-size: 1.15rem; margin-top: 2.2em; border-left: 5px solid var(--accent); padding-left: 10px; }
+  .meta { color: var(--sub); font-size: 0.85rem; }
+  .verdict {
+    background: var(--card); border: 2px solid var(--accent); border-radius: 8px;
+    padding: 18px 22px; margin: 24px 0;
+  }
+  .verdict b { color: var(--accent); }
+  .warn {
+    background: var(--warn-bg); border-left: 5px solid var(--warn-line);
+    padding: 12px 16px; margin: 18px 0; border-radius: 0 6px 6px 0;
+  }
+  table { border-collapse: collapse; width: 100%; margin: 14px 0; background: var(--card); font-size: 0.92rem; }
+  th, td { border: 1px solid var(--line); padding: 8px 12px; text-align: left; vertical-align: top; }
+  th { background: #f0ebe4; }
+  .ok { color: var(--ok); font-weight: bold; }
+  .ng { color: var(--ng); font-weight: bold; }
+  .rec { background: #f3f8f3; }
+  code { background: #f0ebe4; padding: 1px 6px; border-radius: 4px; font-size: 0.85em; }
+  blockquote {
+    background: var(--card); border-left: 4px solid #b9a58f; margin: 14px 0;
+    padding: 12px 18px; border-radius: 0 6px 6px 0; color: #444;
+  }
+  .tmpl { white-space: pre-wrap; font-size: 0.95rem; }
+  .placeholder { color: var(--ng); background: #fdeeea; padding: 0 4px; border-radius: 3px; }
+  footer { margin-top: 48px; color: var(--sub); font-size: 0.8rem; border-top: 1px solid var(--line); padding-top: 12px; }
+</style>
+</head>
+<body>
+
+<h1>余韻手帖・判断メモ<br>スペースだけで知った人（会ったことも施術も受けたこともない）をどう扱うか</h1>
+<p class="meta">2026-07-06 起案 / 制度本体: <code>docs/introduction_system.md</code> / 具体ケース: @96yurisub のスペース</p>
+
+<div class="warn">
+<b>【2026-07-06 制度v2改訂により一部更新】</b> 本メモの「二重紹介につき本編不可」の判定は、
+同日のユーザー決定（<code>introduction_revision_202607.html</code>）で
+「再紹介3条件（3か月以上・新素材・年1回）を満たせば可」に変更された。@96yurisub は条件クリア済み。
+また制度は「会った人・施術を受けた人は紹介しない」方針（会わない紹介）へ転換し、
+シリーズ名は「気くばり手帖」（提案中）に変更。本メモは判例アーカイブとして残す。
+</div>
+
+<div class="verdict">
+<b>結論（3行）</b><br>
+1. 今回の @96yurisub は、その2で紹介済みの @96yuridayo さんのサブアカウントである可能性が高く、そもそも<b>二重紹介にあたるため本編（余韻手帖）の対象外</b>。<br>
+2. 「会ったことがない・施術を受けたことがない」こと自体は、実は本編の失格条件ではない（制度はもともと公開情報の観察ベース）。<b>失格条件になるのは、受けたかのように読める嘘だけ</b>。<br>
+3. 今回の正解は紹介ではなく<b>交流</b>。スペースの感想を具体的事実で引用リポスト（またはリプライ）するのが、制度を汚さず、本人の集客に貢献し、実測8倍効率の一手になる。
+</div>
+
+<h2>1. このケースの事実関係（リポジトリ内データで確認済み）</h2>
+<table>
+<tr><th>確認事項</th><th>事実</th></tr>
+<tr><td>@96yurisub の位置づけ</td><td><code>target_accounts.txt</code> 23行目に登録済みの監視対象。リプライ往復の実績多数（投稿アーカイブに20件以上）</td></tr>
+<tr><td>紹介履歴</td><td>台帳 その2 = 2026-04-04 に <b>@96yuridayo</b> を紹介済み。「96yuri」の共通prefixと「dayo／sub」の対から、同一人物のメイン／サブ垢の可能性が高い（<b>要・本人プロフィールで最終確認</b>）</td></tr>
+<tr><td>訪問歴</td><td>過去の自リプライに「声に人柄がにじみ出るから、会いに行ってみようかなと思う動機となる」とあり、未訪問という今回の前提と整合</td></tr>
+<tr><td>制度上の穴（今回発見）</td><td><code>check_history()</code> はID単位の照合のため、<b>サブ垢は二重紹介チェックを素通りする</b>（96yurisub で実行すると その3 が発行されてしまう）→ §6 の反映提案①</td></tr>
+</table>
+
+<h2>2. 一般ルール: 「会ってない・受けてない」は失格条件ではない</h2>
+<p>
+制度の建て付けを確認すると、余韻手帖はもともと<b>施術体験を素材にしていない</b>。
+SKILL.mdの5段構成が素材として認めるのは「プロフィール文・通常ポスト・リプライ」の公開情報だけで、
+むしろ施術中エピソードには守秘フィクション化の制約がかかる。つまり「観察で書く」ことが制度の本体であり、
+スペース（本人が公開で配信した声・話し方・間の取り方）は、<b>正当な観察素材が1種類増えただけ</b>と整理できる。
+</p>
+<p>本編に載せられるかどうかは、施術の有無ではなく次の照合で決まる:</p>
+<table>
+<tr><th>本編の必要条件（introduction_system.md §5）</th><th>スペースだけで知った新規の人</th><th>今回の @96yurisub</th></tr>
+<tr><td>(1) target_accounts.txt に登録済み</td><td class="ng">通常は未登録 → まず登録から</td><td class="ok">登録済み</td></tr>
+<tr><td>(2) 直近2〜4週間の交流実績</td><td class="ng">なし → まず感想を伝える交流から</td><td class="ok">交流は十分</td></tr>
+<tr><td>(3) 6:4比率を捏造なしで書ける観察素材</td><td class="ng">声だけでは通常不足（ポスト・プロフィールの蓄積が必要）</td><td class="ok">素材はある</td></tr>
+<tr><td>(4) 二重紹介でない</td><td class="ok">新規なら問題なし</td><td class="ng"><b>その2と同一人物なら不可</b></td></tr>
+</table>
+<p>
+つまり一般ケース（純粋な新規）では(1)〜(3)が足りず、今回のケースでは(4)で止まる。
+どちらの経路でも<b>「スペースで惚れた」は紹介のトリガーではなく、交流を始める（深める）トリガー</b>として扱うのが制度と整合する。
+</p>
+
+<h2>3. 真正性テスト（迷ったときの1問）</h2>
+<div class="warn">
+<b>「この文章を、本人と界隈の全員に、書いた経緯ごと知られても平気か？」</b><br>
+会ったことがないのに通ったように読める文章は、この1問で落ちる。バレた瞬間、過去の紹介文まで
+全部「本当に会ったのか？」と疑われ、制度の通貨（観察の真正性）が一度で毀損する。<br>
+逆に「声しか知らない」と正直に置いた文章はこのテストを通る。立場の開示は弱点ではなく、
+「会ってもいないのに、声だけでここまで観察するのか」という目利きの証明として働く。
+</div>
+
+<h2>4. 選択肢の比較</h2>
+<table>
+<tr><th>選択肢</th><th>内容</th><th>評価</th></tr>
+<tr class="rec"><td><b>A. 交流で出す（推奨）</b></td>
+<td>スペースの告知ポスト等を引用リポスト（またはリプライ）し、声・話し方の観察を具体的事実で書く</td>
+<td class="ok">制度を汚さない・本人の集客（スペース再訪・新規リスナー）に直結・quote_reposter の実測最高フォーマット（代弁型・全肯定）と整合・将来の紹介素材が貯まる</td></tr>
+<tr><td>B. 本編に載せる</td>
+<td>余韻手帖 そのN として通常紹介</td>
+<td class="ng">今回は二重紹介で不可。新規の人でも交流実績(2)と素材(3)が揃うまで不可。揃えば施術の有無に関係なく可</td></tr>
+<tr><td>C. 番外編トラックを新設</td>
+<td>「余韻手帖 番外」等の別ラベルで、声だけ・文章だけ等の単一素材ケースを受ける</td>
+<td>設計としては成立する（立場開示を必須にすれば真正性テストも通る）。ただし本編の希少性が薄まるリスクと、同一人物の2回目掲載は「お気に入り」感が出て選定の公平感を崩すリスクがある。<b>当面は見送り、需要が3回続いたら再検討</b>を推奨</td></tr>
+</table>
+
+<h2>5. 今回の具体アクション（A案の型）</h2>
+<p>
+スペースの内容はぼく（Claude）には分からないため、文面は捏造せず<b>型＋記入欄</b>で置く。
+<span class="placeholder">赤い部分</span>を実際に聴いて覚えている具体的事実で埋め、投稿前に自分の言葉に直すこと。
+承認は必ず「観察した具体的事実」から（ありきたりな「癒される声」だけでは価値ゼロ）。
+</p>
+<blockquote class="tmpl">スペース、聴いてたー
+
+<span class="placeholder">（具体的事実: 例「質問が途切れたときの、急かさない間の取り方」「〜という言い回しを選ぶところ」など、話し方の観察を1つだけ）</span>が印象に残ってる
+
+声って、ポストの文章より人柄が出るんだよねー
+<span class="placeholder">（温度のしっぽ: 例「次があったら、また作業の手を止めて聴くと思います」等、先の楽しみか半歩の気づかいを一筆）</span> ╰ᘏᗢ ☕︎</blockquote>
+<p class="meta">
+チェック: 一人称ぼく／説教なし／媚びなし（事実起点の承認）／「聴いてた」と正直に立場開示／
+「会いに行きたい」系は既に一度リプで使っているため今回は避ける（繰り返すと距離を詰めすぎる）
+</p>
+
+<h2>6. 制度への反映提案（未実装・承認待ち）</h2>
+<p>今回のケースで見つかった制度の穴と改善案。<b>いずれも実装はまだ行っていない</b>。承認をもらえたものだけ反映する。</p>
+<table>
+<tr><th>#</th><th>提案</th><th>反映先</th></tr>
+<tr><td>1</td><td><b>サブ垢・別垢の二重紹介ルール</b>: 同一人物のサブ垢は二重紹介として扱う。台帳の波及メモ列に関連ID（例: 96yuridayo⇔96yurisub）を記録し、実行前チェックに「サブ垢・改名の有無」を加える</td><td><code>introduction_system.md</code> §4・§5 / <code>introduce-therapist.md</code></td></tr>
+<tr><td>2</td><td><b>目次ポスト文言の修正</b>: 草案の「客として通うなかで出会った」は全員に施術経験があるかのような含みを持つ。「メンエスという文化を愛する一人の客として、忘れがたいセラピストさんをひとりずつ書き残しています」等、経験を主張しない表現に直す（真正性テスト対応）</td><td><code>introduction_system.md</code> §3（目次ポスト未投稿の今が直しどき）</td></tr>
+<tr><td>3</td><td><b>スペース聴取の位置づけの明文化</b>: スペースは正当な観察素材の一つであり、聴取＋感想の交流は選定条件(2)の交流実績にカウントする</td><td><code>introduction_system.md</code> §5</td></tr>
+<tr><td>4</td><td><b>番外編トラック</b>: 当面は見送り。単一素材（声だけ等）で書きたいケースが3回たまったら設計を再検討する</td><td>（保留）</td></tr>
+</table>
+
+<footer>
+判断メモ v1.0（2026-07-06）/ 単一ソースは docs/introduction_system.md。本メモの提案が承認されたら本体に統合し、このファイルは判例アーカイブとして残す。
+</footer>
+
+</body>
+</html>

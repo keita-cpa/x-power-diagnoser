@@ -42,6 +42,7 @@ COL_IMG_TITLE = "画像タイトル"
 COL_ALT       = "ALT"
 COL_STATUS    = "ステータス"
 COL_POSTED_AT = "投稿日時"
+COL_POST_ID   = "ポストID"
 
 FIELDNAMES = [
     COL_ID, COL_CATEGORY, COL_FORMAT, COL_TEXT,
@@ -49,7 +50,7 @@ FIELDNAMES = [
 ]
 HISTORY_FIELDNAMES = [
     COL_ID, COL_CATEGORY, COL_FORMAT, COL_TEXT,
-    COL_REPLY, COL_IMG_TITLE, COL_ALT, COL_STATUS, COL_POSTED_AT,
+    COL_REPLY, COL_IMG_TITLE, COL_ALT, COL_STATUS, COL_POSTED_AT, COL_POST_ID,
 ]
 
 
@@ -278,13 +279,40 @@ def load_csv():
 # 投稿対象の抽出
 # ──────────────────────────────────────────
 
+ROTATION_WINDOW = 3  # 直近N件と同じカテゴリの連続投稿を避ける（類似投稿の繰り返し防止）
+
+
+def load_recent_categories(n=ROTATION_WINDOW):
+    """posted_history.csv の末尾n件のカテゴリを返す。履歴がなければ空リスト。"""
+    if not os.path.exists(HISTORY_CSV):
+        return []
+    try:
+        with open(HISTORY_CSV, "r", encoding=ENCODING, newline="") as f:
+            rows = list(csv.DictReader(f))
+    except (OSError, csv.Error) as e:
+        print(f"  [WARN] 履歴読み込み失敗（ローテーションなしで続行）: {e}")
+        return []
+    cats = [r.get(COL_CATEGORY, "").strip() for r in rows[-n:]]
+    return [c for c in cats if c]
+
+
 def find_target(rows):
-    """「フォーマット=tweet」かつ「ステータスが空欄」の最初の行を返す。"""
+    """
+    「フォーマット=tweet」かつ「ステータスが空欄」の行から投稿対象を1件選ぶ。
+    直近 ROTATION_WINDOW 件と異なるカテゴリの行を優先し、
+    該当がなければ従来どおり最初の未投稿行にフォールバックする。
+    """
+    recent = load_recent_categories()
+    fallback_idx, fallback_row = None, None
     for idx, row in enumerate(rows):
-        if row.get(COL_FORMAT, "").strip() == "tweet" \
-                and row.get(COL_STATUS, "").strip() == "":
+        if row.get(COL_FORMAT, "").strip() != "tweet" \
+                or row.get(COL_STATUS, "").strip() != "":
+            continue
+        if fallback_row is None:
+            fallback_idx, fallback_row = idx, row
+        if row.get(COL_CATEGORY, "").strip() not in recent:
             return idx, row
-    return None, None
+    return fallback_idx, fallback_row
 
 
 # ──────────────────────────────────────────
@@ -302,14 +330,14 @@ def save_csv(rows):
 # 投稿履歴への追記
 # ──────────────────────────────────────────
 
-def append_history(row, posted_at):
+def append_history(row, posted_at, post_id=""):
     """投稿済み行を posted_history.csv に追記する。ファイルがなければ作成。"""
     write_header = not os.path.exists(HISTORY_CSV)
     with open(HISTORY_CSV, "a", encoding=ENCODING, newline="") as f:
         writer = csv.DictWriter(f, fieldnames=HISTORY_FIELDNAMES, extrasaction="ignore")
         if write_header:
             writer.writeheader()
-        history_row = {**row, COL_STATUS: "済", COL_POSTED_AT: posted_at}
+        history_row = {**row, COL_STATUS: "済", COL_POSTED_AT: posted_at, COL_POST_ID: post_id}
         writer.writerow(history_row)
 
 
@@ -390,7 +418,8 @@ def execute_single_post(rows, target_idx, target_row):
             print(f"  [WARN] リプライ投稿に失敗しました（本編は投稿済み）: {reply_result['error']}")
 
     # 投稿済み行を履歴 CSV に追記し draft から削除
-    append_history(target_row, posted_at)
+    tweet_id = result.get("tweet_id", "")
+    append_history(target_row, posted_at, post_id=tweet_id)
     del rows[target_idx]
     save_csv(rows)
     print(f"  [OK] {HISTORY_CSV} に移動し、{DRAFT_CSV} から削除しました。")

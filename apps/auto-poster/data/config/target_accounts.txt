@@ -1,19 +1,42 @@
-# sniper_radar.py の監視対象アカウント（1行1アカウント・@は省略可・# 以降はコメント）
-# このファイルを編集するだけで、コード変更なしに監視対象を増減できます。
-# 選定基準: 哲学・人間味・仕事への姿勢を発信しているセラピストを優先（ペルソナv2）
+# sniper_radar.py / quote_reposter.py の監視対象アカウント
+# 形式: 1行1アカウント（@は省略可・# 以降はコメント）
+#
+# 選定基準（North Star準拠）:
+#   - 個人セラピスト / セラピスト業界の当事者
+#   - 税・お金・将来・労働環境の不安を発信している or 発信しそうな人
+#   - ゴール: 「いつも見てくれるあの人」として信頼を積み、DM相談が自然に生まれる関係
+#
+# 注意: フォロワー5000以上の大型アカウントは influencer_accounts.txt へ
+#       sniper_radar.py --mode influencer で別途「同業リスペクト型」リプライを起案する
 
-# セラピスト系（高コンバージョン・優先）
+# ── 継続観察・優先セラピスト ───────────────────────────
+# 以前から監視している確認済みセラピスト系アカウント（高コンバージョン）
 sub20250209
 jibunmigakuzo
 uDonshi9532
 kkk_cun
 
-# 既存VIPアカウント
-nekokoroconsul1
-mensaesthet
-sugawara11
+# ── セラピスト個人・関係構築優先 ──────────────────────
+# 選定: 個人セラピスト名 / サロン名と判断できる小〜中規模アカウント
+# 目的: 継続的なリプライ・引用リポストで「いつも見てくれる人」として認識される
 765naruko
 96yurisub
-doki_doki_ryuga
-rin_ring_ange
 nyakomiya
+rin_ring_ange
+shiori_7022
+bs_koharu811
+tsuki_labbit
+kyoto__serina
+__pompom__2
+miyu_flora
+rino_230
+revivalmoka
+hinano__armone
+aroma_nonoka2
+tenkasora_
+soraspa7
+tsumugigoat_
+suzu_nyan2525
+kanna_hime57
+hi_oto12
+ioskum10

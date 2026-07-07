@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>zoning-checker 開発ロードマップ</title>
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --gold: #D4AF37;
+    --gold-light: #f0d060;
+    --gold-dim: rgba(212,175,55,0.15);
+    --text: #e8eaf0;
+    --text-dim: #8a94a6;
+    --red: #e05252;
+    --green: #52c97a;
+    --blue: #3b82f6;
+    --amber: #f59e0b;
+    --border: rgba(212,175,55,0.2);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", system-ui, sans-serif;
+    line-height: 1.65;
+    min-height: 100vh;
+  }
+  .page { max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    padding: 48px 0 40px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 56px;
+  }
+  .header .eyebrow {
+    font-size: 12px; letter-spacing: 3px; color: var(--gold);
+    text-transform: uppercase; margin-bottom: 12px;
+  }
+  .header h1 {
+    font-size: clamp(24px, 3.5vw, 36px); font-weight: 700;
+    color: #fff; margin-bottom: 16px;
+  }
+  .header .tagline { font-size: 14px; color: var(--text-dim); max-width: 600px; margin: 0 auto; }
+
+  /* SECTION */
+  .section { margin-bottom: 64px; }
+  .section-title {
+    font-size: 11px; letter-spacing: 3px; color: var(--gold);
+    text-transform: uppercase; margin-bottom: 24px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .section-title::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+
+  /* STATUS CARD（現在地） */
+  .status-card {
+    background: linear-gradient(135deg, rgba(82,201,122,0.07) 0%, rgba(82,201,122,0.02) 100%);
+    border: 1px solid rgba(82,201,122,0.3);
+    border-radius: 14px;
+    padding: 28px 32px;
+    margin-bottom: 32px;
+  }
+  .status-label { font-size: 11px; letter-spacing: 2px; color: var(--green); margin-bottom: 8px; }
+  .status-title { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 20px; }
+  .done-list { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; }
+  .done-list li {
+    display: flex; align-items: flex-start; gap: 10px;
+    font-size: 13px; color: var(--text-dim);
+  }
+  .done-list li .tick { color: var(--green); font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+  .done-list li .pending { color: var(--amber); font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+
+  /* PHASE GRID */
+  .phase-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  .phase-card {
+    background: var(--surface);
+    border: 1px solid rgba(212,175,55,0.15);
+    border-top: 3px solid var(--gold-dim);
+    border-radius: 12px;
+    padding: 22px 24px;
+    position: relative;
+  }
+  .phase-card.active { border-top-color: var(--gold); background: rgba(212,175,55,0.04); }
+  .phase-card.done  { border-top-color: var(--green); background: rgba(82,201,122,0.04); }
+  .phase-badge {
+    display: inline-block; font-size: 10px; letter-spacing: 2px;
+    padding: 3px 10px; border-radius: 20px; margin-bottom: 10px; font-weight: 600;
+  }
+  .badge-done   { background: rgba(82,201,122,0.15); color: var(--green); }
+  .badge-next   { background: rgba(212,175,55,0.15); color: var(--gold); }
+  .badge-future { background: rgba(139,148,166,0.15); color: var(--text-dim); }
+  .phase-title { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+  .phase-effort {
+    font-size: 12px; color: var(--gold); font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .phase-tasks { list-style: none; }
+  .phase-tasks li {
+    font-size: 12px; color: var(--text-dim); padding: 5px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    display: flex; align-items: flex-start; gap: 8px;
+  }
+  .phase-tasks li:last-child { border-bottom: none; }
+  .auto-tag {
+    display: inline-block; font-size: 10px; font-weight: 600;
+    padding: 1px 7px; border-radius: 10px; flex-shrink: 0; margin-top: 1px;
+  }
+  .tag-auto   { background: rgba(59,130,246,0.2); color: #60a5fa; }
+  .tag-semi   { background: rgba(245,158,11,0.2); color: var(--amber); }
+  .tag-manual { background: rgba(139,148,166,0.15); color: var(--text-dim); }
+
+  /* 自動化マップ */
+  .auto-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .auto-table th {
+    text-align: left; padding: 10px 14px;
+    background: var(--surface2); color: var(--text-dim);
+    font-size: 11px; letter-spacing: 1px; font-weight: 600;
+    border-bottom: 1px solid var(--border);
+  }
+  .auto-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    vertical-align: middle;
+  }
+  .auto-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .tool-tag {
+    display: inline-block; font-size: 11px; font-weight: 600;
+    padding: 2px 9px; border-radius: 10px;
+  }
+  .t-cic   { background: rgba(59,130,246,0.2); color: #60a5fa; }
+  .t-cc    { background: rgba(212,175,55,0.15); color: var(--gold); }
+  .t-py    { background: rgba(82,201,122,0.15); color: var(--green); }
+  .t-man   { background: rgba(139,148,166,0.12); color: var(--text-dim); }
+  .effort-chip {
+    display: inline-block; font-size: 11px;
+    padding: 2px 9px; border-radius: 10px;
+    background: rgba(255,255,255,0.06); color: var(--text);
+  }
+
+  /* 工数サマリー */
+  .effort-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px;
+  }
+  .effort-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px;
+    text-align: center;
+  }
+  .effort-box .ep { font-size: 11px; color: var(--text-dim); letter-spacing: 1px; margin-bottom: 8px; }
+  .effort-box .ev { font-size: 26px; font-weight: 700; color: var(--gold); }
+  .effort-box .eu { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+  .effort-box .note { font-size: 11px; color: var(--text-dim); margin-top: 8px; }
+
+  /* 戦略フロー */
+  .flow-steps {
+    display: flex; flex-wrap: wrap; gap: 0; align-items: stretch;
+  }
+  .flow-step {
+    flex: 1; min-width: 160px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 18px 16px;
+    position: relative;
+    text-align: center;
+  }
+  .flow-step:first-child { border-radius: 12px 0 0 12px; }
+  .flow-step:last-child  { border-radius: 0 12px 12px 0; }
+  .flow-step.highlight   { background: rgba(212,175,55,0.07); border-color: rgba(212,175,55,0.4); }
+  .flow-step .fs-num   { font-size: 10px; color: var(--text-dim); letter-spacing: 1px; margin-bottom: 6px; }
+  .flow-step .fs-icon  { font-size: 24px; margin-bottom: 8px; }
+  .flow-step .fs-title { font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .flow-step .fs-sub   { font-size: 11px; color: var(--text-dim); }
+  .flow-step .fs-algo  { font-size: 11px; color: var(--gold); font-weight: 600; margin-top: 6px; }
+  .flow-arrow {
+    display: flex; align-items: center; padding: 0 4px;
+    color: var(--text-dim); font-size: 16px; flex-shrink: 0;
+  }
+
+  /* 注記 */
+  .note-box {
+    background: rgba(245,158,11,0.07);
+    border: 1px solid rgba(245,158,11,0.25);
+    border-radius: 10px; padding: 16px 20px;
+    font-size: 13px; color: var(--text-dim); margin-top: 24px;
+  }
+  .note-box strong { color: var(--amber); }
+
+  .footer {
+    text-align: center; padding-top: 48px;
+    border-top: 1px solid var(--border);
+    font-size: 12px; color: var(--text-dim);
+  }
+  .footer strong { color: var(--gold); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <p class="eyebrow">zoning-checker — 開発ロードマップ 2026-06-27</p>
+    <h1>メンエス営業エリア適法性チェックCLI<br>ロードマップ &amp; 工数見積もり</h1>
+    <p class="tagline">「このエリアで開業できますか？」に30秒で答えてDM相談につなげる専門家ギャップ演出ツール</p>
+  </div>
+
+  <!-- 現在地 -->
+  <div class="section">
+    <p class="section-title">現在地 — ミニマム版 完成</p>
+    <div class="status-card">
+      <p class="status-label">COMPLETED — 2026-06-27</p>
+      <p class="status-title">ミニマム版（住所→用途地域→Xリプライテキスト）が稼働可能な状態</p>
+      <ul class="done-list">
+        <li><span class="tick">✓</span> ディレクトリ構成・CLAUDE.md・requirements.txt</li>
+        <li><span class="tick">✓</span> 国土地理院ジオコーディングAPI（住所→緯度経度・無料）</li>
+        <li><span class="tick">✓</span> 国土数値情報GMLパーサー（setup_data.py）</li>
+        <li><span class="tick">✓</span> Shapely point-in-polygon 判定</li>
+        <li><span class="tick">✓</span> 用途地域→可否マッピング（建築基準法13区分）</li>
+        <li><span class="tick">✓</span> Xリプライ用テキスト自動生成（100字以内）</li>
+        <li><span class="tick">✓</span> .gitignore 更新（GMLデータはコミット除外）</li>
+        <li><span class="pending">△</span> 本番GMLデータの手動配置（次のステップ）</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- フェーズロードマップ -->
+  <div class="section">
+    <p class="section-title">フェーズロードマップ</p>
+    <div class="phase-grid">
+
+      <!-- Phase 0 -->
+      <div class="phase-card done">
+        <span class="phase-badge badge-done">PHASE 0 — 完了</span>
+        <p class="phase-title">ミニマム版構築</p>
+        <p class="phase-effort">実績工数: 3〜4時間</p>
+        <ul class="phase-tasks">
+          <li><span class="auto-tag tag-auto">自動</span>ジオコーディングAPI連携</li>
+          <li><span class="auto-tag tag-auto">自動</span>GMLパーサー + Shapely判定</li>
+          <li><span class="auto-tag tag-auto">自動</span>リプライテキスト生成</li>
+          <li><span class="auto-tag tag-manual">手動</span>GMLデータのDL・配置</li>
+        </ul>
+      </div>
+
+      <!-- Phase 1 -->
+      <div class="phase-card active">
+        <span class="phase-badge badge-next">PHASE 1 — 次のステップ</span>
+        <p class="phase-title">本番データ配置 + 運用開始</p>
+        <p class="phase-effort">見積工数: 1〜2時間</p>
+        <ul class="phase-tasks">
+          <li><span class="auto-tag tag-semi">半自動</span>GML 1〜3都道府県DL（claude-in-chrome）</li>
+          <li><span class="auto-tag tag-auto">自動</span>setup_data.py 実行（Claude Code）</li>
+          <li><span class="auto-tag tag-manual">手動</span>実住所で精度検証（5〜10件）</li>
+          <li><span class="auto-tag tag-manual">手動</span>X リプライフロー開始</li>
+        </ul>
+      </div>
+
+      <!-- Phase 2 -->
+      <div class="phase-card">
+        <span class="phase-badge badge-future">PHASE 2 — 2週間以内</span>
+        <p class="phase-title">全国データ整備 + 精度向上</p>
+        <p class="phase-effort">見積工数: 3〜5時間</p>
+        <ul class="phase-tasks">
+          <li><span class="auto-tag tag-semi">半自動</span>47都道府県GML一括DL（claude-in-chrome）</li>
+          <li><span class="auto-tag tag-auto">自動</span>都道府県別pickle生成（Claude Code）</li>
+          <li><span class="auto-tag tag-manual">手動</span>GMLのURL変更対応・エラー確認</li>
+          <li><span class="auto-tag tag-manual">手動</span>境界精度の実測確認（主要都市）</li>
+        </ul>
+      </div>
+
+      <!-- Phase 3 -->
+      <div class="phase-card">
+        <span class="phase-badge badge-future">PHASE 3 — 1ヶ月以内</span>
+        <p class="phase-title">関係追跡への統合</p>
+        <p class="phase-effort">見積工数: 4〜6時間</p>
+        <ul class="phase-tasks">
+          <li><span class="auto-tag tag-auto">自動</span>contacts.csv スキーマ設計（Claude Code）</li>
+          <li><span class="auto-tag tag-auto">自動</span>相談履歴の自動記録</li>
+          <li><span class="auto-tag tag-auto">自動</span>/project:relationship-check コマンド</li>
+          <li><span class="auto-tag tag-manual">手動</span>DM優先度スコアの閾値チューニング</li>
+        </ul>
+      </div>
+
+      <!-- Phase 4 -->
+      <div class="phase-card">
+        <span class="phase-badge badge-future">PHASE 4 — 条件付き</span>
+        <p class="phase-title">条例データ追加</p>
+        <p class="phase-effort">見積工数: 1〜2日</p>
+        <ul class="phase-tasks">
+          <li><span class="auto-tag tag-semi">半自動</span>各都道府県条例ページスクレイプ（claude-in-chrome）</li>
+          <li><span class="auto-tag tag-auto">自動</span>Claude Codeで条例テキスト→ルールDB変換</li>
+          <li><span class="auto-tag tag-manual">手動</span>学校・病院距離チェック実装</li>
+          <li><span class="auto-tag tag-manual">手動</span>深夜営業可否ルール追加</li>
+        </ul>
+      </div>
+
+      <!-- Phase 5 -->
+      <div class="phase-card">
+        <span class="phase-badge badge-future">PHASE 5 — 将来</span>
+        <p class="phase-title">X DM自動応答統合</p>
+        <p class="phase-effort">見積工数: 1〜2日（+ API費用）</p>
+        <ul class="phase-tasks">
+          <li><span class="auto-tag tag-auto">自動</span>X DM受信 → 住所抽出（Claude Code）</li>
+          <li><span class="auto-tag tag-auto">自動</span>zoning_checker.py 呼び出し → 返信案生成</li>
+          <li><span class="auto-tag tag-manual">手動</span>X API Basic プラン加入（$100/月）が前提</li>
+          <li><span class="auto-tag tag-manual">手動</span>送信前の目視承認フロー設計</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 自動化マップ -->
+  <div class="section">
+    <p class="section-title">自動化マップ — 何がどのツールで自動化できるか</p>
+    <table class="auto-table">
+      <thead>
+        <tr>
+          <th>タスク</th>
+          <th>自動化レベル</th>
+          <th>ツール</th>
+          <th>工数</th>
+          <th>メモ</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>GML 1都道府県DL（利用規約同意込み）</td>
+          <td><span class="auto-tag tag-semi">半自動</span></td>
+          <td><span class="tool-tag t-cic">claude-in-chrome</span></td>
+          <td><span class="effort-chip">5分</span></td>
+          <td>利用規約クリック→DLリンク特定→DL実行まで自動化可</td>
+        </tr>
+        <tr>
+          <td>GML 全都道府県一括DL</td>
+          <td><span class="auto-tag tag-semi">半自動</span></td>
+          <td><span class="tool-tag t-cic">claude-in-chrome</span></td>
+          <td><span class="effort-chip">30〜60分</span></td>
+          <td>47ページをループ処理。サーバー負荷に注意（インターバル必要）</td>
+        </tr>
+        <tr>
+          <td>GML → pickle 前処理</td>
+          <td><span class="auto-tag tag-auto">完全自動</span></td>
+          <td><span class="tool-tag t-py">Python（実装済み）</span></td>
+          <td><span class="effort-chip">2分/都道府県</span></td>
+          <td>setup_data.py を実行するだけ</td>
+        </tr>
+        <tr>
+          <td>住所 → 用途地域判定</td>
+          <td><span class="auto-tag tag-auto">完全自動</span></td>
+          <td><span class="tool-tag t-py">Python（実装済み）</span></td>
+          <td><span class="effort-chip">即座（1秒以内）</span></td>
+          <td>zoning_checker.py --address で即時判定</td>
+        </tr>
+        <tr>
+          <td>Xリプライテキスト生成</td>
+          <td><span class="auto-tag tag-auto">完全自動</span></td>
+          <td><span class="tool-tag t-py">Python（実装済み）</span></td>
+          <td><span class="effort-chip">即座</span></td>
+          <td>コピペするだけ。280字チェック済み</td>
+        </tr>
+        <tr>
+          <td>都道府県条例ページのスクレイプ+ルール化</td>
+          <td><span class="auto-tag tag-semi">半自動</span></td>
+          <td><span class="tool-tag t-cic">claude-in-chrome</span> + <span class="tool-tag t-cc">Claude Code</span></td>
+          <td><span class="effort-chip">1〜2日</span></td>
+          <td>条例テキスト収集はclaude-in-chrome、ルール変換はClaude Codeで</td>
+        </tr>
+        <tr>
+          <td>contacts.csv 関係追跡システム</td>
+          <td><span class="auto-tag tag-auto">完全自動</span></td>
+          <td><span class="tool-tag t-cc">Claude Code</span></td>
+          <td><span class="effort-chip">4〜6時間</span></td>
+          <td>実装をClaude Codeに委ねられる。スキーマ設計が主な判断事項</td>
+        </tr>
+        <tr>
+          <td>X DM受信→住所抽出→判定→返信案</td>
+          <td><span class="auto-tag tag-auto">完全自動</span></td>
+          <td><span class="tool-tag t-cc">Claude Code</span></td>
+          <td><span class="effort-chip">1日（X API加入後）</span></td>
+          <td>X API Basic（$100/月）が前提。送信は手動承認を推奨</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="note-box">
+      <strong>claude-in-chrome の主な役割:</strong>
+      国土数値情報サイトの利用規約クリック→ファイル一覧ページのDLリンク特定→ダウンロード実行。
+      47都道府県分をループで処理させれば、手動作業の大半をなくせる。
+      ただし <strong>サーバー負荷に配慮し2〜3秒のインターバルを設けること。</strong>
+    </div>
+  </div>
+
+  <!-- 工数サマリー -->
+  <div class="section">
+    <p class="section-title">工数サマリー</p>
+    <div class="effort-grid">
+      <div class="effort-box">
+        <p class="ep">Phase 0（完了）</p>
+        <p class="ev">3〜4h</p>
+        <p class="eu">実績</p>
+        <p class="note">ミニマム版構築。ほぼClaude Codeで自動生成。</p>
+      </div>
+      <div class="effort-box">
+        <p class="ep">Phase 1（次）</p>
+        <p class="ev">1〜2h</p>
+        <p class="eu">本番データ配置</p>
+        <p class="note">GML DL + 精度検証。claude-in-chromeで半自動化。</p>
+      </div>
+      <div class="effort-box">
+        <p class="ep">Phase 2</p>
+        <p class="ev">3〜5h</p>
+        <p class="eu">全国整備</p>
+        <p class="note">claude-in-chromeで47都道府県を一括処理。</p>
+      </div>
+      <div class="effort-box">
+        <p class="ep">Phase 3</p>
+        <p class="ev">4〜6h</p>
+        <p class="eu">関係追跡統合</p>
+        <p class="note">contacts.csv 設計+実装。Claude Codeで自動化。</p>
+      </div>
+      <div class="effort-box">
+        <p class="ep">Phase 4</p>
+        <p class="ev">1〜2日</p>
+        <p class="eu">条例データ追加</p>
+        <p class="note">スクレイプ+手動ルール化。最も工数が読みにくい。</p>
+      </div>
+      <div class="effort-box">
+        <p class="ep">全フェーズ合計</p>
+        <p class="ev">3〜4日</p>
+        <p class="eu">実作業ベース</p>
+        <p class="note">X API加入不要なら Phase 0〜3 で概ね完結。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 戦略的活用フロー -->
+  <div class="section">
+    <p class="section-title">戦略的活用フロー — DM相談への最短導線</p>
+    <div style="display:flex; flex-wrap:wrap; align-items:stretch; gap:2px;">
+      <div class="flow-step">
+        <p class="fs-num">STEP 01</p>
+        <div class="fs-icon">&#128172;</div>
+        <p class="fs-title">セラピストがつぶやく</p>
+        <p class="fs-sub">「このエリアで開業できるか悩んでる」</p>
+      </div>
+      <div class="flow-arrow">&#8594;</div>
+      <div class="flow-step highlight">
+        <p class="fs-num">STEP 02</p>
+        <div class="fs-icon">&#128269;</div>
+        <p class="fs-title">ツールで即判定</p>
+        <p class="fs-sub">zoning_checker.py<br>--address で住所入力</p>
+        <p class="fs-algo">所要: 5〜10秒</p>
+      </div>
+      <div class="flow-arrow">&#8594;</div>
+      <div class="flow-step">
+        <p class="fs-num">STEP 03</p>
+        <div class="fs-icon">&#9998;&#65039;</div>
+        <p class="fs-title">リプライ投稿</p>
+        <p class="fs-sub">生成テキストをコピペ。用途地域名+可否+一言添える</p>
+        <p class="fs-algo">リプライ ×5 シグナル</p>
+      </div>
+      <div class="flow-arrow">&#8594;</div>
+      <div class="flow-step highlight">
+        <p class="fs-num">STEP 04</p>
+        <div class="fs-icon">&#128274;</div>
+        <p class="fs-title">詳細はDMで</p>
+        <p class="fs-sub">「テナント契約前に確認したいことがあればDMで」</p>
+        <p class="fs-algo">North Star 達成</p>
+      </div>
+    </div>
+
+    <div class="note-box" style="margin-top:20px;">
+      <strong>ツールの価値は精度より「速さと専門性のギャップ」にある。</strong>
+      セラピストがつぶやいてから30秒以内に「近隣商業地域なので建築基準法上は問題ありません」と返せること自体が信頼の証明になる。
+      全国版が完成する前でも、営業エリアが絞られているセラピストが多ければ2〜3都道府県のデータで十分に運用できる。
+    </div>
+  </div>
+
+  <!-- フッター -->
+  <div class="footer">
+    <strong>zoning-checker</strong> — Keita_CPA 専用内部ツール &nbsp;|&nbsp;
+    North Star: セラピストとの個人的な信頼関係を築き、DM相談が自然に生まれること &nbsp;|&nbsp;
+    2026-06-27
+  </div>
+
+</div>
+</body>
+</html>

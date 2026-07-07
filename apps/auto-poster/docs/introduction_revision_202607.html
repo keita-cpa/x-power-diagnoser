@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>紹介制度 改訂メモ v2: 「会わない紹介」への転換と新名称</title>
+<style>
+  :root {
+    --ink: #2b2b2b; --sub: #666; --line: #ddd;
+    --accent: #6b4f3a; --bg: #faf8f5; --card: #fff;
+    --ok: #2e7d32; --ng: #b3402a; --warn-bg: #fdf3e7; --warn-line: #e0b070;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Yu Gothic UI", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+    color: var(--ink); background: var(--bg);
+    max-width: 860px; margin: 0 auto; padding: 32px 20px 64px;
+    line-height: 1.85;
+  }
+  h1 { font-size: 1.5rem; border-bottom: 3px solid var(--accent); padding-bottom: 10px; }
+  h2 { font-size: 1.15rem; margin-top: 2.2em; border-left: 5px solid var(--accent); padding-left: 10px; }
+  .meta { color: var(--sub); font-size: 0.85rem; }
+  .verdict {
+    background: var(--card); border: 2px solid var(--accent); border-radius: 8px;
+    padding: 18px 22px; margin: 24px 0;
+  }
+  .verdict b { color: var(--accent); }
+  .warn {
+    background: var(--warn-bg); border-left: 5px solid var(--warn-line);
+    padding: 12px 16px; margin: 18px 0; border-radius: 0 6px 6px 0;
+  }
+  table { border-collapse: collapse; width: 100%; margin: 14px 0; background: var(--card); font-size: 0.92rem; }
+  th, td { border: 1px solid var(--line); padding: 8px 12px; text-align: left; vertical-align: top; }
+  th { background: #f0ebe4; }
+  .ok { color: var(--ok); font-weight: bold; }
+  .ng { color: var(--ng); font-weight: bold; }
+  .rec { background: #f3f8f3; }
+  code { background: #f0ebe4; padding: 1px 6px; border-radius: 4px; font-size: 0.85em; }
+  blockquote {
+    background: var(--card); border-left: 4px solid #b9a58f; margin: 14px 0;
+    padding: 12px 18px; border-radius: 0 6px 6px 0; color: #444;
+    white-space: pre-wrap;
+  }
+  footer { margin-top: 48px; color: var(--sub); font-size: 0.8rem; border-top: 1px solid var(--line); padding-top: 12px; }
+</style>
+</head>
+<body>
+
+<h1>紹介制度 改訂メモ v2<br>「会わない紹介」への転換と新名称の検討</h1>
+<p class="meta">2026-07-06 起案 / 前判断メモ <code>introduction_case_space.html</code> の一部を本改訂で更新 / 制度本体: <code>docs/introduction_system.md</code></p>
+
+<div class="verdict">
+<b>今回の決定（あなたの指示）と、その構造的な意味</b><br>
+1. <b>会った人・施術を受けた人は紹介しない。</b>素材はスペース・投稿・リプライ等の公開情報のみ。<br>
+2. <b>再紹介は条件付きで可</b>とする（期間が空いている・サブアカウント等の新しい素材がある場合）。<br>
+3. 「余韻手帖」の名称は施術後の余韻を連想させるため<b>不採用。名称を再検討</b>する。<br><br>
+当方の評価: 1は制度の最大の隠れリスクを消す転換です。紹介が「常連客の匂わせ」に見えた瞬間、
+他の客の嫉妬・店とのあつれき・本人のイメージ低下という形でセラピスト側の損になり、
+業務妨害の火種にもなり得ました。「書かれた人とぼくの間には何もない」ことを制度として公言すれば、
+紹介は安心して固定に置ける営業資産になります。ミシュランというより<b>書評</b>に近い立ち位置です
+（読んだもの・聴いたものだけで書き、書き手と対象の間に利害も接触もない）。
+</div>
+
+<h2>1. 新名称の検討</h2>
+<p>
+名称の要件: 施術・対面を連想させない ／ 公開の言葉・声の観察がベースだと分かる ／
+純文学的な静けさ ／ 載る側にとって誇れる器（固定に置きたくなる）／ X内検索で固有。
+</p>
+<table>
+<tr><th>候補</th><th>評価</th></tr>
+<tr class="rec"><td><b>気くばり手帖（推奨）</b></td>
+<td class="ok">紹介文の中核＝「見えない気遣いを見抜いて言語化する」（SKILL.md第2段）をそのまま名乗る。
+載る意味が明快（気くばりを見抜かれた人の記録）で、営業資産としての誇りになる。
+施術含意ゼロ・X内でほぼ固有。ひらがな表記で「気配（けはい）」との誤読を避ける</td></tr>
+<tr><td>気配手帖</td>
+<td>文学性は最も高いが、「気配を観察する」が読み方によっては監視の温度を帯びる。
+SKILL.mdが最優先で排除しているストーカー感と紙一重のため次点</td></tr>
+<tr><td>声と言葉の手帖</td>
+<td>素材の正直な開示としては最良だが、説明的で余白がない。タイトルに引き算の美学が働いていない</td></tr>
+<tr><td>遠雷手帖</td>
+<td>「遠くから聴こえるもの」の比喩で会わない距離感は表せるが、意味が届くまでが遠い。
+載った本人が意味を説明できない名前は資産にならない</td></tr>
+</table>
+<p>
+推奨は<b>「気くばり手帖」</b>。目次への載り方は「その3 「静けさをつくる人」 @username さん」のまま変わりません。
+コード上は <code>therapist_introducer.py</code> の定数 <code>SERIES_NAME</code> 1箇所で、公開前ならいつでも差し替え可能です。
+</p>
+
+<h2>2. ルール改訂の詳細（制度本体 introduction_system.md に反映済み）</h2>
+
+<table>
+<tr><th>#</th><th>改訂</th><th>内容</th></tr>
+<tr><td>R1</td><td><b>対面・施術経験者の紹介禁止（新・最上位ルール）</b></td>
+<td>実際に会った人・施術を受けた人は紹介しない。理由: 特定の客との親密さが公開されることは
+セラピストにとってマイナスになり得る（他客の嫉妬・店との関係・イメージ）。
+紹介対象は「スペース・投稿・リプライ等の公開情報で、いいなと思った人」のみ。
+生成文の中でも対面・施術経験を示唆する表現を禁止（SKILL.mdの禁止事項に追加）</td></tr>
+<tr><td>R2</td><td><b>スペースの正式素材化</b></td>
+<td>スペース聴取（声・話し方・間の取り方）を正当な観察素材として明文化。
+スクリプトはX APIのテキストしか取れないため、スペース所感を素材に使う場合は
+Gem手動運用で「聴いて観察した事実のメモ」を追加入力する（本人の発言の逐語書き起こしは使わない・観察の要約のみ）</td></tr>
+<tr><td>R3</td><td><b>二重紹介禁止 → 再紹介条件へ緩和</b></td>
+<td>同一人物の再紹介は次の3条件すべてで可:
+①前回から3か月以上経過 ②前回と重複しない新素材（例: 前回は投稿、今回はスペースの声）
+③同一人物への再紹介は年1回まで（お気に入り感・選定の公平感を守る）。
+新しい通し番号を発行し、台帳の波及メモに関連IDを記録する。
+サブアカウントは同一人物として扱う（今回の96yurisub: 前回2026-04-04から3か月経過・素材はスペースの声 → <span class="ok">条件クリア</span>）</td></tr>
+<tr><td>R4</td><td><b>目次ポスト文案の差し替え</b></td>
+<td>「客として通うなかで出会った」を廃し、「会ったことのない人だけを書く」宣言を中心に据える（§3参照）。
+この宣言自体が、載る人への保護（あなたとの関係を勘ぐられません）というプレゼントになる</td></tr>
+</table>
+
+<h2>3. 目次ポスト文案 v2（気くばり手帖・ユーザーが手動投稿）</h2>
+<blockquote>気くばり手帖
+
+タイムラインやスペースで見かけた、忘れがたいセラピストさんを、
+長い文章でひとりずつ書き残しています。多くても週にひとりです。
+
+ここに書くのは、会ったこともお店に行ったこともない人だけです。
+投稿や声からにじみ出る気くばりだけを頼りに書くので、
+書かれた人とぼくの間には、何もありません。
+
+宣伝ではないし、頼まれて書くこともありません。
+一覧はこのポストのリプライ欄にぶら下げていきます。
+静かに読んでもらえたら、それで十分です ╰ᘏᗢ ☕︎</blockquote>
+<p class="meta">
+「書かれた人とぼくの間には、何もありません」の1文が本改訂の核。載る人を守る宣言であり、
+制度の中立性（書評の立場）の公言でもある。
+</p>
+
+<h2>4. あわせて実装した変更</h2>
+<table>
+<tr><th>ファイル</th><th>変更</th></tr>
+<tr><td><code>docs/introduction_system.md</code></td><td>v2改訂: R1〜R4を反映（対面禁止・スペース素材化・再紹介条件・目次文案v2・名称）</td></tr>
+<tr><td><code>therapist_introducer.py</code></td><td><code>SERIES_NAME</code>を「気くばり手帖」へ（承認待ち・定数1箇所）。<code>--reintroduce</code>フラグ新設
+（再紹介用: 履歴ブロックを外しつつ台帳には正しく記録する。従来の<code>--force</code>は推敲用のまま＝記録しない）。
+起動時に対面禁止ルールの注意書きを表示</td></tr>
+<tr><td><code>SKILL.md</code>（therapist-introduction）</td><td>禁止事項に「対面・施術経験の示唆」を追加。シリーズ名の記述を更新</td></tr>
+<tr><td><code>drafts/gem_therapist_introducer.md</code></td><td>運用メモにR1〜R3とスペース所感の入力方法を追記・改訂記録に1行追加</td></tr>
+<tr><td><code>.claude/commands/introduce-therapist.md</code></td><td>実行前チェックに「対面・施術経験がないこと」「再紹介条件」を追加</td></tr>
+<tr><td><code>data/logs/introductions_log.csv</code></td><td>その2（96yuridayo）の波及メモに関連ID（サブ垢=96yurisub）を記録</td></tr>
+<tr><td><code>docs/introduction_case_space.html</code></td><td>冒頭に「本改訂で判断が更新された」旨の注記を追加（判例アーカイブとして保存）</td></tr>
+<tr><td><code>CLAUDE.md</code> / <code>PLAN.md</code></td><td>名称・注記の同期</td></tr>
+</table>
+
+<h2>5. ユーザー確認事項（3点）</h2>
+<div class="warn">
+<b>【2026-07-06 決定済み】</b> ①名称「気くばり手帖」採用 ②「紹介した人との関係は公言しない」を
+制度に採用（introduction_system.md §2 に反映済み） ③@96yurisub の再紹介（その3）実行GO。
+以下の表は記録として残す。
+</div>
+<table>
+<tr><th>#</th><th>確認事項</th><th>当方の推奨</th></tr>
+<tr><td>1</td><td>名称「気くばり手帖」の採否</td><td>採用。変更する場合も定数1箇所＋ドキュメントで済む（公開前）</td></tr>
+<tr><td>2</td><td><b>「紹介した人には、その後も会いに行かない」を運用に含めるか</b><br>
+紹介後に来店すると、時間差で「あの紹介は常連の匂わせだった」に転化し、R1の趣旨が崩れる。
+一方であなたの店選びを制度が縛るのは本末転倒でもある</td>
+<td>含める方を推奨。少なくとも「行ったことを公言しない」は必須。
+どちらにするか決めたら制度本体に1行追記する</td></tr>
+<tr><td>3</td><td>@96yurisub の再紹介実行（その3）</td><td>R3条件はクリア済み。スペースの声を素材にするため、スクリプトではなく
+<b>Gem手動運用</b>（聴いた観察メモを追加入力）を推奨。実行はあなたのGOで</td></tr>
+</table>
+
+<footer>
+改訂メモ v2.0（2026-07-06）/ 制度の単一ソースは docs/introduction_system.md（本改訂反映済み）。
+前判断メモ introduction_case_space.html の「二重紹介につき不可」判定は本改訂により
+「R3条件を満たす再紹介として可」に更新された。
+</footer>
+
+</body>
+</html>

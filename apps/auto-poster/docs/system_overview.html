@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>@Keita_CPA 永久機関の全体像 — なぜやるのか・何をするのか</title>
+<style>
+  body { font-family: "Yu Gothic UI", "Hiragino Sans", sans-serif; max-width: 780px;
+         margin: 0 auto; padding: 20px 16px 60px; background: #f5f6f8; color: #1a1a2e;
+         line-height: 1.7; }
+  h1 { font-size: 1.35rem; }
+  h2 { font-size: 1.1rem; border-left: 4px solid #4a6fa5; padding-left: 10px; margin-top: 40px; }
+  .box { background: #fff; border-radius: 10px; padding: 16px 20px; margin: 12px 0;
+         box-shadow: 0 1px 3px rgba(0,0,0,.07); }
+  .northstar { border: 2px solid #4a6fa5; background: #eef3fa; font-size: 1.02rem; }
+  table { border-collapse: collapse; width: 100%; font-size: .88rem; background: #fff; }
+  th, td { border: 1px solid #dde; padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: #eef1f6; }
+  .flow { display: flex; flex-direction: column; gap: 6px; margin: 14px 0; }
+  .lane { display: flex; align-items: stretch; gap: 8px; }
+  .node { flex: 1; background: #fff; border: 1.5px solid #b9c6dc; border-radius: 8px;
+          padding: 10px 12px; font-size: .85rem; }
+  .node b { display: block; font-size: .92rem; margin-bottom: 2px; }
+  .node.auto  { border-color: #7aa87a; background: #f3f9f3; }
+  .node.you   { border-color: #c98a3d; background: #fdf6ec; }
+  .node.goal  { border-color: #4a6fa5; background: #eef3fa; }
+  .tag { font-size: .72rem; padding: 1px 8px; border-radius: 10px; color: #fff; margin-left: 6px; }
+  .tag.a { background: #7aa87a; } .tag.y { background: #c98a3d; }
+  .arrow { text-align: center; color: #8a97ad; font-size: .95rem; line-height: 1; }
+  .note { color: #555; font-size: .84rem; }
+  .warn { background: #fdf2f2; border-left: 4px solid #c0605f; padding: 10px 14px;
+          font-size: .9rem; border-radius: 0 8px 8px 0; }
+  .num { font-weight: 700; color: #2c4a75; }
+  ol li, ul li { margin: 4px 0; }
+  code { background: #eef1f6; padding: 1px 6px; border-radius: 4px; font-size: .85rem; }
+</style>
+</head>
+<body>
+
+<h1>@Keita_CPA 永久機関の全体像</h1>
+<p class="note">最終更新: 2026-07-02 ／ このページは「なぜやるのか」を忘れたとき・意味を見失ったときに開くページです。</p>
+
+<div class="box northstar">
+<b>ゴール（North Star）はフォロワー数ではありません。</b><br>
+セラピストと個人的な信頼関係を築き、お金・税・法律・将来の相談DMが自然に届くこと。
+フォロワー・バズ・インプレッションはすべて副次指標です。
+だから「アカウントが伸びない」の正しい問いは「セラピストとの会話が増えているか」です。
+</div>
+
+<h2>1. 全体マップ — 機械がやること／あなたがやること</h2>
+
+<div class="flow">
+  <div class="lane">
+    <div class="node auto"><b>土台: メイン投稿の永久機関<span class="tag a">全自動</span></b>
+      knowledge.xlsx → Gemini生成 → ストックCSV → ConoHaが毎日1〜2件投稿。
+      役割は「プロフィールに来た人への信頼の裏付け（陳列棚）」。これ単体では伸びない。</div>
+  </div>
+  <div class="arrow">＋ ここに交流エンジンを重ねる（2026-07-02 稼働開始）</div>
+  <div class="lane">
+    <div class="node auto"><b>返信し返し<span class="tag a">起案自動</span></b>
+      自分の投稿への返信を毎朝取得し、返信案を用意。アルゴ加点+75で全アクション中の最重量。</div>
+    <div class="node auto"><b>リプライ（sniper）<span class="tag a">起案自動</span></b>
+      セラピスト25名+の投稿を監視し、共感リプライ案を毎朝最大6件起案。</div>
+  </div>
+  <div class="lane">
+    <div class="node auto"><b>引用リポスト（quote）<span class="tag a">起案自動</span></b>
+      実測最高フォーマット（AlgoScore=44）。代弁・承認コメント案を毎朝最大4件起案。</div>
+    <div class="node auto"><b>新規発掘（scout）<span class="tag a">週1自動</span></b>
+      税・お金の不安を投稿する新しいセラピストを毎週月曜に発掘（業者除外済み）。</div>
+  </div>
+  <div class="arrow">↓ 毎朝7:30、結果が1枚のメニューになってブラウザが勝手に開く</div>
+  <div class="lane">
+    <div class="node you"><b>あなたの仕事はこれだけ<span class="tag y">1日5〜10分</span></b>
+      開いたメニューを上から読む → 良い案は「返信画面を開く」を1クリック → 投稿ボタンを押す。
+      違和感のある案は直すか捨てる。記録・管理作業はゼロ（履歴はCSVが自動管理）。</div>
+  </div>
+  <div class="arrow">↓ 会話が積み重なると</div>
+  <div class="lane">
+    <div class="node goal"><b>ゴールへの因果の鎖</b>
+      会話 → 「見てくれてる人」として認知 → プロフィール訪問 → 過去投稿（陳列棚）で信頼確認
+      → フォロー → 困りごとが起きた日に「あの人に聞いてみよう」→ <span class="num">相談DM</span></div>
+  </div>
+</div>
+
+<h2>2. 「やっても効果がないのでは」への回答 — 全部実測値です</h2>
+
+<div class="box">
+<table>
+<tr><th>実測された事実</th><th>意味</th></tr>
+<tr><td>987投稿してフォロワー150</td>
+    <td>ブロードキャスト（一方的な投稿）は届かない、という反証がすでに手元にある。だからメイン投稿を増やす方向はやらない。</td></tr>
+<tr><td>リプライはメイン投稿の<span class="num">8.1倍</span>のIMP効率。全AlgoScoreの<span class="num">89%</span>がリプライ由来</td>
+    <td>このアカウントの成果は、ほぼすべて「会話」から生まれている。交流エンジンに寄せるのはデータの帰結。</td></tr>
+<tr><td>交流に力を入れた週（6/18〜24）だけ、返信<span class="num">+230%</span>・いいね<span class="num">+325%</span>・エンゲージ率<span class="num">+96%</span></td>
+    <td>「交流すると数字が動く」は既に自分のアカウントで再現済み。問題は継続できなかったことだけ。</td></tr>
+<tr><td>6/21の投稿1件でフォロワー<span class="num">+82</span>（全期間最大）</td>
+    <td>資産（メイン投稿）は交流で人が来たときに初めて効く。順序は交流が先。</td></tr>
+<tr><td>2026年アルゴリズム: 著者の返信し返し<span class="num">+75</span>／ブックマーク+10／いいね+0.5</td>
+    <td>「もらった返信に返す」は、いいね150個ぶんの重み。1日3件返すだけで最大級の打ち手になる。</td></tr>
+</table>
+<p class="note">出典: 月次Analytics実測（2026-04, 2026-06）・X公開アルゴリズム（Grokモデル・2026）。</p>
+</div>
+
+<div class="warn">
+<b>効果が出る順番に注意。</b>フォロワー数は最後に動く遅行指標です。
+先に動くのは「返信が返ってくる率」→「プロフィールクリック」→「フォロー」→「DM」。
+最初の2〜3週間はフォロワーがほぼ動かなくて正常です。そこで折れないために、下の「見る数字」だけを見てください。
+</div>
+
+<h2>3. あなたの行動 — 全部で3つだけ</h2>
+
+<div class="box">
+<ol>
+<li><b>毎朝（5〜10分）</b>: 7:30に勝手に開くメニューを上から処理する。気が乗らない日は「1. 返信し返し」だけでもよい（最重量なので）。</li>
+<li><b>毎週月曜（+3分）</b>: メニュー末尾の「新規ターゲット候補」を見て、個人セラピストなら <code>target_accounts.txt</code> に1行追記する。</li>
+<li><b>毎月1回</b>: X AnalyticsのCSVを落として <code>/project:monthly-analytics</code>。数字が動いているかを確認し、動いていなければ戦略を直す。</li>
+</ol>
+<p class="note">メニューが開かなかった日: <code>apps/auto-poster/run_daily_menu.cmd</code> をダブルクリックすれば手動で作れます。</p>
+</div>
+
+<h2>4. 見る数字（これ以外は見ない）</h2>
+
+<div class="box">
+<table>
+<tr><th>指標</th><th>いまの基準値</th><th>4週間後の合格ライン</th></tr>
+<tr><td>週の交流数（返信し返し＋リプライ＋引用）</td><td>ほぼ0（エンジン休眠中だった）</td><td>週20件以上を4週続ける</td></tr>
+<tr><td>セラピストからの返信・いいね返し</td><td>散発</td><td>「名前を覚えてもらえた」相手が3人</td></tr>
+<tr><td>プロフィールクリック→フォロー転換</td><td>未計測</td><td>月次分析で計測開始</td></tr>
+<tr><td>DM・パーソナルな会話の発生</td><td>0</td><td>焦らない。8〜12週スパンの成果</td></tr>
+</table>
+</div>
+
+<div class="warn">
+<b>撤退基準も決めておきます（ダラダラやらないため）。</b>
+週20件の交流を8週間続けても、セラピストとの双方向の会話（相手からの返信）が月5件未満なら、
+このアプローチは失敗と判定して戦略を作り直す。逆に言えば、それまでは数字が小さくても続ける価値がある——
+やめる基準が明確なら、迷いながら続ける必要がないからです。
+</div>
+
+<h2>5. 機械側の全体構成（参考）</h2>
+
+<div class="box">
+<table>
+<tr><th>部品</th><th>動くタイミング</th><th>役割</th></tr>
+<tr><td><code>conoha_worker.py</code>（ConoHaサーバー）</td><td>毎日・全自動</td><td>ストックCSVからメイン投稿1〜2件を自動投稿（画像付き）</td></tr>
+<tr><td><code>daily_menu.py</code>（このPC）</td><td>毎朝7:30・自動</td><td>返信取得＋sniper＋quoteを回して交流メニューHTMLを生成・表示</td></tr>
+<tr><td><code>keyword_scout.py</code></td><td>毎週月曜・自動</td><td>新規セラピスト発掘（クリニック・業者は自動除外）</td></tr>
+<tr><td><code>mini_bulk_generator.py</code> / <code>ingest_raw_contents.py</code></td><td>2週に1回・手動</td><td>メイン投稿ストックの補充</td></tr>
+<tr><td><code>recycler.py</code> / <code>prune_dead_posts.py</code></td><td>随時</td><td>死にポストの削除とリライト再利用</td></tr>
+<tr><td><code>/project:monthly-analytics</code></td><td>月1・手動</td><td>実測でプロンプトのカテゴリ配分をチューニング</td></tr>
+</table>
+<p class="note">安全弁: リプライ・引用の「送信」は必ず人間（凍結回避）。同一相手への再接触は72時間空ける。全肯定のみ・説教禁止。</p>
+</div>
+
+</body>
+</html>

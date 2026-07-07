@@ -1,50 +1,33 @@
-# インフルエンサーアカウント監視リスト（コバンザメ戦略用）
+# インフルエンサーアカウント監視リスト（コバンザメ戦略用・Xリスト参照ドキュメント）
 # 形式: 1行1アカウント（@ は付けても付けなくてもよい）。# 以降はコメント。
 #
 # 選定基準:
-#   - フォロワー数: 5,000 以上を目安
-#   - カテゴリ: 税理士・会計士・FP系 / 夜職・美容・セラピスト業界系 / 労務・働き方系
-#   - 投稿頻度: 週3回以上（鮮度フィルタ 2h 以内に引っかかるために必要）
+#   - フォロワー数: 5,000 以上を目安（個人セラピストは target_accounts.txt へ）
+#   - カテゴリ: 税理士・会計士・FP系 / 夜職・メンエス業界系（大型） / 労務・働き方系
+#   - 投稿頻度: 週3回以上
 #   - 禁止: 炎上系・アンチ多数・政治的主張の強いアカウント
 #
-# リプライのトーン（このファイルのアカウントは全員「同業リスペクト型」で対応）:
-#   全肯定 + 現場共鳴1文。補足・訂正・アドバイスは一切しない。
+# このリストはXリスト（LIST_ID=2006127804023546152）のメンバー管理用参照ドキュメント。
+# sniper_radar.py --mode influencer はXリストのタイムラインをAPI経由で直接取得する。
+# 個人セラピスト（フォロワー少な目）は target_accounts.txt に移動済み。
 #
 # 使い方:
-#   python sniper_radar.py --mode influencer
-#   python sniper_radar.py --mode influencer --target アカウント名  # 単一指定（鮮度無視）
+#   python sniper_radar.py --mode influencer          # Xリストタイムラインから取得（推奨）
+#   python sniper_radar.py --mode influencer --target アカウント名  # 単一指定
 #
-# ── 税理士・会計士・FP系 ──────────────────────────────
-# tax_account_example1   # 例: 税務系インフルエンサー（コメントはアカウント名の後に書く）
+# リプライのトーン: 全肯定 + 現場共鳴1文。補足・訂正・アドバイスは一切しない。
 
-# ── 夜職・メンエス・セラピスト業界系 ──────────────────
-shiori_7022
-bs_koharu811
-tsuki_labbit
-kyoto__serina
+# ── 税理士・会計士・FP系 ──────────────────────────────
+# （フォロワー5000以上の税理士インフルエンサーを追加予定）
+
+# ── 夜職・メンエス業界系（業者・大型・フォロワー判定保留）──
 l3jv4
 business668438
-__pompom__2
-miyu_flora
 1nose3kyoksgt
-rino_230
-revivalmoka
-hinano__armone
-aroma_nonoka2
-765naruko
-ioskum10
 cprickfarmer
 r_mcha_
-tenkasora_
-96yurisub
-soraspa7
-nyakomiya
-tsumugigoat_
-suzu_nyan2525
 9tmgq7
 zzz33221_
-kanna_hime57
-hi_oto12
 
 # ── 労務・働き方・フリーランス系 ───────────────────────
-
+# （フォロワー5000以上の労務・FP系インフルエンサーを追加予定）

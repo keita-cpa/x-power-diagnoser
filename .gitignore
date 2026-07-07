@@ -52,6 +52,11 @@ apps/auto-poster/schedule.json
 apps/auto-poster/temp_post_image.jpg
 apps/auto-poster/data/drafts/stock_posts_draft.csv
 
+# ── zoning-checker GMLデータ（大容量・再DL可能）────────────────
+apps/zoning-checker/data/zoning/*.xml
+apps/zoning-checker/data/zoning/*.pkl
+apps/zoning-checker/data/zoning/*.zip
+
 # ── Claude Code ローカル設定・一時ログ ────────────────────────
 # 知識・ルール資産（contexts/, commands/, rules/, skills/, agents/）は
 # チーム共有資産として追跡継続。以下のみ厳密に除外する。

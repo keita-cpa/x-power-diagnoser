@@ -1,11 +1,17 @@
 """
-therapist_introducer.py -- セラピスト紹介長文ポスト生成スクリプト（v5.3 洗練・温度最適化版）
+therapist_introducer.py -- セラピスト紹介長文ポスト生成スクリプト（v5.5 会わない紹介・v2制度対応版）
 
 指定したXアカウントのプロフィール・直近ポスト・リプライを取得し、
 Gemini API で5段構成の紹介長文ポストを生成してターミナルに出力・保存する。
+v5.4: 「気くばり手帖」シリーズの自動採番と8列台帳（introductions_log.csv）への記録を追加。
+v5.5: 制度v2対応（対面・施術経験者の紹介禁止の注意表示・再紹介用 --reintroduce フラグ）。
+制度設計は docs/introduction_system.md を参照。
 
 使い方:
-    venv/Scripts/python therapist_introducer.py --target 対象ID [--force]
+    venv/Scripts/python therapist_introducer.py --target 対象ID [--force | --reintroduce]
+    --force       : 推敲・テスト用の再生成（台帳に記録しない）
+    --reintroduce : 制度v2 §5 の再紹介条件（3か月以上・新素材・年1回）を満たす正式な再紹介
+                    （履歴ブロックを外し、台帳に新しい通し番号で記録する）
 """
 
 import os
@@ -36,6 +42,10 @@ RETRY_WAIT   = 2   # 秒
 MAX_POSTS    = 15  # ノイズ除去で減るため少し多めに取得
 MAX_REPLIES  = 15  # ノイズ除去で減るため少し多めに取得
 
+SERIES_NAME  = "気くばり手帖"  # シリーズ名（2026-07-06確定。docs/introduction_system.md §3・変更時はドキュメントも同期）
+LOG_FIELDS   = ["Date", "Target_ID", "シリーズ番号", "ポストURL",
+                "本人反応", "資産採用", "紹介後の変化", "波及メモ"]
+
 _BASE_DIR  = os.path.dirname(__file__)
 LOG_FILE   = os.path.join(_BASE_DIR, "data", "logs", "introductions_log.csv")
 DRAFTS_DIR = os.path.join(_BASE_DIR, "drafts")
@@ -54,21 +64,31 @@ def check_history(username: str) -> bool:
     """過去の紹介履歴をチェックし二重紹介をブロック"""
     if not os.path.exists(LOG_FILE):
         return False
-    with open(LOG_FILE, "r", encoding="utf-8") as f:
+    with open(LOG_FILE, "r", encoding="utf-8-sig", newline="") as f:
         reader = csv.reader(f)
         for row in reader:
             if len(row) > 1 and row[1].lower() == username.lower():
                 return True
     return False
 
-def record_history(username: str):
-    """実行履歴を保存"""
+def get_next_series_no() -> int:
+    """台帳のデータ行数からシリーズの次の通し番号を返す"""
+    if not os.path.exists(LOG_FILE):
+        return 1
+    with open(LOG_FILE, "r", encoding="utf-8-sig", newline="") as f:
+        reader = csv.reader(f)
+        data_rows = [row for row in reader if row and row[0] != "Date"]
+    return len(data_rows) + 1
+
+def record_history(username: str, series_no: int):
+    """8列台帳に記録する（ポストURL以降の計測列は投稿後に手動記入）"""
     file_exists = os.path.exists(LOG_FILE)
-    with open(LOG_FILE, "a", encoding="utf-8", newline="") as f:
+    with open(LOG_FILE, "a", encoding="utf-8-sig", newline="") as f:
         writer = csv.writer(f)
         if not file_exists:
-            writer.writerow(["Date", "Target_ID"])
-        writer.writerow([datetime.now().strftime("%Y-%m-%d %H:%M:%S"), username])
+            writer.writerow(LOG_FIELDS)
+        writer.writerow([datetime.now().strftime("%Y-%m-%d %H:%M:%S"), username,
+                         str(series_no), "", "", "", "", ""])
 
 def save_draft(username: str, text: str) -> str:
     """後から推敲できるようにDraftフォルダに保存"""
@@ -281,9 +301,10 @@ def main() -> None:
         print("  例:   python therapist_introducer.py --target mensaestherapist")
         sys.exit(1)
 
-    # 引数パース（--target / --forceオプションの検知）
+    # 引数パース（--target / --force / --reintroduce オプションの検知）
     args = sys.argv[1:]
     force_mode = "--force" in args
+    reintroduce_mode = "--reintroduce" in args
 
     target_value = None
     if "--target" in args:
@@ -299,18 +320,25 @@ def main() -> None:
     username = target_value
 
     print("=" * 60)
-    print(f"therapist_introducer.py (v5.3 洗練・温度最適化版)")
+    print(f"therapist_introducer.py (v5.5 会わない紹介・v2制度対応版)")
     print(f"対象: @{username}")
+    print("[RULE] 制度v2: 会った人・施術を受けた人は紹介禁止（introduction_system.md §2）。")
+    print("       対象が該当しないことを確認してから進めてください。")
+    print("[RULE] 紹介した人との関係（会ったか等）は、投稿後も一切公言しないこと。")
     if force_mode:
-        print("[WARN] [--force] モードが有効です。履歴チェックをスキップします。")
+        print("[WARN] [--force] モードが有効です。履歴チェックをスキップします（台帳に記録しません）。")
+    if reintroduce_mode:
+        print("[WARN] [--reintroduce] 再紹介モードです。実行前に制度v2 §5 の3条件を確認してください:")
+        print("       ①前回から3か月以上 ②前回と重複しない新素材 ③同一人物への再紹介は年1回まで")
+        print("       サブ垢での再紹介は、投稿後に台帳の波及メモへ関連IDを記入すること。")
     print("=" * 60)
 
-    # 二重紹介のブロック
-    if not force_mode and check_history(username):
+    # 再紹介のブロック（--force / --reintroduce で解除。意味の違いはdocstring参照）
+    if not force_mode and not reintroduce_mode and check_history(username):
         print(f"\n[WARN] @{username} は過去に紹介済みです！")
-        print("  ブランド毀損（二重紹介）を防ぐため処理を停止します。")
-        print("  [HINT] テスト・推敲目的で強制的に再作成する場合は、末尾に --force を付けて実行してください。")
-        print(f"  例: python therapist_introducer.py --target {username} --force")
+        print("  再紹介には条件があります（introduction_system.md §5: 3か月以上・新素材・年1回）。")
+        print("  [HINT] 条件を満たす正式な再紹介は --reintroduce、推敲・テスト目的の再生成は --force を付けてください。")
+        print(f"  例: python therapist_introducer.py --target {username} --reintroduce")
         sys.exit(1)
 
     print("\n[1/4] Bearer Token を生成中...")
@@ -357,21 +385,31 @@ def main() -> None:
     else:
         introduction_with_mention = introduction
 
+    # シリーズ行の付与（生成本文には含めず、ここで機械的に採番して先頭に足す）
+    series_no = get_next_series_no()
+    final_post = f"{SERIES_NAME} その{series_no}\n\n{introduction_with_mention}"
+
     # 履歴記録とドラフト保存（--forceのときは履歴に二重登録しない）
     if not force_mode:
-        record_history(username)
-    draft_path = save_draft(username, introduction_with_mention)
+        record_history(username, series_no)
+    draft_path = save_draft(username, final_post)
 
-    char_count = len(introduction_with_mention)
-    print(f"\n  生成完了: {char_count} 文字（@{username} のメンション含む）")
+    char_count = len(final_post)
+    print(f"\n  生成完了: {char_count} 文字（シリーズ行・@{username} のメンション含む）")
     print("\n" + "=" * 60)
-    print("[生成された紹介長文ポスト]")
+    print(f"[生成された紹介長文ポスト（{SERIES_NAME} その{series_no}）]")
     print("=" * 60)
-    print(introduction_with_mention)
+    print(final_post)
     print("=" * 60)
     print(f"\n[OK] ドラフト保存完了: {draft_path}")
     print(f"文字数: {char_count} 文字")
-    print("[NEXT] ターミナル、または保存されたドラフト（.mdファイル）の内容を確認し、Xに投下してください！")
+    print("[NEXT] 投稿後の制度運用（docs/introduction_system.md §3・§6・§7）:")
+    print("  1. 内容を確認し、Xプレミアム長文ポストとして投稿する")
+    print(f"  2. 目次ポスト「{SERIES_NAME}」に自己リプライで1行追記する")
+    print(f"     形式: その{series_no} 「（紹介文中の言葉から6〜12字）」 @{username} さん")
+    print("  3. data/logs/introductions_log.csv にポストURLを記入する")
+    print("  4. 本人の反応への返信し返しを最優先で行い、反応した同業セラピスト個人を確認する")
+    print("  5. 1週間後に台帳の「本人反応」列を記入する")
 
 
 if __name__ == "__main__":
